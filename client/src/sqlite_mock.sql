@@ -8,12 +8,12 @@ VALUES ('user1', 'user1@example.com', 'hash1'),
 
 -- Insert mock data into the accounts table
 INSERT INTO accounts (user_id, account_type, balance, account_name)
-VALUES (1, 'Checking', 1000, 'Bank A - Checking'),
-       (1, 'Savings', 5000, 'Bank A - Savings'),
-       (2, 'Debt', -500, 'Bank B - Credit Card'),
-       (2, 'Asset', 10000, 'Investment Account'),
-       (4, 'Checking', 2000, 'Bank C - Checking'),
-       (5, 'Savings', 3000, 'Bank D - Savings');
+VALUES (1, 'Checking', 1000, 'Checking'),
+       (1, 'Savings', 5000, 'Savings'),
+       (2, 'Debt', -500, 'Credit Card'),
+       (2, 'Asset', 10000, 'Account'),
+       (4, 'Checking', 2000, 'Checking'),
+       (5, 'Savings', 3000, 'Savings');
 
 -- Insert mock data into the transactions table
 INSERT INTO transactions (amount, category_id, user_id, description)

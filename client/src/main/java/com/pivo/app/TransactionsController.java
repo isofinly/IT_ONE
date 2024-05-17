@@ -5,6 +5,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,19 +35,18 @@ public class TransactionsController {
     private ListView<String> transactionsCategoriesList;
 
     public void initialize() {
-        try (Connection conn = connect()) {
+        try (Connection conn = DatabaseController.connect()) {
             loadTransactions(conn);
             loadCategories(conn);
             populateCategories(conn);
 
-        } catch (SQLException e) {
+        } catch (SQLException | FileNotFoundException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private Connection connect() throws SQLException {
-        return DriverManager.getConnection("jdbc:sqlite:src/main/resources/com/pivo/app/data.db");
-    }
 
     private void populateCategories(Connection conn) throws SQLException {
         ObservableList<String> categories = FXCollections.observableArrayList();
@@ -119,7 +120,7 @@ public class TransactionsController {
     private void insertTransaction(LocalDateTime dateTime, double amount, String category, String description) throws SQLException {
         String dateTimeFormatted = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         String sql = "INSERT INTO transactions (amount, transaction_date, category_id, description) VALUES (?, ?, (SELECT category_id FROM categories WHERE name = ?), ?)";
-        try (Connection conn = connect();
+        try (Connection conn = DatabaseController.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setDouble(1, amount);
             pstmt.setString(2, dateTimeFormatted);
@@ -129,6 +130,9 @@ public class TransactionsController {
             if (affectedRows > 0) {
                 loadTransactions(conn);
             }
+        } catch (IOException e) {
+            // TODO Handle file not found exception
+            throw new RuntimeException(e);
         }
     }
 }

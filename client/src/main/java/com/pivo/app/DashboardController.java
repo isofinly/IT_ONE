@@ -12,6 +12,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
 import javafx.util.StringConverter;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -45,21 +47,18 @@ public class DashboardController {
     @FXML
     private ListView<String> dashboardCategoriesList;
 
-    private Connection connect() throws SQLException {
-        return DriverManager.getConnection("jdbc:sqlite:src/main/resources/com/pivo/app/data.db");
-    }
-
-    // TODO: Show values as float from int
     @FXML
     private void initialize() {
-        try (Connection conn = connect()) {
+        try (Connection conn = DatabaseController.connect()) {
             updateNetWorthChart(conn);
             updateAssetsDebtsChart(conn);
             updateFinancialCharts(conn);
             loadTransactions(conn);
             loadCategories(conn);
-        } catch (SQLException e) {
+        } catch (SQLException | FileNotFoundException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

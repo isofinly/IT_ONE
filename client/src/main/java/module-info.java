@@ -12,6 +12,7 @@ module com.pivo.app {
     requires atlantafx.base;
     requires java.sql;
     requires jdk.jfr;
+    requires org.json;
 
     opens com.pivo.app to javafx.fxml;
     exports com.pivo.app;
