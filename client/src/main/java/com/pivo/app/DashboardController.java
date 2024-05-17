@@ -7,6 +7,10 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Tooltip;
+import javafx.util.StringConverter;
 
 import java.sql.*;
 import java.time.Instant;
@@ -14,48 +18,38 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.util.StringConverter;
-
-import javafx.scene.control.Tooltip;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 public class DashboardController {
     @FXML
-    private LineChart <Number, Number> netWorthChart;
+    private LineChart<Number, Number> netWorthChart;
     @FXML
     private PieChart assetsDebtsChart;
     @FXML
     private Label incomeValue;
     @FXML
-    private LineChart <String, Number> incomeChart;
+    private LineChart<String, Number> incomeChart;
     @FXML
     private Label spendingValue;
     @FXML
-    private LineChart <String, Number> spendingChart;
+    private LineChart<String, Number> spendingChart;
     @FXML
     private Label savingsRateValue;
     @FXML
-    private LineChart <String, Number> savingsRateChart;
+    private LineChart<String, Number> savingsRateChart;
     @FXML
     private Label investingValue;
     @FXML
-    private LineChart <String, Number> investingChart;
+    private LineChart<String, Number> investingChart;
     @FXML
-    private ListView <String> transactionsList;
+    private ListView<String> transactionsList;
     @FXML
-    private ListView <String> dashboardCategoriesList;
+    private ListView<String> dashboardCategoriesList;
 
     private Connection connect() throws SQLException {
-        return DriverManager.getConnection("jdbc:sqlite:/Users/isofinly/Desktop/labs/zalupa/zalupa/src/main/resources/com/pivo/app/data.db");
+        return DriverManager.getConnection("jdbc:sqlite:src/main/resources/com/pivo/app/data.db");
     }
 
     // TODO: Show values as float from int
-    // TODO: Make setting to set local currency
     @FXML
     private void initialize() {
         try (Connection conn = connect()) {
@@ -64,7 +58,6 @@ public class DashboardController {
             updateFinancialCharts(conn);
             loadTransactions(conn);
             loadCategories(conn);
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -79,7 +72,7 @@ public class DashboardController {
 
     private void configureXAxis(NumberAxis xAxis) {
         // Set up the axis with a custom tick label formatter
-        xAxis.setTickLabelFormatter(new StringConverter <>() {
+        xAxis.setTickLabelFormatter(new StringConverter<>() {
             private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
             @Override
@@ -117,7 +110,7 @@ public class DashboardController {
     }
 
     private void updateNetWorthChart(Connection conn) throws SQLException {
-        XYChart.Series <Number, Number> series = new XYChart.Series <>();
+        XYChart.Series<Number, Number> series = new XYChart.Series<>();
         series.setName("Net Worth Over Time");
 
         // Fetch the range for the X-axis
@@ -150,7 +143,7 @@ public class DashboardController {
                 long epochMilli = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
                 double cumulativeSum = rs.getDouble("cumulative_sum");
 
-                XYChart.Data <Number, Number> dataPoint = new XYChart.Data <>(epochMilli, cumulativeSum);
+                XYChart.Data<Number, Number> dataPoint = new XYChart.Data<>(epochMilli, cumulativeSum / 100.0);
                 series.getData().add(dataPoint);
                 Tooltip tooltip = new Tooltip(dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 Tooltip.install(dataPoint.getNode(), tooltip);
@@ -161,7 +154,7 @@ public class DashboardController {
         netWorthChart.setCreateSymbols(true);
     }
 
-    private void updateChartForCategory(Connection conn, LineChart <String, Number> chart, Label valueLabel, int categoryId) throws SQLException {
+    private void updateChartForCategory(Connection conn, LineChart<String, Number> chart, Label valueLabel, int categoryId) throws SQLException {
         String query = "SELECT strftime('%Y-%m', transaction_date) AS month, SUM(amount) AS total " +
                 "FROM transactions WHERE category_id = ? " +
                 "GROUP BY month ORDER BY month";
@@ -169,11 +162,11 @@ public class DashboardController {
         stmt.setInt(1, categoryId);
         ResultSet rs = stmt.executeQuery();
 
-        XYChart.Series <String, Number> series = new XYChart.Series <>();
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
         while (rs.next()) {
             String month = rs.getString("month");
-            double total = rs.getDouble("total");
-            series.getData().add(new XYChart.Data <>(month, total));
+            double total = rs.getDouble("total") / 100.0; // Convert cents to dollar
+            series.getData().add(new XYChart.Data<>(month, total));
         }
 
         series.setName(fetchCategoryName(conn, categoryId));
@@ -181,7 +174,7 @@ public class DashboardController {
         chart.getData().add(series);
 
         if (!series.getData().isEmpty()) {
-            XYChart.Data <String, Number> lastData = series.getData().get(series.getData().size() - 1);
+            XYChart.Data<String, Number> lastData = series.getData().get(series.getData().size() - 1);
             valueLabel.setText(String.format("%,.2f", lastData.getYValue()));
         }
     }
@@ -194,18 +187,19 @@ public class DashboardController {
         if (rs.next()) {
             return rs.getString("name");
         }
+        // TODO handle error
         return "Unknown Category";
     }
 
     private void loadTransactions(Connection conn) throws SQLException {
-        ObservableList <String> transactions = FXCollections.observableArrayList();
+        ObservableList<String> transactions = FXCollections.observableArrayList();
         String query = "SELECT transaction_date, description, amount FROM transactions ORDER BY transaction_date DESC LIMIT 10";
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
                 String entry = String.format("%s - %s: %.2f",
                         rs.getString("transaction_date"),
                         rs.getString("description"),
-                        rs.getDouble("amount"));
+                        rs.getDouble("amount") / 100.0); // Convert cents to dollars
                 transactions.add(entry);
             }
         }
@@ -213,18 +207,16 @@ public class DashboardController {
     }
 
     private void loadCategories(Connection conn) throws SQLException {
-        ObservableList <String> categories = FXCollections.observableArrayList();
+        ObservableList<String> categories = FXCollections.observableArrayList();
         String query = "SELECT name, SUM(amount) as total FROM transactions JOIN categories ON transactions.category_id = categories.category_id GROUP BY categories.category_id";
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                String entry = String.format("%s - %.2f",
+                String entry = String.format("%s: %.2f",
                         rs.getString("name"),
-                        rs.getDouble("total"));
+                        rs.getDouble("total") / 100.0); // Convert cents to dollars
                 categories.add(entry);
             }
         }
         dashboardCategoriesList.setItems(categories);
     }
-
 }
-

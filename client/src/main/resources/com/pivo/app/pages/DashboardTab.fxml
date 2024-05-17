@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:controller="com.pivo.app.DashboardController" xmlns:fx="http://javafx.com/fxml" spacing="20"
+      style="-fx-padding: 20;">
+
+            <VBox spacing="20" style="-fx-padding: 20;">
+                <HBox spacing="30">
+                    <VBox spacing="10" HBox.hgrow="ALWAYS">
+                        <Label text="Net Worth" style="-fx-font-size: 20px;"/>
+                        <LineChart fx:id="netWorthChart" createSymbols="false">
+                            <xAxis>
+                                <NumberAxis label="Time"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis label="Amount"/>
+                            </yAxis>
+                        </LineChart>
+                    </VBox>
+
+                    <VBox spacing="10">
+                        <Label text="Assets / Debts" style="-fx-font-size: 20px;"/>
+                        <PieChart fx:id="assetsDebtsChart"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="10">
+                    <VBox>
+                        <!--            <Label text="Income" styleClass="section-header"/>-->
+                        <Label fx:id="incomeValue"/>
+                        <LineChart fx:id="incomeChart">
+                            <xAxis>
+                                <CategoryAxis label="Month"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis/>
+                            </yAxis>
+                        </LineChart>
+                    </VBox>
+                    <VBox>
+                        <!--            <Label text="Spending" styleClass="section-header"/>-->
+                        <Label fx:id="spendingValue"/>
+                        <LineChart fx:id="spendingChart">
+                            <xAxis>
+                                <CategoryAxis label="Month"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis/>
+                            </yAxis>
+                        </LineChart>
+                    </VBox>
+                </HBox>
+                <HBox spacing="10">
+                    <VBox>
+                        <!--            <Label text="Savings Rate" styleClass="section-header"/>-->
+                        <Label fx:id="savingsRateValue"/>
+                        <LineChart fx:id="savingsRateChart">
+                            <xAxis>
+                                <CategoryAxis label="Month"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis/>
+                            </yAxis>
+                        </LineChart>
+                    </VBox>
+                    <VBox>
+                        <!--            <Label text="Investing" styleClass="section-header"/>-->
+                        <Label fx:id="investingValue"/>
+                        <LineChart fx:id="investingChart">
+                            <xAxis>
+                                <CategoryAxis label="Month"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis/>
+                            </yAxis>
+                        </LineChart>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="20">
+                    <VBox spacing="10" HBox.hgrow="ALWAYS">
+                        <Label text="Transactions" style="-fx-font-size: 20px;"/>
+                        <ListView fx:id="transactionsList"/>
+                    </VBox>
+                    <VBox spacing="10">
+                        <Label text="Categories" style="-fx-font-size: 20px;"/>
+                        <ListView fx:id="dashboardCategoriesList"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+</VBox>
+
+

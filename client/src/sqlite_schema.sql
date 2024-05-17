@@ -5,8 +5,8 @@ CREATE TABLE users
     username      TEXT NOT NULL UNIQUE,
     email         TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_login    TIMESTAMP
+    created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_login    DATETIME
 );
 
 CREATE TABLE accounts
@@ -24,7 +24,7 @@ CREATE TABLE transactions
 (
     transaction_id   INTEGER PRIMARY KEY AUTOINCREMENT,
     amount           INTEGER NOT NULL,
-    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    transaction_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     category_id      INTEGER,
     user_id          INTEGER,
     description      TEXT,
@@ -48,8 +48,8 @@ CREATE TABLE budgets
     user_id      INTEGER,
     category_id  INTEGER,
     limit_amount INTEGER NOT NULL,
-    start_date   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    end_date     TIMESTAMP,
+    start_date   DATETIME DEFAULT CURRENT_TIMESTAMP,
+    end_date     DATETIME,
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories (category_id) ON DELETE CASCADE
 );
@@ -59,7 +59,7 @@ CREATE TABLE local_groups
 (
     group_id   INTEGER PRIMARY KEY AUTOINCREMENT,
     name       TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Creating the group_members table

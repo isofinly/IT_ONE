@@ -11,7 +11,7 @@ module com.pivo.app {
     requires com.almasb.fxgl.all;
     requires atlantafx.base;
     requires java.sql;
-    requires org.jfree.jfreechart;
+    requires jdk.jfr;
 
     opens com.pivo.app to javafx.fxml;
     exports com.pivo.app;
