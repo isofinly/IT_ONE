@@ -31,3 +31,11 @@ services:
       retries: 5
       start_period: 5s
     restart: on-failure:3
+
+  roapi:
+    image: ghcr.io/roapi/roapi:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/transactions.csv:/data/transactions.csv
+    command: --addr-http 0.0.0.0:8080 --table transactions=/data/transactions.csv

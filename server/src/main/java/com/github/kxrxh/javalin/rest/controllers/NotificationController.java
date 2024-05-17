@@ -1,11 +1,16 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
+import java.util.UUID;
+
 import com.github.kxrxh.javalin.rest.services.NotificationService;
 import io.javalin.http.Context;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class NotificationController {
 
-    private static final NotificationService notificationService = new NotificationService();
+    private NotificationController() {
+    }
 
     public static void setNotification(Context ctx) {
         try {
@@ -18,14 +23,14 @@ public class NotificationController {
                 return;
             }
 
-            Long userId = Long.parseLong(userIdStr);
+            UUID userId = UUID.fromString(userIdStr);
             Long threshold = Long.parseLong(thresholdStr);
 
-            notificationService.setNotification(userId, notificationType, threshold);
+            NotificationService.setNotification(userId, notificationType, threshold);
             ctx.status(200).result("Notification set successfully");
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
         }
     }
 }
-

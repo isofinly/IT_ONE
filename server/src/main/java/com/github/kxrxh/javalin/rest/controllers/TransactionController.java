@@ -3,13 +3,17 @@ package com.github.kxrxh.javalin.rest.controllers;
 import com.github.kxrxh.javalin.rest.database.models.Transaction;
 import com.github.kxrxh.javalin.rest.services.TransactionService;
 import io.javalin.http.Context;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
+@Slf4j
 public class TransactionController {
 
-    private static final TransactionService transactionService = new TransactionService();
+    private TransactionController() {
+    }
 
     public static void searchTransactions(Context ctx) {
         try {
@@ -24,12 +28,14 @@ public class TransactionController {
                 return;
             }
 
-            Long userId = Long.parseLong(userIdStr);
-            Long categoryId = categoryIdStr != null ? Long.parseLong(categoryIdStr) : null;
+            UUID userId = UUID.fromString(userIdStr);
+            UUID categoryId = categoryIdStr != null ? UUID.fromString(categoryIdStr) : null;
 
-            List<Transaction> transactions = transactionService.searchTransactions(userId, amountRange, dateRange, categoryId, description);
+            List<Transaction> transactions = TransactionService.searchTransactions(userId, amountRange, dateRange,
+                    categoryId, description);
             ctx.json(transactions);
         } catch (Exception e) {
+            log.error(e.getMessage());
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
         }
     }
@@ -47,13 +53,14 @@ public class TransactionController {
                 return;
             }
 
-            Long userId = Long.parseLong(userIdStr);
-            Long categoryId = Long.parseLong(categoryIdStr);
+            UUID userId = UUID.fromString(userIdStr);
+            UUID categoryId = UUID.fromString(categoryIdStr);
             Long amount = Long.parseLong(amountStr);
 
-            transactionService.createRecurringTransaction(userId, amount, categoryId, description, frequency);
+            TransactionService.createRecurringTransaction(userId, amount, categoryId, description, frequency);
             ctx.status(200).result("Recurring transaction created successfully");
         } catch (Exception e) {
+            log.error(e.getMessage());
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
         }
     }

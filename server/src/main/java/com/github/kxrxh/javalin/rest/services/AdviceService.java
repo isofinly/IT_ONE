@@ -1,56 +1,88 @@
 package com.github.kxrxh.javalin.rest.services;
 
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.GettingConnectionException;
 import com.github.kxrxh.javalin.rest.database.models.Transaction;
+import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
 import com.github.kxrxh.javalin.rest.entities.FinancialAdvice;
 import com.github.kxrxh.javalin.rest.entities.FinancialForecast;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class AdviceService {
 
-    public static FinancialAdvice getFinancialAdvice(Long userId) throws SQLException {
+    private AdviceService() {
+    }
+
+    public static FinancialAdvice getFinancialAdvice(UUID userId) throws SQLException {
         FinancialAdvice advice = new FinancialAdvice();
 
-        try (Connection conn = DatabaseManager.getInstance().getConnection()) {
-            // Implement your logic to generate financial advice here
-            // For example, fetching recent transactions and analyzing them
-            String query = "SELECT * FROM transactions WHERE user_id = ? ORDER BY transaction_date DESC LIMIT 10";
-            PreparedStatement ps = conn.prepareStatement(query);
-            ps.setLong(1, userId);
+        Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
+
+        if (opConn.isEmpty()) {
+            throw new GettingConnectionException();
+        }
+
+        Connection conn = opConn.get();
+
+        // Implement your logic to generate financial advice here
+        // For example, fetching recent transactions and analyzing them
+        String query = "SELECT * FROM transactions WHERE user_id = ? ORDER BY transaction_date DESC LIMIT 10";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, userId.toString());
 
             ResultSet rs = ps.executeQuery();
             List<Transaction> transactions = new ArrayList<>();
             while (rs.next()) {
-                Transaction transaction = new Transaction(
-                        rs.getLong("transaction_id"),
-                        rs.getLong("amount"),
-                        rs.getTimestamp("transaction_date"),
-                        rs.getLong("category_id"),
-                        rs.getLong("user_id"),
-                        rs.getString("description")
-                );
+                Transaction transaction = Transaction.builder()
+                        .transactionId(UUID.fromString(rs.getString("transaction_id")))
+                        .name(rs.getString("name"))
+                        .date(rs.getTimestamp("date").toLocalDateTime())
+                        .amount(rs.getLong("amount"))
+                        .currency(rs.getString("currency"))
+                        .accountId(UUID.fromString(rs.getString("account_id")))
+                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id"))
+                                : null)
+                        .excluded(rs.getBoolean("excluded"))
+                        .notes(rs.getString("notes"))
+                        .transactionType(TransactionType.valueOf(rs.getString("transaction_type").toUpperCase()))
+                        .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                        .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
+                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null
+                                ? rs.getTimestamp("last_synced_at").toLocalDateTime()
+                                : null)
+                        .build();
                 transactions.add(transaction);
             }
-            advice.setRecentTransactions(transactions);
             // TODO Add real logic for analyzing transactions
+            advice.setRecentTransactions(transactions);
             advice.setAdvice("Consider saving more based on recent spending patterns.");
+        } catch (SQLException e) {
+            throw new SQLException("Error while fetching recent transactions", e);
         }
 
         return advice;
     }
 
-    public static FinancialForecast getFinancialForecast(Long userId, String dateRange) throws SQLException {
+    public static FinancialForecast getFinancialForecast(UUID userId, String dateRange) throws SQLException {
         FinancialForecast forecast = new FinancialForecast();
 
-        try (Connection conn = DatabaseManager.getInstance().getConnection()) {
-            // Implement your logic to generate financial forecast here
-            // For example, projecting future transactions based on past data
-            String query = "SELECT * FROM transactions WHERE user_id = ? AND transaction_date BETWEEN ? AND ?";
-            PreparedStatement ps = conn.prepareStatement(query);
-            ps.setLong(1, userId);
+        Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
+        if (opConn.isEmpty()) {
+            throw new GettingConnectionException();
+        }
+
+        Connection conn = opConn.get();
+
+        // Implement your logic to generate financial forecast here
+        // For example, projecting future transactions based on past data
+        String query = "SELECT * FROM transactions WHERE user_id = ? AND transaction_date BETWEEN ? AND ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, userId.toString());
 
             String[] dates = dateRange.split("to");
             ps.setTimestamp(2, Timestamp.valueOf(dates[0].trim()));
@@ -59,14 +91,24 @@ public class AdviceService {
             ResultSet rs = ps.executeQuery();
             List<Transaction> transactions = new ArrayList<>();
             while (rs.next()) {
-                Transaction transaction = new Transaction(
-                        rs.getLong("transaction_id"),
-                        rs.getLong("amount"),
-                        rs.getTimestamp("transaction_date"),
-                        rs.getLong("category_id"),
-                        rs.getLong("user_id"),
-                        rs.getString("description")
-                );
+                Transaction transaction = Transaction.builder()
+                        .transactionId(UUID.fromString(rs.getString("transaction_id")))
+                        .name(rs.getString("name"))
+                        .date(rs.getTimestamp("date").toLocalDateTime())
+                        .amount(rs.getLong("amount"))
+                        .currency(rs.getString("currency"))
+                        .accountId(UUID.fromString(rs.getString("account_id")))
+                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id"))
+                                : null)
+                        .excluded(rs.getBoolean("excluded"))
+                        .notes(rs.getString("notes"))
+                        .transactionType(TransactionType.valueOf(rs.getString("transaction_type").toUpperCase()))
+                        .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                        .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
+                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null
+                                ? rs.getTimestamp("last_synced_at").toLocalDateTime()
+                                : null)
+                        .build();
                 transactions.add(transaction);
             }
 
@@ -75,8 +117,9 @@ public class AdviceService {
             // TODO Add real logic for projecting future spending
             forecast.setProjectedAmount(totalAmount);
             forecast.setForecastMessage("Based on your past transactions, your projected spending is " + totalAmount);
+        } catch (SQLException e) {
+            throw new SQLException("Error while fetching recent transactions", e);
         }
-
         return forecast;
     }
 }

@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Optional;
 
 public class DatabaseManager {
     private static DatabaseManager instance = null;
@@ -50,7 +51,15 @@ public class DatabaseManager {
     }
 
     // Method to get the connection
-    public Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+    public Optional<Connection> getConnection() {
+        if (dataSource == null) {
+            return Optional.empty();
+        }
+        try {
+            Connection connection = dataSource.getConnection();
+            return Optional.of(connection);
+        } catch (SQLException e) {
+            return Optional.empty();
+        }
     }
 }

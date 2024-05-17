@@ -1,21 +1,24 @@
 package com.github.kxrxh.javalin.rest.database.models;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Notification {
-    private UUID notificationId;
-    private UUID userId;
-    private String notificationType;
-    private long threshold;
+@Builder
+public class AccountBalance {
+    private UUID id;
+    private UUID accountId;
+    private LocalDate date;
+    private long balance;
+    private String currency;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private LocalDateTime lastSyncedAt;
 }

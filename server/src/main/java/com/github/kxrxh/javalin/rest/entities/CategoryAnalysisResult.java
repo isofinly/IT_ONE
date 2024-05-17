@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 public class CategoryAnalysisResult {
-
     private List<Transaction> transactions;
     private long totalAmount;
+
 }

@@ -1,29 +1,38 @@
 package com.github.kxrxh.javalin.rest.database.models;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
-import java.sql.Timestamp;
-
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Transaction {
+    private UUID transactionId;
+    private String name;
+    private LocalDateTime date;
+    private long amount;
+    private String currency;
+    private UUID accountId;
+    private UUID categoryId;
+    private boolean excluded;
+    private String notes;
+    private TransactionType transactionType;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime lastSyncedAt;
+    private List<Transaction> transactions;
 
-    private Long transactionId;
-    private Long amount;
-    private Timestamp transactionDate;
-    private Long categoryId;
-    private Long userId;
-    private String description;
-
-    public Transaction(Long transactionId, Long amount, Timestamp transactionDate, Long categoryId, Long userId, String description) {
-        this.transactionId = transactionId;
-        this.amount = amount;
-        this.transactionDate = transactionDate;
-        this.categoryId = categoryId;
-        this.userId = userId;
-        this.description = description;
+    public enum TransactionType {
+        INFLOW, OUTFLOW
     }
-
-    // Getters and setters omitted for brevity
+    
+        public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
+    }
 }

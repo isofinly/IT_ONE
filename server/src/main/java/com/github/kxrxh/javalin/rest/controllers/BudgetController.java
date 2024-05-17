@@ -1,12 +1,17 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
+import java.util.UUID;
+
 import com.github.kxrxh.javalin.rest.entities.BudgetAnalysisResult;
 import com.github.kxrxh.javalin.rest.services.BudgetService;
 import io.javalin.http.Context;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class BudgetController {
 
-    private static final BudgetService budgetService = new BudgetService();
+    private BudgetController() {
+    }
 
     public static void setBudgetAlert(Context ctx) {
         try {
@@ -18,12 +23,13 @@ public class BudgetController {
                 return;
             }
 
-            Long budgetId = Long.parseLong(budgetIdStr);
+            UUID budgetId = UUID.fromString(budgetIdStr);
             Long alertThreshold = Long.parseLong(alertThresholdStr);
 
-            budgetService.setBudgetAlert(budgetId, alertThreshold);
+            BudgetService.setBudgetAlert(budgetId, alertThreshold);
             ctx.status(200).result("Budget alert set successfully");
         } catch (Exception e) {
+            log.error(e.getMessage());
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
         }
     }
@@ -32,11 +38,12 @@ public class BudgetController {
         try {
             String budgetIdStr = ctx.pathParam("budget_id");
 
-            Long budgetId = Long.parseLong(budgetIdStr);
+            UUID budgetId = UUID.fromString(budgetIdStr);
 
-            BudgetAnalysisResult analysisResult = budgetService.analyzeBudget(budgetId);
+            BudgetAnalysisResult analysisResult = BudgetService.analyzeBudget(budgetId);
             ctx.json(analysisResult);
         } catch (Exception e) {
+            log.error(e.getMessage());
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
         }
     }

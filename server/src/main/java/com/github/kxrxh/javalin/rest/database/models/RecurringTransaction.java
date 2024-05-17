@@ -4,17 +4,21 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Notification {
-    private UUID notificationId;
+public class RecurringTransaction {
+    private UUID recurringTransactionId;
     private UUID userId;
-    private String notificationType;
-    private long threshold;
+    private long amount;
+    private UUID categoryId;
+    private String description;
+    private long frequency;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastSyncedAt;

@@ -1,16 +1,14 @@
 package com.github.kxrxh.javalin.rest.api.jwt;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthRequest {
-    private String username;
+    private String email;
     private String password;
 
 }

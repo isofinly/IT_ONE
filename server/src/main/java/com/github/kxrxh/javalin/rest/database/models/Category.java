@@ -4,17 +4,18 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Notification {
-    private UUID notificationId;
-    private UUID userId;
-    private String notificationType;
-    private long threshold;
+public class Category {
+    private UUID categoryId;
+    private String name;
+    private UUID familyId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastSyncedAt;

@@ -1,6 +1,7 @@
 package com.github.kxrxh.javalin.rest.util;
 
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.GettingConnectionException;
 import com.github.kxrxh.javalin.rest.database.models.Report;
 import com.github.kxrxh.javalin.rest.database.models.Transaction;
 import com.github.kxrxh.javalin.rest.entities.BudgetAnalysisResult;
@@ -16,31 +17,55 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 public class NATSSubscriber {
 
-    public NATSSubscriber(String natsServerURL, String subject) throws IOException, InterruptedException {
-        io.nats.client.Connection natsConnection = Nats.connect(natsServerURL);
-        Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
-            String message = new String(msg.getData(), StandardCharsets.UTF_8);
-            executePreparedStatement(message);
-        });
-        dispatcher.subscribe(subject);
+    private static io.nats.client.Connection natsConnection;
+
+    public static void connect(String natsServerURL, String subject) throws IOException, InterruptedException {
+        if (natsConnection == null) {
+            natsConnection = Nats.connect(natsServerURL);
+            Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
+                String message = new String(msg.getData(), StandardCharsets.UTF_8);
+                executePreparedStatement(message);
+            });
+            dispatcher.subscribe(subject);
+        }
     }
 
-    private void executePreparedStatement(String message) {
+    public static void disconnect() throws InterruptedException {
+        if (natsConnection != null) {
+            natsConnection.close();
+        }
+    }
+
+    public NATSSubscriber(String natsServerURL, String subject) throws IOException, InterruptedException {
+
+    }
+
+    private static void executePreparedStatement(String message) {
         JSONObject json = new JSONObject(message);
         String sql = json.getString("sql");
         JSONArray paramsJson = json.getJSONArray("params");
 
-        try (java.sql.Connection conn = DatabaseManager.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
+
+        if (opConn.isEmpty()) {
+            log.error("Could not get connection from database manager", new GettingConnectionException());
+            return;
+        }
+
+        Connection conn = opConn.get();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             setPreparedStatementParams(pstmt, paramsJson);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -48,7 +73,7 @@ public class NATSSubscriber {
         }
     }
 
-    private void setPreparedStatementParams(PreparedStatement pstmt, JSONArray paramsJson) throws SQLException {
+    private static void setPreparedStatementParams(PreparedStatement pstmt, JSONArray paramsJson) throws SQLException {
         for (int i = 0; i < paramsJson.length(); i++) {
             Object param = paramsJson.get(i);
             if (param instanceof String str) {
@@ -124,8 +149,8 @@ public class NATSSubscriber {
 
     private void handleTransferFunds(JSONObject json) {
         try {
-            Long fromAccountId = json.getLong("from_account_id");
-            Long toAccountId = json.getLong("to_account_id");
+            UUID fromAccountId = UUID.fromString(json.getString("from_account_id"));
+            UUID toAccountId = UUID.fromString(json.getString("to_account_id"));
             Long amount = json.getLong("amount");
             AccountService.transferFunds(fromAccountId, toAccountId, amount);
         } catch (SQLException e) {
@@ -150,12 +175,13 @@ public class NATSSubscriber {
 
     private void handleSearchTransactions(JSONObject json) {
         try {
-            Long userId = json.getLong("user_id");
+            UUID userId = UUID.fromString(json.getString("user_id"));
             String amountRange = json.optString("amount_range", null);
             String dateRange = json.optString("date_range", null);
-            Long categoryId = json.has("category_id") ? json.getLong("category_id") : null;
+            UUID categoryId = json.has("category_id") ? UUID.fromString(json.getString("category_id")) : null;
             String description = json.optString("description", null);
-            List<Transaction> transactions = TransactionService.searchTransactions(userId, amountRange, dateRange, categoryId, description);
+            List<Transaction> transactions = TransactionService.searchTransactions(userId, amountRange, dateRange,
+                    categoryId, description);
             log.info("Search transactions result: {}", transactions);
         } catch (SQLException e) {
             log.error("Error handling search transactions: {}", e.getMessage());
@@ -164,12 +190,13 @@ public class NATSSubscriber {
 
     private void handleCreateRecurringTransaction(JSONObject json) {
         try {
-            Long userId = json.getLong("user_id");
+            UUID userId = UUID.fromString(json.getString("user_id"));
             Long amount = json.getLong("amount");
-            Long categoryId = json.getLong("category_id");
+            UUID categoryId = UUID.fromString(json.getString("category_id"));
             String description = json.getString("description");
             String frequency = json.getString("frequency");
-            TransactionService.createRecurringTransaction(userId, amount, categoryId, description, Long.valueOf(frequency));
+            TransactionService.createRecurringTransaction(userId, amount, categoryId, description,
+                    Long.valueOf(frequency));
         } catch (SQLException e) {
             log.error("Error handling create recurring transaction: {}", e.getMessage());
         }
@@ -177,7 +204,7 @@ public class NATSSubscriber {
 
     private void handleAnalyzeCategory(JSONObject json) {
         try {
-            Long categoryId = json.getLong("category_id");
+            UUID categoryId = UUID.fromString(json.getString("category_id"));
             String dateRange = json.optString("date_range", null);
             CategoryAnalysisResult result = CategoryService.analyzeCategory(categoryId, dateRange);
             log.info("Analyze category result: {}", result);
@@ -188,7 +215,7 @@ public class NATSSubscriber {
 
     private void handleSetBudgetAlert(JSONObject json) {
         try {
-            Long budgetId = json.getLong("budget_id");
+            UUID budgetId = UUID.fromString(json.getString("budget_id"));
             Long alertThreshold = json.getLong("alert_threshold");
             BudgetService.setBudgetAlert(budgetId, alertThreshold);
         } catch (SQLException e) {
@@ -198,7 +225,7 @@ public class NATSSubscriber {
 
     private void handleAnalyzeBudget(JSONObject json) {
         try {
-            Long budgetId = json.getLong("budget_id");
+            UUID budgetId = UUID.fromString(json.getString("budget_id"));
             BudgetAnalysisResult result = BudgetService.analyzeBudget(budgetId);
             log.info("Analyze budget result: {}", result);
         } catch (SQLException e) {
@@ -208,7 +235,7 @@ public class NATSSubscriber {
 
     private void handleGenerateReport(JSONObject json) {
         try {
-            Long userId = json.getLong("user_id");
+            UUID userId = UUID.fromString(json.getString("user_id"));
             String reportType = json.getString("report_type");
             String dateRange = json.getString("date_range");
             Report result = ReportService.generateReport(userId, reportType, dateRange);
@@ -220,7 +247,7 @@ public class NATSSubscriber {
 
     private void handleGetReport(JSONObject json) {
         try {
-            Long reportId = json.getLong("report_id");
+            UUID reportId = UUID.fromString(json.getString("report_id"));
             Report result = ReportService.getReport(reportId);
             log.info("Get report result: {}", result);
         } catch (SQLException e) {
@@ -230,7 +257,7 @@ public class NATSSubscriber {
 
     private void handleGetFinancialAdvice(JSONObject json) {
         try {
-            Long userId = json.getLong("user_id");
+            UUID userId = UUID.fromString(json.getString("user_id"));
             FinancialAdvice result = AdviceService.getFinancialAdvice(userId);
             log.info("Get financial advice result: {}", result);
         } catch (SQLException e) {
@@ -240,7 +267,7 @@ public class NATSSubscriber {
 
     private void handleGetFinancialForecast(JSONObject json) {
         try {
-            Long userId = json.getLong("user_id");
+            UUID userId = UUID.fromString(json.getString("user_id"));
             String dateRange = json.getString("date_range");
             FinancialForecast result = AdviceService.getFinancialForecast(userId, dateRange);
             log.info("Get financial forecast result: {}", result);
@@ -251,7 +278,7 @@ public class NATSSubscriber {
 
     private void handleIntegrateWithBank(JSONObject json) {
         try {
-            Long userId = json.getLong("user_id");
+            UUID userId = UUID.fromString(json.getString("user_id"));
             String bankCredentials = json.getString("bank_credentials");
             IntegrationService.integrateWithBank(userId, bankCredentials);
         } catch (SQLException e) {
@@ -261,7 +288,7 @@ public class NATSSubscriber {
 
     private void handleAutoCategorizeTransactions(JSONObject json) {
         try {
-            Long userId = json.getLong("user_id");
+            UUID userId = UUID.fromString(json.getString("user_id"));
             IntegrationService.autoCategorizeTransactions(userId);
         } catch (SQLException e) {
             log.error("Error handling auto categorize transactions: {}", e.getMessage());
@@ -270,7 +297,7 @@ public class NATSSubscriber {
 
     private void handleSetNotification(JSONObject json) {
         try {
-            Long userId = json.getLong("user_id");
+            UUID userId = UUID.fromString(json.getString("user_id"));
             String notificationType = json.getString("notification_type");
             Long threshold = json.getLong("threshold");
             NotificationService.setNotification(userId, notificationType, threshold);

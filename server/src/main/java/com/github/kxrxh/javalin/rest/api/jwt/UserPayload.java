@@ -1,11 +1,13 @@
 package com.github.kxrxh.javalin.rest.api.jwt;
 
-public class UserPayload {
-    public final Long userId;
-    public final String username;
+import java.util.UUID;
 
-    UserPayload(Long userId, String username) {
-        this.userId = userId;
-        this.username = username;
-    }
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class UserPayload {
+    public final UUID userId;
+    public final String username;
 }

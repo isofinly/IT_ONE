@@ -1,29 +1,39 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.UUID;
+
 import com.github.kxrxh.javalin.rest.database.models.Report;
 import com.github.kxrxh.javalin.rest.services.ReportService;
 import io.javalin.http.Context;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ReportController {
 
-    private static final ReportService reportService = new ReportService();
+    private ReportController() {
+    }
 
-    public static void generateReport(Context ctx) {
+    public static void generateMonthlyReport(Context ctx) {
         try {
-            String userIdStr = ctx.formParam("user_id");
-            String reportType = ctx.formParam("report_type");
-            String dateRange = ctx.formParam("date_range");
+            String yearStr = ctx.queryParam("year");
+            String monthStr = ctx.queryParam("month");
 
-            if (userIdStr == null || reportType == null || dateRange == null) {
+            if (yearStr == null || monthStr == null) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
 
-            Long userId = Long.parseLong(userIdStr);
+            int year = Integer.parseInt(yearStr);
+            int month = Integer.parseInt(monthStr);
 
-            Report report = reportService.generateReport(userId, reportType, dateRange);
-            ctx.status(200).json(report);
-        } catch (Exception e) {
+            Map<String, Object> reportData = ReportService.generateMonthlyReport(year, month);
+            ctx.status(200).json(reportData);
+        } catch (NumberFormatException e) {
+            ctx.status(400).result("Invalid year or month format");
+        } catch (SQLException e) {
+            log.error("Error generating monthly report", e);
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
         }
     }
@@ -32,16 +42,20 @@ public class ReportController {
         try {
             String reportIdStr = ctx.pathParam("report_id");
 
-            Long reportId = Long.parseLong(reportIdStr);
+            UUID reportId = UUID.fromString(reportIdStr);
 
-            Report report = reportService.getReport(reportId);
+            Report report = ReportService.getReport(reportId);
             if (report == null) {
                 ctx.status(404).result("Report not found");
             } else {
                 ctx.status(200).json(report);
             }
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
+            ctx.status(400).result("Invalid report ID format");
+        } catch (SQLException e) {
+            log.error("Error fetching report", e);
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
         }
     }
+
 }

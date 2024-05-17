@@ -9,10 +9,6 @@ import java.util.List;
 @Setter
 @Getter
 public class FinancialAdvice {
-
     private List<Transaction> recentTransactions;
     private String advice;
-
-    // Getters and setters omitted for brevity
-
 }

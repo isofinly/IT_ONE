@@ -1,11 +1,16 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
+import java.util.UUID;
+
 import com.github.kxrxh.javalin.rest.services.IntegrationService;
 import io.javalin.http.Context;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class IntegrationController {
 
-    private static final IntegrationService integrationService = new IntegrationService();
+    private IntegrationController() {
+    }
 
     public static void integrateWithBank(Context ctx) {
         try {
@@ -17,11 +22,12 @@ public class IntegrationController {
                 return;
             }
 
-            Long userId = Long.parseLong(userIdStr);
+            UUID userId = UUID.fromString(userIdStr);
 
-            integrationService.integrateWithBank(userId, bankCredentials);
+            IntegrationService.integrateWithBank(userId, bankCredentials);
             ctx.status(200).result("Bank integration successful");
         } catch (Exception e) {
+            log.error(e.getMessage());
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
         }
     }
@@ -35,11 +41,12 @@ public class IntegrationController {
                 return;
             }
 
-            Long userId = Long.parseLong(userIdStr);
+            UUID userId = UUID.fromString(userIdStr);
 
-            integrationService.autoCategorizeTransactions(userId);
+            IntegrationService.autoCategorizeTransactions(userId);
             ctx.status(200).result("Transactions auto-categorized successfully");
         } catch (Exception e) {
+            log.error(e.getMessage());
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
         }
     }

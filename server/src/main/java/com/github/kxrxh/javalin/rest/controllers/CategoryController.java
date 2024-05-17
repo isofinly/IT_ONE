@@ -1,23 +1,29 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
+import java.util.UUID;
+
 import com.github.kxrxh.javalin.rest.entities.CategoryAnalysisResult;
 import com.github.kxrxh.javalin.rest.services.CategoryService;
 import io.javalin.http.Context;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CategoryController {
 
-    private static final CategoryService categoryService = new CategoryService();
+    private CategoryController() {
+    }
 
     public static void analyzeCategory(Context ctx) {
         try {
             String categoryIdStr = ctx.pathParam("category_id");
             String dateRange = ctx.queryParam("date_range");
 
-            Long categoryId = Long.parseLong(categoryIdStr);
+            UUID categoryId = UUID.fromString(categoryIdStr);
 
-            CategoryAnalysisResult analysisResult = categoryService.analyzeCategory(categoryId, dateRange);
+            CategoryAnalysisResult analysisResult = CategoryService.analyzeCategory(categoryId, dateRange);
             ctx.json(analysisResult);
         } catch (Exception e) {
+            log.error(e.getMessage());
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
         }
     }

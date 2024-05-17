@@ -4,18 +4,20 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Notification {
-    private UUID notificationId;
-    private UUID userId;
-    private String notificationType;
-    private long threshold;
+@Builder
+public class Tax {
+    private UUID id;
+    private String name;
+    private String description;
+    private long rate;
+    private String currency;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private LocalDateTime lastSyncedAt;
 }

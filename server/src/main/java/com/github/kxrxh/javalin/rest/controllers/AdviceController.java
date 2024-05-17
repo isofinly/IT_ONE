@@ -1,13 +1,18 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
+import java.util.UUID;
+
 import com.github.kxrxh.javalin.rest.entities.FinancialAdvice;
 import com.github.kxrxh.javalin.rest.entities.FinancialForecast;
 import com.github.kxrxh.javalin.rest.services.AdviceService;
 import io.javalin.http.Context;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AdviceController {
 
-    private static final AdviceService adviceService = new AdviceService();
+    private AdviceController() {
+    }
 
     public static void getFinancialAdvice(Context ctx) {
         try {
@@ -18,11 +23,12 @@ public class AdviceController {
                 return;
             }
 
-            Long userId = Long.parseLong(userIdStr);
+            UUID userId = UUID.fromString(userIdStr);
 
-            FinancialAdvice advice = adviceService.getFinancialAdvice(userId);
+            FinancialAdvice advice = AdviceService.getFinancialAdvice(userId);
             ctx.status(200).json(advice);
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
         }
     }
@@ -37,11 +43,12 @@ public class AdviceController {
                 return;
             }
 
-            Long userId = Long.parseLong(userIdStr);
+            UUID userId = UUID.fromString(userIdStr);
 
-            FinancialForecast forecast = adviceService.getFinancialForecast(userId, dateRange);
+            FinancialForecast forecast = AdviceService.getFinancialForecast(userId, dateRange);
             ctx.status(200).json(forecast);
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
         }
     }

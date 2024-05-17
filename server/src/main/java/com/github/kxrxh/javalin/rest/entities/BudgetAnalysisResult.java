@@ -9,9 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 public class BudgetAnalysisResult {
-
     private List<Transaction> transactions;
     private long totalSpent;
     private long budgetLimit;
-
 }

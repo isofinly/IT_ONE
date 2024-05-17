@@ -1,13 +1,16 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
+import java.util.UUID;
+
 import com.github.kxrxh.javalin.rest.services.AccountService;
 import io.javalin.http.Context;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AccountController {
 
-    private static final AccountService accountService = new AccountService();
-
-    private AccountController() {/* Private constructor to prevent instantiation */ }
+    private AccountController() {
+    }
 
     public static void transferFunds(Context ctx) {
         try {
@@ -19,9 +22,10 @@ public class AccountController {
                 return;
             }
             long amount = Long.parseLong(amountStr);
-            accountService.transferFunds(Long.parseLong(fromAccountId), Long.parseLong(toAccountId), amount);
+            AccountService.transferFunds(UUID.fromString(fromAccountId), UUID.fromString(toAccountId), amount);
             ctx.status(200).result("Funds transferred successfully");
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
         }
     }
@@ -35,9 +39,10 @@ public class AccountController {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
-            accountService.mergeAccounts(accountIds, newAccountName, accountType);
+            AccountService.mergeAccounts(accountIds, newAccountName, accountType);
             ctx.status(200).result("Accounts merged successfully");
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
         }
     }
