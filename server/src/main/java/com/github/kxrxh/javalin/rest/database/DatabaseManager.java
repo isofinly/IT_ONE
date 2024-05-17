@@ -1,49 +1,56 @@
 package com.github.kxrxh.javalin.rest.database;
 
-import io.ebean.Database;
-import io.ebean.DatabaseFactory;
-import io.ebean.config.DatabaseConfig;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
-import java.util.Properties;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class DatabaseManager {
-    private static DatabaseManager instance;
-    private Database database;
+    private static DatabaseManager instance = null;
+    private HikariDataSource dataSource;
 
+    // Private constructor to prevent instantiation from outside
     private DatabaseManager(String driver, String url, String username, String password) {
-        Properties properties = new Properties();
-        properties.put("ebean.db.ddl.generate", "true");
-        properties.put("ebean.platform", "sqlite");
-        properties.put("ebean.db.logStatements", "true");
-        properties.put("evolutionplugin", "disabled");
-        
-        properties.put("ebean.default", "com.github.kxrxh.javalin.rest.database.models.*");
+        HikariConfig config = new HikariConfig();
+        config.setDriverClassName(driver);
+        config.setJdbcUrl(url);
+        config.setUsername(username);
+        config.setPassword(password);
 
-        properties.put("datasource.db.username", username);
-        properties.put("datasource.db.password", password);
-        properties.put("datasource.db.databaseUrl", url);
-        properties.put("datasource.db.databaseDriver", driver);
+        // Configure HikariCP settings as needed
+        config.addDataSourceProperty("cachePrepStmts", "false");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.setAutoCommit(true);
 
-        DatabaseConfig dbConfig = new DatabaseConfig();
-        dbConfig.loadFromProperties(properties);
-        dbConfig.name("default");
-
-        this.database = DatabaseFactory.create(dbConfig);
-
+        dataSource = new HikariDataSource(config);
     }
 
-    public static void initialize(String driver, String url, String username, String password) {
-        instance = new DatabaseManager(driver, url, username, password);
-    }
-
-    public static DatabaseManager getInstance() {
+    // Method to get the singleton instance of DatabaseManager
+    public static synchronized DatabaseManager getInstance() {
         if (instance == null) {
-            throw new IllegalStateException("DatabaseManager not initialized");
+            throw new IllegalStateException("DatabaseManager is not initialized");
         }
         return instance;
     }
 
-    public Database getDatabase() {
-        return database;
+    // Method to initialize the database connection
+    public static void initialize(String driver, String url, String username, String password) {
+        if (instance == null) {
+            instance = new DatabaseManager(driver, url, username, password);
+        }
+    }
+
+    // Method to close the connection to the database
+    public void disconnect() {
+        if (dataSource != null) {
+            dataSource.close();
+        }
+    }
+
+    // Method to get the connection
+    public Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
     }
 }

@@ -2,7 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.TransactionsController" spacing="20"
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.controllers.TransactionsController" spacing="20"
       style="-fx-padding: 20;">
     <VBox spacing="10" minWidth="300">
         <TextField fx:id="txtAmount" promptText="Amount"/>
@@ -18,6 +18,7 @@
         <Label text="All Transactions" style="-fx-font-size: 20px;"/>
         <VBox spacing="20" style="-fx-padding: 20;">
             <ListView fx:id="transactionsList" prefHeight="200"/>
+            <Button text="Delete Selected Transaction" onAction="#handleDeleteTransaction"/>
             <ListView fx:id="transactionsCategoriesList" prefHeight="200"/>
         </VBox>
     </VBox>

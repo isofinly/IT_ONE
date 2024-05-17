@@ -2,7 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.EditProfileDialogController" spacing="10"
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.controllers.EditProfileDialogController" spacing="10"
       style="-fx-padding: 20;" alignment="TOP_CENTER">
     <Label text="Edit Profile" style="-fx-font-size: 16px;"/>
     <TextField fx:id="newUsername" promptText="Enter new username"/>

@@ -2,7 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.ValuationsController" spacing="20"
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.controllers.ValuationsController" spacing="20"
       style="-fx-padding: 20;" HBox.hgrow="ALWAYS">
     <Label text="Asset Management" style="-fx-font-size: 24px;"/>
     <VBox spacing="20">
@@ -24,6 +24,7 @@
             <HBox spacing="10">
                 <TextField fx:id="newCategoryName" promptText="New Category Name" HBox.hgrow="ALWAYS"/>
                 <Button text="Add Category" onAction="#handleAddCategory"/>
+                <Button text="Delete Category" onAction="#handleDeleteCategory"/>
             </HBox>
         </HBox>
     </VBox>

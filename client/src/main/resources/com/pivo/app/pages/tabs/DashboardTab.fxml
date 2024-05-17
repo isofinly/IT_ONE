@@ -3,7 +3,7 @@
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.DashboardController" spacing="20"
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.controllers.DashboardController" spacing="20"
       style="-fx-padding: 20;">
 
     <VBox spacing="20" style="-fx-padding: 20;">

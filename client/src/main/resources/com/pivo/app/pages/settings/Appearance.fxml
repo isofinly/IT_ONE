@@ -3,7 +3,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.AppearanceController" spacing="10"
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.controllers.AppearanceController" spacing="10"
       style="-fx-padding: 20;">
     <Label text="Select Theme" style="-fx-font-size: 20px;"/>
     <ListView fx:id="themeList"/>

@@ -2,7 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.ConfigurationController" spacing="20"
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.controllers.ConfigurationController" spacing="20"
       style="-fx-padding: 20;">
     <Label text="Configuration" style="-fx-font-size: 20px;"/>
     <Label text="Modify these values at your own risk." style="-fx-font-size: 14px; -fx-text-fill: #ED2939;"/>

@@ -1,6 +1,7 @@
 package com.github.kxrxh.javalin.rest.api.jwt;
 
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -13,7 +14,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.DatabaseUserManager;
 import com.github.kxrxh.javalin.rest.database.models.Users;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
@@ -103,23 +104,31 @@ public class AuthHandlers {
         }
 
         // Searching for user by username in database
-        Users user = DatabaseManager.getInstance().getDatabase().find(Users.class).where()
-                .eq("username", result.getUsername()).findOne();
-        if (user == null) {
+        Optional<Users> user;
+        try {
+            user = DatabaseUserManager.getUser(result.getUsername());
+        } catch (SQLException e) {
+            context.status(500).result("Internal server error. Unable to fetch user from database!");
+            return;
+        }
+        if (user.isEmpty()) {
             context.status(401).result("Wrong username or password!");
             return;
         }
+
         // Verifying password
-        BCrypt.Result bcryptResult = BCrypt.verifyer().verify(result.getPassword().toCharArray(), user.getPassword());
+        BCrypt.Result bcryptResult = BCrypt.verifyer().verify(result.getPassword().toCharArray(),
+                user.get().getPassword());
         if (bcryptResult.verified) {
             // Generate token
-            User userObj = new User(user.getId(), user.getUsername());
+            User userObj = new User(user.get().getUserId(), user.get().getUsername());
             String token = instance.provider.generateToken(userObj);
 
             // Return token to the client in JSON format
             Map<String, String> map = new HashMap<>();
             map.put("token", token);
             context.json(map);
+            return;
         }
 
         context.status(401).result("Wrong username or password!");
@@ -141,20 +150,30 @@ public class AuthHandlers {
             return;
         }
 
-        // Searching for user by username in database and checking if it exists
-        Users user = DatabaseManager.getInstance().getDatabase().find(Users.class).where()
-                .eq("username", result.getUsername()).findOne();
-        if (user != null) {
-            context.status(409).result("Username already taken!");
+        // Searching for user by username in database
+        Optional<Users> user;
+        try {
+            user = DatabaseUserManager.getUser(result.getUsername());
+        } catch (SQLException e) {
+            context.status(500).result("Internal server error. Unable to fetch user from database!");
+            return;
+        }
+        if (user.isPresent()) {
+            context.status(401).result("Username already exists!");
             return;
         }
 
-        Users newUser = new Users();
-        newUser.setUsername(result.getUsername());
-
         String hashedPassword = BCrypt.withDefaults().hashToString(12, result.getPassword().toCharArray());
-        newUser.setPassword(hashedPassword);
-
-        DatabaseManager.getInstance().getDatabase().save(newUser);
+        Optional<Users> newUser;
+        try {
+            newUser = DatabaseUserManager.createUser(result.getUsername(), hashedPassword);
+            if (newUser.isEmpty()) {
+                context.status(500).result("Internal server error. Unable to create user in database!");
+            } else {
+                context.status(200).result("User created successfully!");
+            }
+        } catch (SQLException e) {
+            context.status(500).result("Internal server error. Unable to create user in database!");
+        }
     }
 }

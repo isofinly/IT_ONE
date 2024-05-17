@@ -1,21 +1,24 @@
 module com.pivo.app {
     requires javafx.controls;
     requires javafx.fxml;
-    requires javafx.web;
+    requires javafx.graphics;
+    requires javafx.base;
 
-    requires org.controlsfx.controls;
-    requires com.dlsc.formsfx;
-    requires net.synedra.validatorfx;
-    requires org.kordamp.ikonli.javafx;
-    requires org.kordamp.bootstrapfx.core;
-    requires com.almasb.fxgl.all;
     requires atlantafx.base;
     requires java.sql;
-    requires jdk.jfr;
     requires org.json;
     requires bcrypt;
     requires com.zaxxer.hikari;
+    requires static lombok;
+    requires org.slf4j;
+    requires io.nats.jnats;
 
-    opens com.pivo.app to javafx.fxml;
     exports com.pivo.app;
+    exports com.pivo.app.controllers;
+    opens com.pivo.app to javafx.fxml;
+    opens com.pivo.app.controllers to javafx.fxml;
+    exports com.pivo.app.util;
+    opens com.pivo.app.util to javafx.fxml;
+    exports com.pivo.app.entities;
+    opens com.pivo.app.entities to javafx.fxml;
 }

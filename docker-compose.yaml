@@ -1,0 +1,13 @@
+services:
+  nats:
+    image: nats:latest
+    container_name: nats_server
+    ports:
+      - "4222:4222"  # NATS client connections
+      - "8222:8222"  # NATS monitoring
+      - "6222:6222"  # NATS route connections
+    restart: unless-stopped
+    environment:
+      - NATS_SERVER_NAME=hackathon_mq
+      - NATS_LOG_TIME=true
+
