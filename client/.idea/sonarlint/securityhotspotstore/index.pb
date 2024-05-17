@@ -63,3 +63,15 @@ S
 -.idea/sonarlint/securityhotspotstore/index.pb,8/8/88a9255124c95bdc913197c120a8d560edc59c8e
 \
 ,.idea/inspectionProfiles/Project_Default.xml,4/9/496a238a6afa168dbaf6efd37bb459331589579c
+l
+<src/main/java/com/pivo/app/ProfileInformationController.java,f/b/fb05c6e6e88c5ba678170b575830042a23578972
+k
+;src/main/java/com/pivo/app/EditProfileDialogController.java,7/0/70048e02e7de65adbcef48b48ed6a7b785237ed4
+g
+7src/main/java/com/pivo/app/ConfigurationController.java,f/2/f28ff6af4c553add96c0525e245991ea0f2ca45e
+]
+-src/main/java/com/pivo/app/ConfigManager.java,a/4/a4956e44bac3509295968e1c38520657751f83bd
+l
+<src/main/java/com/pivo/app/AutoCommitTextFieldTableCell.java,d/b/db3a27ac5dc8ac4c25055c1e1b3147cc13221e8e
+d
+4src/main/java/com/pivo/app/AppearanceController.java,c/6/c6b4675a2500996768a62727a6cb5b53e489a92c

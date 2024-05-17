@@ -1,32 +1,39 @@
 package com.github.kxrxh.javalin.rest.database.models;
 
-import org.javalite.activejdbc.Model;
-import org.javalite.activejdbc.annotations.Table;
+import io.ebean.Model;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Table("users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
 public class Users extends Model {
 
-    public void setName(String name) {
-        setString("username", name);
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    public Long id;
 
-    public String getName() {
-        return getString("username");
-    }
+    @Column(name = "username", unique = true)
+    public String username;
 
-    public void setPassword(String password) {
-        setString("password", password);
-    }
-
-    public String getPassword() {
-        return getString("password");
-    }
+    @Column(name = "password")
+    public String password;
 
     @Override
     public String toString() {
         return "Users{" +
                 "id=" + getId() +
-                ", name='" + getName() + '\'' +
+                ", name='" + getUsername() + '\'' +
                 ", password='" + getPassword() + '\'' +
                 '}';
     }

@@ -3,16 +3,16 @@ package com.pivo.app;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import static com.pivo.app.Application.conn;
 import static com.pivo.app.Application.showAlert;
 
 public class ValuationsController {
-    private static final String ERROR = "Error"; 
+    private static final String ERROR = "Error";
     @FXML
     private TableView<Account> assetsTable;
     @FXML
@@ -41,8 +41,7 @@ public class ValuationsController {
 
     private void loadAssets() {
         String sql = "SELECT account_name, account_type, balance FROM accounts WHERE user_id = ? AND account_type = 'Asset'";
-        try (
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseController.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, userId);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -56,8 +55,7 @@ public class ValuationsController {
 
     private void loadCategories() {
         String sql = "SELECT name FROM categories WHERE user_id = ?";
-        try (
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseController.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, userId);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -72,8 +70,7 @@ public class ValuationsController {
     @FXML
     private void handleAddCategory() {
         String sql = "INSERT INTO categories (name, user_id) VALUES (?, ?)";
-        try (
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseController.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, newCategoryName.getText());
             pstmt.setInt(2, userId);
             pstmt.executeUpdate();
@@ -94,8 +91,7 @@ public class ValuationsController {
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(name -> {
             String sql = "INSERT INTO accounts (user_id, account_name, account_type, balance) VALUES (?, ?, 'Asset', 0.0)";
-            try (
-                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            try (Connection conn = DatabaseController.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, userId);
                 pstmt.setString(2, name);
                 pstmt.executeUpdate();
@@ -112,8 +108,7 @@ public class ValuationsController {
         Account selected = assetsTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
             String sql = "DELETE FROM accounts WHERE account_name = ? AND user_id = ?";
-            try (
-                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            try (Connection conn = DatabaseController.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, selected.getAccountName());
                 pstmt.setInt(2, userId);
                 pstmt.executeUpdate();
@@ -128,8 +123,7 @@ public class ValuationsController {
     // Additional methods to manage assets like updating balances, etc.
     private void fetchUserId(String userName) {
         String sql = "SELECT user_id FROM users WHERE username = ?";
-        try (
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseController.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, userName);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {

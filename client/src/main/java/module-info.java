@@ -14,6 +14,7 @@ module com.pivo.app {
     requires jdk.jfr;
     requires org.json;
     requires bcrypt;
+    requires com.zaxxer.hikari;
 
     opens com.pivo.app to javafx.fxml;
     exports com.pivo.app;

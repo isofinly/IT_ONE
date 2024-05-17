@@ -1,10 +1,8 @@
 
 package com.github.kxrxh.javalin.rest;
 
-import org.javalite.activejdbc.Base;
-import org.javalite.activejdbc.DB;
-
 import com.github.kxrxh.javalin.rest.api.RestServer;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 
 public class App {
   public static void main(String[] args) {
@@ -12,12 +10,9 @@ public class App {
     server.setupRoutes();
     server.setupJWTAuthentication("v1/api", "");
 
-    try (DB db = Base.open("org.postgresql.Driver",
-        "jdbc:postgresql://aws-0-eu-central-1.pooler.supabase.com:5432/postgres",
-        "postgres.junuanmjrmkmwtwlmgvd", "09c8uPeIrzXi3nZf")) {
-      server.listen(3030);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    DatabaseManager.initialize("org.sqlite.JDBC",
+        "jdbc:sqlite:/home/kxrxh/Dev/Java/it_one_hackathon/server/database.db", "", "");
+
+    server.listen(3030);
   }
 }

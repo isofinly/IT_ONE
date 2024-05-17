@@ -11,11 +11,11 @@ import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static com.pivo.app.Application.conn;
 import static com.pivo.app.Application.showAlert;
 
 public class ProfileInformationController {
@@ -38,8 +38,7 @@ public class ProfileInformationController {
     private void fetchUserInfo() {
         String userName = ConfigManager.getConfig("selectedUser");
         String sql = "SELECT username, email, created_at, password_hash FROM users WHERE username = ?";
-        try (
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseController.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, userName);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -57,8 +56,7 @@ public class ProfileInformationController {
     @FXML
     private void createUser() {
         String sql = "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)";
-        try (
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseController.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, newUsername.getText());
             pstmt.setString(2, newEmail.getText());
             pstmt.setString(3, hashPassword(newPassword.getText())); // Hash the password before storing

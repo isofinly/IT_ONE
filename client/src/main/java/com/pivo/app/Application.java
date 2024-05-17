@@ -8,8 +8,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
 
@@ -17,16 +18,6 @@ import static com.pivo.app.ConfigManager.getConfig;
 
 public class Application extends javafx.application.Application {
     static String selectedUser = getConfig("selectedUser");
-    static String userName = getConfig("selectedUser");
-    static Connection conn;
-
-    static {
-        try {
-            conn = DatabaseController.connect();
-        } catch (SQLException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public static void showAlert(String title, String message, Alert.AlertType alertType) {
         Platform.runLater(() -> {
@@ -37,6 +28,21 @@ public class Application extends javafx.application.Application {
             alert.showAndWait();
         });
     }
+
+    public static int fetchUserId() throws SQLException {
+        String query = "SELECT user_id FROM users WHERE username = ?";
+        try (Connection conn = DatabaseController.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, selectedUser);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("user_id");
+                } else {
+                    throw new SQLException("User not found");
+                }
+            }
+        }
+    }
+
 
     // TODO Add a splash screen and logging
     @Override
@@ -56,6 +62,4 @@ public class Application extends javafx.application.Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-
-
 }

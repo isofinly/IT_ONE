@@ -8,13 +8,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class ConfigManager {
-    ConfigManager() {
-    }
-
     static JSONObject config;
 
     static {
         loadConfig();
+    }
+
+    ConfigManager() {
     }
 
     private static void loadConfig() {

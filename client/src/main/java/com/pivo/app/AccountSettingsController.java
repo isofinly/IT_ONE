@@ -4,11 +4,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static com.pivo.app.Application.conn;
 import static com.pivo.app.Application.showAlert;
 import static com.pivo.app.ConfigManager.getConfig;
 import static com.pivo.app.ConfigManager.setConfig;
@@ -43,7 +43,7 @@ public class AccountSettingsController {
     }
 
     private void populateUsers() {
-        try (Statement stmt = conn.createStatement();
+        try (Connection conn = DatabaseController.connect(); Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT username FROM users")) {
             while (rs.next()) {
                 userSelector.getItems().add(rs.getString("username"));

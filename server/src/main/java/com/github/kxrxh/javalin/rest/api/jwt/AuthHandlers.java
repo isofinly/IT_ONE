@@ -13,6 +13,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.Users;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
@@ -100,8 +101,10 @@ public class AuthHandlers {
             context.status(400).result("Bad request. Unable to decode json body!");
             return;
         }
+
         // Searching for user by username in database
-        Users user = Users.findFirst("name = ?", result.getUsername());
+        Users user = DatabaseManager.getInstance().getDatabase().find(Users.class).where()
+                .eq("username", result.getUsername()).findOne();
         if (user == null) {
             context.status(401).result("Wrong username or password!");
             return;
@@ -110,7 +113,7 @@ public class AuthHandlers {
         BCrypt.Result bcryptResult = BCrypt.verifyer().verify(result.getPassword().toCharArray(), user.getPassword());
         if (bcryptResult.verified) {
             // Generate token
-            User userObj = new User(user.getLongId(), user.getName());
+            User userObj = new User(user.getId(), user.getUsername());
             String token = instance.provider.generateToken(userObj);
 
             // Return token to the client in JSON format
@@ -139,22 +142,19 @@ public class AuthHandlers {
         }
 
         // Searching for user by username in database and checking if it exists
-        if (Users.findFirst("username = ?", result.getUsername()) != null) {
+        Users user = DatabaseManager.getInstance().getDatabase().find(Users.class).where()
+                .eq("username", result.getUsername()).findOne();
+        if (user != null) {
             context.status(409).result("Username already taken!");
             return;
         }
 
-        Users user = new Users();
-        user.setName(result.getUsername());
+        Users newUser = new Users();
+        newUser.setUsername(result.getUsername());
 
         String hashedPassword = BCrypt.withDefaults().hashToString(12, result.getPassword().toCharArray());
-        user.setPassword(hashedPassword);
+        newUser.setPassword(hashedPassword);
 
-        if (user.saveIt()) {
-            context.status(201).result("User created!");
-        } else {
-            context.status(500).result("Internal server error!");
-        }
-
+        DatabaseManager.getInstance().getDatabase().save(newUser);
     }
 }

@@ -6,11 +6,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static com.pivo.app.Application.conn;
-import static com.pivo.app.Application.userName;
+import static com.pivo.app.Application.selectedUser;
 
 public class EditProfileDialogController {
     @FXML
@@ -30,11 +30,11 @@ public class EditProfileDialogController {
     private void handleUpdate() {
         String sql = "UPDATE users SET username = ?, email = ?, password_hash = ? WHERE username = ?";
         try (
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                Connection conn = DatabaseController.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, newUsername.getText());
             pstmt.setString(2, newEmail.getText());
             pstmt.setString(3, hashPassword(newPassword.getText()));
-            pstmt.setString(4, userName);
+            pstmt.setString(4, selectedUser);
 
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {

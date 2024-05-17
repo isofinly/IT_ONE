@@ -19,12 +19,18 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-import static com.pivo.app.Application.conn;
+import static com.pivo.app.Application.selectedUser;
 import static com.pivo.app.Application.showAlert;
 import static com.pivo.app.ConfigManager.getConfig;
 
 
 public class DashboardController {
+    private static final String USER_ID_QUERY = "(SELECT user_id FROM users WHERE username = ?)";
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String MONTH_FORMAT = "%Y-%m";
+    private static final String SELECTED_USER = "selectedUser";
+    private static final int MAX_TRANSACTIONS = 100;
+    private static final String TOTAL = "total";
     @FXML
     private LineChart<Number, Number> netWorthChart;
     @FXML
@@ -52,32 +58,25 @@ public class DashboardController {
     @FXML
     private ListView<String> dashboardCategoriesList;
 
-    private static final String USER_ID_QUERY = "(SELECT user_id FROM users WHERE username = ?)";
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    private static final String MONTH_FORMAT = "%Y-%m";
-    private static final String SELECTED_USER = "selectedUser";
-    private static final int MAX_TRANSACTIONS = 10;
-    private static final String TOTAL = "total";
-
     @FXML
     private void initialize() {
         try {
-            updateNetWorthChart(conn);
-            updateAssetsDebtsChart(conn);
-            updateFinancialCharts(conn);
-            loadTransactions(conn);
-            loadCategories(conn);
+            updateNetWorthChart();
+            updateAssetsDebtsChart();
+            updateFinancialCharts();
+            loadTransactions();
+            loadCategories();
         } catch (SQLException e) {
             showAlert("Error", "Failed to fetch data", Alert.AlertType.ERROR);
             e.printStackTrace();
         }
     }
 
-    private void updateFinancialCharts(Connection conn) throws SQLException {
-        updateChartForCategory(conn, incomeChart, incomeValue, 1); // ID for Income
-        updateChartForCategory(conn, spendingChart, spendingValue, 2); // ID for Spending
-        updateChartForCategory(conn, savingsRateChart, savingsRateValue, 3); // ID for Savings
-        updateChartForCategory(conn, investingChart, investingValue, 4); // ID for Investing
+    private void updateFinancialCharts() throws SQLException {
+        updateChartForCategory(incomeChart, incomeValue, 1); // ID for Income
+        updateChartForCategory(spendingChart, spendingValue, 2); // ID for Spending
+        updateChartForCategory(savingsRateChart, savingsRateValue, 3); // ID for Savings
+        updateChartForCategory(investingChart, investingValue, 4); // ID for Investing
     }
 
     private void configureXAxis(NumberAxis xAxis) {
@@ -96,12 +95,12 @@ public class DashboardController {
         });
     }
 
-    private void updateAssetsDebtsChart(Connection conn) throws SQLException {
+    private void updateAssetsDebtsChart() throws SQLException {
         double assets = 0;
         double debts = 0;
         String selectedUser = getConfig(SELECTED_USER);
         String query = "SELECT account_type, SUM(balance) as total FROM accounts WHERE user_id = " + USER_ID_QUERY + " GROUP BY account_type";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseController.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, selectedUser);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -119,14 +118,14 @@ public class DashboardController {
         assetsDebtsChart.getData().addAll(slice1, slice2);
     }
 
-    private void updateNetWorthChart(Connection conn) throws SQLException {
+    private void updateNetWorthChart() throws SQLException {
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         series.setName("Net Worth Over Time");
 
         String rangeQuery = "SELECT MIN(transaction_date) AS minDate, MAX(transaction_date) AS maxDate FROM transactions";
         LocalDateTime minDate = LocalDateTime.now();
         LocalDateTime maxDate = LocalDateTime.now();
-        try (Statement rangeStmt = conn.createStatement(); ResultSet rsRange = rangeStmt.executeQuery(rangeQuery)) {
+        try (Connection conn = DatabaseController.connect(); Statement rangeStmt = conn.createStatement(); ResultSet rsRange = rangeStmt.executeQuery(rangeQuery)) {
             if (rsRange.next()) {
                 minDate = LocalDateTime.parse(rsRange.getString("minDate"), DateTimeFormatter.ofPattern(DATE_FORMAT));
                 maxDate = LocalDateTime.parse(rsRange.getString("maxDate"), DateTimeFormatter.ofPattern(DATE_FORMAT));
@@ -145,7 +144,7 @@ public class DashboardController {
 
         String selectedUser = getConfig(SELECTED_USER);
         String query = "SELECT transaction_date, SUM(amount) OVER (ORDER BY transaction_date) as cumulative_sum, u.user_id FROM transactions t JOIN users u ON t.user_id = u.user_id WHERE u.user_id = " + USER_ID_QUERY + " ORDER BY transaction_date";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseController.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, selectedUser);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -164,10 +163,10 @@ public class DashboardController {
         netWorthChart.setCreateSymbols(true);
     }
 
-    private void updateChartForCategory(Connection conn, LineChart<String, Number> chart, Label valueLabel, int categoryId) throws SQLException {
+    private void updateChartForCategory(LineChart<String, Number> chart, Label valueLabel, int categoryId) throws SQLException {
         String selectedUser = getConfig(SELECTED_USER);
         String query = "SELECT strftime('" + MONTH_FORMAT + "', t.transaction_date) AS month, SUM(t.amount) AS total FROM transactions t JOIN users u ON t.user_id = u.user_id WHERE t.category_id = ? AND u.user_id = " + USER_ID_QUERY + " GROUP BY month ORDER BY month";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseController.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, categoryId);
             stmt.setString(2, selectedUser);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -177,7 +176,7 @@ public class DashboardController {
                     double total = rs.getDouble(TOTAL) / 100.0;
                     series.getData().add(new XYChart.Data<>(month, total));
                 }
-                series.setName(fetchCategoryName(conn, categoryId));
+                series.setName(fetchCategoryName(categoryId));
                 chart.getData().clear();
                 chart.getData().add(series);
                 if (!series.getData().isEmpty()) {
@@ -188,10 +187,10 @@ public class DashboardController {
         }
     }
 
-    private String fetchCategoryName(Connection conn, int categoryId) throws SQLException {
+    private String fetchCategoryName(int categoryId) throws SQLException {
         String selectedUser = getConfig(SELECTED_USER);
         String query = "SELECT c.name FROM categories c JOIN transactions t ON c.category_id = t.category_id JOIN users u ON t.user_id = u.user_id WHERE c.category_id = ? AND u.user_id = " + USER_ID_QUERY + " LIMIT 1";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseController.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, categoryId);
             stmt.setString(2, selectedUser);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -204,17 +203,16 @@ public class DashboardController {
         }
     }
 
-    private void loadTransactions(Connection conn) throws SQLException {
-        String selectedUser = getConfig(SELECTED_USER);
+    private void loadTransactions() throws SQLException {
         ObservableList<String> transactions = FXCollections.observableArrayList();
         String query = "SELECT t.transaction_date, t.description, t.amount FROM transactions t JOIN users u ON t.user_id = u.user_id WHERE u.user_id = " + USER_ID_QUERY + " ORDER BY t.transaction_date DESC LIMIT " + MAX_TRANSACTIONS;
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseController.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, selectedUser);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     String entry = String.format("%s - %s: %.2f",
                             rs.getString("transaction_date"),
-                            rs.getString("description"),
+                            rs.getString("description").isEmpty() ? "No description" : rs.getString("description"),
                             rs.getDouble("amount") / 100.0);
                     transactions.add(entry);
                 }
@@ -223,11 +221,11 @@ public class DashboardController {
         transactionsList.setItems(transactions);
     }
 
-    private void loadCategories(Connection conn) throws SQLException {
+    private void loadCategories() throws SQLException {
         String selectedUser = getConfig(SELECTED_USER);
         ObservableList<String> categories = FXCollections.observableArrayList();
         String query = "SELECT c.name, SUM(t.amount) as total FROM transactions t JOIN categories c ON t.category_id = c.category_id JOIN users u ON t.user_id = u.user_id WHERE u.user_id = " + USER_ID_QUERY + " GROUP BY c.category_id";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseController.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, selectedUser);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {

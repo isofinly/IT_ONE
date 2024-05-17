@@ -8,7 +8,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
-import java.util.Properties;
 
 public class SettingsController {
     @FXML

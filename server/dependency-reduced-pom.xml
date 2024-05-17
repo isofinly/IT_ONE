@@ -7,11 +7,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.javalite</groupId>
-        <artifactId>db-migrator-maven-plugin</artifactId>
-        <version>3.0</version>
-      </plugin>
-      <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.11.0</version>
         <configuration>
@@ -33,6 +28,7 @@
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>
+                    <exclude>module-info.class.</exclude>
                     <exclude>META-INF/*.SF</exclude>
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
@@ -48,19 +44,14 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.javalite</groupId>
-        <artifactId>activejdbc-instrumentation</artifactId>
-        <version>3.0</version>
-        <executions>
-          <execution>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>instrument</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
+  <dependencies>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.32</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
 </project>
