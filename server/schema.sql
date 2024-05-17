@@ -3,6 +3,9 @@ DROP TABLE IF EXISTS accounts CASCADE;
 DROP TABLE IF EXISTS categories CASCADE;
 DROP TABLE IF EXISTS transactions CASCADE;
 DROP TABLE IF EXISTS budgets CASCADE;
+DROP TABLE IF EXISTS recurring_transactions CASCADE;
+DROP TABLE IF EXISTS reports CASCADE;
+DROP TABLE IF EXISTS notifications CASCADE;
 
 CREATE TABLE users
 (
@@ -65,7 +68,7 @@ CREATE TABLE recurring_transactions
     amount                   BIGINT NOT NULL,
     category_id              BIGINT,
     description              TEXT,
-    frequency                TEXT   NOT NULL,
+    frequency                BIGINT   NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories (category_id) ON DELETE SET NULL
 );

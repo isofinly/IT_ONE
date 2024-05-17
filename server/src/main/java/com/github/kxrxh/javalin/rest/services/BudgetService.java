@@ -13,7 +13,7 @@ import java.util.List;
 
 public class BudgetService {
 
-    public void setBudgetAlert(Long budgetId, Long alertThreshold) throws SQLException {
+    public static void setBudgetAlert(Long budgetId, Long alertThreshold) throws SQLException {
         try (Connection conn = DatabaseManager.getInstance().getConnection()) {
             String query = "UPDATE budgets SET alert_threshold = ? WHERE budget_id = ?";
             PreparedStatement ps = conn.prepareStatement(query);
@@ -23,7 +23,7 @@ public class BudgetService {
         }
     }
 
-    public BudgetAnalysisResult analyzeBudget(Long budgetId) throws SQLException {
+    public static BudgetAnalysisResult analyzeBudget(Long budgetId) throws SQLException {
         BudgetAnalysisResult result = new BudgetAnalysisResult();
         List<Transaction> transactions = new ArrayList<>();
 

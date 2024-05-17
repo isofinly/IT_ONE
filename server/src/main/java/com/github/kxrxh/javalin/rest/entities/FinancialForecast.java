@@ -5,8 +5,6 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@Getter
-@Setter
 public class FinancialForecast {
 
     private long projectedAmount;

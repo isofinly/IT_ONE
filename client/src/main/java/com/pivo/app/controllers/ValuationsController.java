@@ -188,5 +188,4 @@ public class ValuationsController {
             showAlert(ERROR, "Failed to fetch user ID", Alert.AlertType.ERROR);
         }
     }
-
 }

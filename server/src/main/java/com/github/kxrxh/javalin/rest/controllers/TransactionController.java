@@ -5,6 +5,7 @@ import com.github.kxrxh.javalin.rest.services.TransactionService;
 import io.javalin.http.Context;
 
 import java.util.List;
+import java.util.Objects;
 
 public class TransactionController {
 
@@ -39,9 +40,9 @@ public class TransactionController {
             String amountStr = ctx.formParam("amount");
             String categoryIdStr = ctx.formParam("category_id");
             String description = ctx.formParam("description");
-            String frequency = ctx.formParam("frequency");
+            Long frequency = Long.valueOf(Objects.requireNonNull(ctx.formParam("frequency")));
 
-            if (userIdStr == null || amountStr == null || categoryIdStr == null || frequency == null) {
+            if (userIdStr == null || amountStr == null || categoryIdStr == null) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }

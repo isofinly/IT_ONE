@@ -31,13 +31,13 @@ import java.util.Optional;
 public class AuthHandlers {
 
     private static AuthHandlers instance;
-    private final JWTProvider<User> provider;
+    private final JWTProvider<UserPayload> provider;
 
     private AuthHandlers(Algorithm algorithm, JWTVerifier verifier) {
-        JWTGenerator<User> generator = (user, alg) -> {
+        JWTGenerator<UserPayload> generator = (user, alg) -> {
             JWTCreator.Builder token = JWT.create();
             try {
-                Field[] fields = User.class.getDeclaredFields();
+                Field[] fields = UserPayload.class.getDeclaredFields();
                 for (Field field : fields) {
                     Object value = field.get(user);
                     if (value != null) {
@@ -122,7 +122,7 @@ public class AuthHandlers {
                 user.get().getPassword());
         if (bcryptResult.verified) {
             // Generate token
-            User userObj = new User(user.get().getUserId(), user.get().getUsername());
+            UserPayload userObj = new UserPayload(user.get().getUserId(), user.get().getUsername());
             String token = instance.provider.generateToken(userObj);
 
             // Return token to the client in JSON format
@@ -171,7 +171,7 @@ public class AuthHandlers {
             if (newUser.isEmpty()) {
                 context.status(500).result("Internal server error. Unable to create user in database!");
             } else {
-                context.status(200).result("User created successfully!");
+                context.status(200).result("UserPayload created successfully!");
             }
         } catch (SQLException e) {
             context.status(500).result("Internal server error. Unable to create user in database!");

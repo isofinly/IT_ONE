@@ -10,7 +10,7 @@ import java.util.List;
 
 public class CategoryService {
 
-    public CategoryAnalysisResult analyzeCategory(Long categoryId, String dateRange) throws SQLException {
+    public static CategoryAnalysisResult analyzeCategory(Long categoryId, String dateRange) throws SQLException {
         CategoryAnalysisResult result = new CategoryAnalysisResult();
         List<Transaction> transactions = new ArrayList<>();
 

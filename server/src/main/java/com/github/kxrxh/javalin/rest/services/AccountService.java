@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 public class AccountService {
 
-    public void transferFunds(long fromAccountId, long toAccountId, long amount) throws SQLException {
+    public static void transferFunds(long fromAccountId, long toAccountId, long amount) throws SQLException {
         try (Connection conn = DatabaseManager.getInstance().getConnection()) {
             conn.setAutoCommit(false);
             try {
@@ -41,7 +41,7 @@ public class AccountService {
         }
     }
 
-    public void mergeAccounts(String[] accountIds, String newAccountName) throws SQLException {
+    public static void mergeAccounts(String[] accountIds, String newAccountName, String accountType) throws SQLException {
         try (Connection conn = DatabaseManager.getInstance().getConnection()) {
             conn.setAutoCommit(false);
             try {
@@ -62,9 +62,10 @@ public class AccountService {
                 }
 
                 // Create new account with total balance
-                PreparedStatement ps = conn.prepareStatement("INSERT INTO accounts (account_name, balance) VALUES (?, ?)");
+                PreparedStatement ps = conn.prepareStatement("INSERT INTO accounts (account_name, balance, account_type) VALUES (?, ?, ?)");
                 ps.setString(1, newAccountName);
                 ps.setLong(2, totalBalance);
+                ps.setString(3, accountType);
                 ps.executeUpdate();
 
                 // Delete old accounts

@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ReportService {
 
-    public Report generateReport(Long userId, String reportType, String dateRange) throws SQLException {
+    public static Report generateReport(Long userId, String reportType, String dateRange) throws SQLException {
         Report report = new Report();
         List<Transaction> transactions = new ArrayList<>();
 
@@ -65,7 +65,7 @@ public class ReportService {
         return report;
     }
 
-    public Report getReport(Long reportId) throws SQLException {
+    public static Report getReport(Long reportId) throws SQLException {
         Report report = null;
 
         try (Connection conn = DatabaseManager.getInstance().getConnection()) {

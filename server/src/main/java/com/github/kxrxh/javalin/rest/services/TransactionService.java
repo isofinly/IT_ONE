@@ -9,7 +9,7 @@ import java.util.List;
 
 public class TransactionService {
 
-    public List<Transaction> searchTransactions(Long userId, String amountRange, String dateRange, Long categoryId, String description) throws SQLException {
+    public static List<Transaction> searchTransactions(Long userId, String amountRange, String dateRange, Long categoryId, String description) throws SQLException {
         List<Transaction> transactions = new ArrayList<>();
 
         try (Connection conn = DatabaseManager.getInstance().getConnection()) {
@@ -63,7 +63,7 @@ public class TransactionService {
         return transactions;
     }
 
-    public void createRecurringTransaction(Long userId, Long amount, Long categoryId, String description, String frequency) throws SQLException {
+    public static void createRecurringTransaction(Long userId, Long amount, Long categoryId, String description, Long frequency) throws SQLException {
         try (Connection conn = DatabaseManager.getInstance().getConnection()) {
             String query = "INSERT INTO recurring_transactions (user_id, amount, category_id, description, frequency) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement ps = conn.prepareStatement(query);
@@ -71,7 +71,7 @@ public class TransactionService {
             ps.setLong(2, amount);
             ps.setLong(3, categoryId);
             ps.setString(4, description);
-            ps.setString(5, frequency);
+            ps.setLong(5, frequency);
             ps.executeUpdate();
         }
     }

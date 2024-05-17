@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class NotificationService {
 
-    public void setNotification(Long userId, String notificationType, Long threshold) throws SQLException {
+    public static void setNotification(Long userId, String notificationType, Long threshold) throws SQLException {
         try (Connection conn = DatabaseManager.getInstance().getConnection()) {
             String query = "INSERT INTO notifications (user_id, notification_type, threshold) VALUES (?, ?, ?)";
             PreparedStatement ps = conn.prepareStatement(query);

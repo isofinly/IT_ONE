@@ -11,7 +11,7 @@ import java.util.List;
 
 public class AdviceService {
 
-    public FinancialAdvice getFinancialAdvice(Long userId) throws SQLException {
+    public static FinancialAdvice getFinancialAdvice(Long userId) throws SQLException {
         FinancialAdvice advice = new FinancialAdvice();
 
         try (Connection conn = DatabaseManager.getInstance().getConnection()) {
@@ -35,13 +35,14 @@ public class AdviceService {
                 transactions.add(transaction);
             }
             advice.setRecentTransactions(transactions);
+            // TODO Add real logic for analyzing transactions
             advice.setAdvice("Consider saving more based on recent spending patterns.");
         }
 
         return advice;
     }
 
-    public FinancialForecast getFinancialForecast(Long userId, String dateRange) throws SQLException {
+    public static FinancialForecast getFinancialForecast(Long userId, String dateRange) throws SQLException {
         FinancialForecast forecast = new FinancialForecast();
 
         try (Connection conn = DatabaseManager.getInstance().getConnection()) {
@@ -71,6 +72,7 @@ public class AdviceService {
 
             // Example forecast logic: Sum up transactions and project future spending
             long totalAmount = transactions.stream().mapToLong(Transaction::getAmount).sum();
+            // TODO Add real logic for projecting future spending
             forecast.setProjectedAmount(totalAmount);
             forecast.setForecastMessage("Based on your past transactions, your projected spending is " + totalAmount);
         }

@@ -1,6 +1,13 @@
 package com.github.kxrxh.javalin.rest.util;
 
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.Report;
+import com.github.kxrxh.javalin.rest.database.models.Transaction;
+import com.github.kxrxh.javalin.rest.entities.BudgetAnalysisResult;
+import com.github.kxrxh.javalin.rest.entities.CategoryAnalysisResult;
+import com.github.kxrxh.javalin.rest.entities.FinancialAdvice;
+import com.github.kxrxh.javalin.rest.entities.FinancialForecast;
+import com.github.kxrxh.javalin.rest.services.*;
 import io.nats.client.Dispatcher;
 import io.nats.client.Nats;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +19,8 @@ import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
+
 
 @Slf4j
 public class NATSSubscriber {
@@ -59,6 +68,215 @@ public class NATSSubscriber {
             } else {
                 pstmt.setObject(i + 1, param);
             }
+        }
+    }
+
+    private void handleNATSMessage(String message) {
+        JSONObject json = new JSONObject(message);
+        String action = json.getString("action");
+
+        switch (action) {
+            case "transferFunds":
+                handleTransferFunds(json);
+                break;
+            case "mergeAccounts":
+                handleMergeAccounts(json);
+                break;
+            case "searchTransactions":
+                handleSearchTransactions(json);
+                break;
+            case "createRecurringTransaction":
+                handleCreateRecurringTransaction(json);
+                break;
+            case "analyzeCategory":
+                handleAnalyzeCategory(json);
+                break;
+            case "setBudgetAlert":
+                handleSetBudgetAlert(json);
+                break;
+            case "analyzeBudget":
+                handleAnalyzeBudget(json);
+                break;
+            case "generateReport":
+                handleGenerateReport(json);
+                break;
+            case "getReport":
+                handleGetReport(json);
+                break;
+            case "getFinancialAdvice":
+                handleGetFinancialAdvice(json);
+                break;
+            case "getFinancialForecast":
+                handleGetFinancialForecast(json);
+                break;
+            case "integrateWithBank":
+                handleIntegrateWithBank(json);
+                break;
+            case "autoCategorizeTransactions":
+                handleAutoCategorizeTransactions(json);
+                break;
+            case "setNotification":
+                handleSetNotification(json);
+                break;
+            default:
+                log.error("Unknown action: " + action);
+        }
+    }
+
+    private void handleTransferFunds(JSONObject json) {
+        try {
+            Long fromAccountId = json.getLong("from_account_id");
+            Long toAccountId = json.getLong("to_account_id");
+            Long amount = json.getLong("amount");
+            AccountService.transferFunds(fromAccountId, toAccountId, amount);
+        } catch (SQLException e) {
+            log.error("Error handling transfer funds: {}", e.getMessage());
+        }
+    }
+
+    private void handleMergeAccounts(JSONObject json) {
+        try {
+            JSONArray accountIdsJson = json.getJSONArray("account_ids");
+            String[] accountIds = new String[accountIdsJson.length()];
+            for (int i = 0; i < accountIdsJson.length(); i++) {
+                accountIds[i] = accountIdsJson.getString(i);
+            }
+            String newAccountName = json.getString("new_account_name");
+            String accountType = json.getString("account_type");
+            AccountService.mergeAccounts(accountIds, newAccountName, accountType);
+        } catch (SQLException e) {
+            log.error("Error handling merge accounts: {}", e.getMessage());
+        }
+    }
+
+    private void handleSearchTransactions(JSONObject json) {
+        try {
+            Long userId = json.getLong("user_id");
+            String amountRange = json.optString("amount_range", null);
+            String dateRange = json.optString("date_range", null);
+            Long categoryId = json.has("category_id") ? json.getLong("category_id") : null;
+            String description = json.optString("description", null);
+            List<Transaction> transactions = TransactionService.searchTransactions(userId, amountRange, dateRange, categoryId, description);
+            log.info("Search transactions result: {}", transactions);
+        } catch (SQLException e) {
+            log.error("Error handling search transactions: {}", e.getMessage());
+        }
+    }
+
+    private void handleCreateRecurringTransaction(JSONObject json) {
+        try {
+            Long userId = json.getLong("user_id");
+            Long amount = json.getLong("amount");
+            Long categoryId = json.getLong("category_id");
+            String description = json.getString("description");
+            String frequency = json.getString("frequency");
+            TransactionService.createRecurringTransaction(userId, amount, categoryId, description, Long.valueOf(frequency));
+        } catch (SQLException e) {
+            log.error("Error handling create recurring transaction: {}", e.getMessage());
+        }
+    }
+
+    private void handleAnalyzeCategory(JSONObject json) {
+        try {
+            Long categoryId = json.getLong("category_id");
+            String dateRange = json.optString("date_range", null);
+            CategoryAnalysisResult result = CategoryService.analyzeCategory(categoryId, dateRange);
+            log.info("Analyze category result: {}", result);
+        } catch (SQLException e) {
+            log.error("Error handling analyze category: {}", e.getMessage());
+        }
+    }
+
+    private void handleSetBudgetAlert(JSONObject json) {
+        try {
+            Long budgetId = json.getLong("budget_id");
+            Long alertThreshold = json.getLong("alert_threshold");
+            BudgetService.setBudgetAlert(budgetId, alertThreshold);
+        } catch (SQLException e) {
+            log.error("Error handling set budget alert: {}", e.getMessage());
+        }
+    }
+
+    private void handleAnalyzeBudget(JSONObject json) {
+        try {
+            Long budgetId = json.getLong("budget_id");
+            BudgetAnalysisResult result = BudgetService.analyzeBudget(budgetId);
+            log.info("Analyze budget result: {}", result);
+        } catch (SQLException e) {
+            log.error("Error handling analyze budget: {}", e.getMessage());
+        }
+    }
+
+    private void handleGenerateReport(JSONObject json) {
+        try {
+            Long userId = json.getLong("user_id");
+            String reportType = json.getString("report_type");
+            String dateRange = json.getString("date_range");
+            Report result = ReportService.generateReport(userId, reportType, dateRange);
+            log.info("Generate report result: {}", result);
+        } catch (SQLException e) {
+            log.error("Error handling generate report: {}", e.getMessage());
+        }
+    }
+
+    private void handleGetReport(JSONObject json) {
+        try {
+            Long reportId = json.getLong("report_id");
+            Report result = ReportService.getReport(reportId);
+            log.info("Get report result: {}", result);
+        } catch (SQLException e) {
+            log.error("Error handling get report: {}", e.getMessage());
+        }
+    }
+
+    private void handleGetFinancialAdvice(JSONObject json) {
+        try {
+            Long userId = json.getLong("user_id");
+            FinancialAdvice result = AdviceService.getFinancialAdvice(userId);
+            log.info("Get financial advice result: {}", result);
+        } catch (SQLException e) {
+            log.error("Error handling get financial advice: {}", e.getMessage());
+        }
+    }
+
+    private void handleGetFinancialForecast(JSONObject json) {
+        try {
+            Long userId = json.getLong("user_id");
+            String dateRange = json.getString("date_range");
+            FinancialForecast result = AdviceService.getFinancialForecast(userId, dateRange);
+            log.info("Get financial forecast result: {}", result);
+        } catch (SQLException e) {
+            log.error("Error handling get financial forecast: {}", e.getMessage());
+        }
+    }
+
+    private void handleIntegrateWithBank(JSONObject json) {
+        try {
+            Long userId = json.getLong("user_id");
+            String bankCredentials = json.getString("bank_credentials");
+            IntegrationService.integrateWithBank(userId, bankCredentials);
+        } catch (SQLException e) {
+            log.error("Error handling integrate with bank: {}", e.getMessage());
+        }
+    }
+
+    private void handleAutoCategorizeTransactions(JSONObject json) {
+        try {
+            Long userId = json.getLong("user_id");
+            IntegrationService.autoCategorizeTransactions(userId);
+        } catch (SQLException e) {
+            log.error("Error handling auto categorize transactions: {}", e.getMessage());
+        }
+    }
+
+    private void handleSetNotification(JSONObject json) {
+        try {
+            Long userId = json.getLong("user_id");
+            String notificationType = json.getString("notification_type");
+            Long threshold = json.getLong("threshold");
+            NotificationService.setNotification(userId, notificationType, threshold);
+        } catch (SQLException e) {
+            log.error("Error handling set notification: {}", e.getMessage());
         }
     }
 }

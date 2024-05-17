@@ -28,13 +28,14 @@ public class AccountController {
 
     public static void mergeAccounts(Context ctx) {
         try {
-            String[] accountIds = ctx.formParams("account_ids[]").toArray(new String[0]);
+            String[] accountIds = ctx.formParams("account_ids").toArray(new String[0]);
             String newAccountName = ctx.formParam("new_account_name");
-            if (accountIds.length == 0 || newAccountName == null) {
+            String accountType = ctx.formParam("account_type");
+            if (accountIds.length == 0 || newAccountName == null || accountType == null) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
-            accountService.mergeAccounts(accountIds, newAccountName);
+            accountService.mergeAccounts(accountIds, newAccountName, accountType);
             ctx.status(200).result("Accounts merged successfully");
         } catch (Exception e) {
             ctx.status(500).result("Internal Server Error: " + e.getMessage());

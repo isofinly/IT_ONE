@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
-
+// TODO refactor into service and controller
 @Slf4j
 public class DatabaseUserManager {
     private DatabaseUserManager() {

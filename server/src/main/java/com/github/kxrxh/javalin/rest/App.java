@@ -12,7 +12,7 @@ public class App {
 
     static {
         try {
-            NATS_SUBSCRIBER = new NATSSubscriber("nats://localhost:4222", "db_sync");
+            NATS_SUBSCRIBER = new NATSSubscriber("nats://localhost:4222", "finance_updates");
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -30,7 +30,7 @@ public class App {
         }
 
         // Initialize protected routes
-        server.setupJWTAuthentication("v1/api", jwtSecret);
+        server.setupJWTAuthentication("api/v1", jwtSecret);
 
         // Load database url from environment variable
         String databaseUrl = System.getenv("DATABASE_URL");

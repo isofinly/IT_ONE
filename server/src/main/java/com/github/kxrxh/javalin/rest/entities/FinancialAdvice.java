@@ -8,8 +8,6 @@ import java.util.List;
 
 @Setter
 @Getter
-@Setter
-@Getter
 public class FinancialAdvice {
 
     private List<Transaction> recentTransactions;

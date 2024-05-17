@@ -125,7 +125,7 @@ public class RestServer {
         app.get("/api/v1/forecast", AdviceController::getFinancialForecast);
 
         // Integration routes
-        /* Интеграция с банками (Bank Integrations)
+        /* TODO Интеграция с банками (Bank Integrations)
          * POST /api/v1/integrations/banks
          * Описание: Интеграция с банковскими аккаунтами для автоматического получения транзакций.
          * Параметры: user_id, bank_credentials.

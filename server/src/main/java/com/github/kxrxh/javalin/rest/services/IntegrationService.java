@@ -11,13 +11,13 @@ import java.util.Map;
 
 public class IntegrationService {
 
-    public void integrateWithBank(Long userId, String bankCredentials) throws SQLException {
+    public static void integrateWithBank(Long userId, String bankCredentials) throws SQLException {
         // TODO
         // Logic for integrating with a bank
         // This example is kept simple and may not represent a real integration
     }
 
-    public void autoCategorizeTransactions(Long userId) throws SQLException {
+    public static void autoCategorizeTransactions(Long userId) throws SQLException {
         try (Connection conn = DatabaseManager.getInstance().getConnection()) {
             Map<String, Long> categoryMapping = loadCategoryMappings(userId, conn);
 
