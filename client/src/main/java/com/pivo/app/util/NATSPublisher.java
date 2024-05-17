@@ -38,6 +38,6 @@ public class NATSPublisher {
                 .put("sql", sql)
                 .put("params", jsonParams);
 
-        natsConnection.publish("finance_updates", message.toString().getBytes());
+        natsConnection.publish("client_updates", message.toString().getBytes());
     }
 }

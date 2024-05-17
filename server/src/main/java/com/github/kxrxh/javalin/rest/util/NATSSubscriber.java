@@ -26,13 +26,12 @@ import java.util.List;
 public class NATSSubscriber {
 
     public NATSSubscriber(String natsServerURL, String subject) throws IOException, InterruptedException {
-        try (io.nats.client.Connection natsConnection = Nats.connect(natsServerURL)) {
-            Dispatcher dispatcher = natsConnection.createDispatcher((msg) -> {
-                String message = new String(msg.getData(), StandardCharsets.UTF_8);
-                executePreparedStatement(message);
-            });
-            dispatcher.subscribe(subject);
-        }
+        io.nats.client.Connection natsConnection = Nats.connect(natsServerURL);
+        Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
+            String message = new String(msg.getData(), StandardCharsets.UTF_8);
+            executePreparedStatement(message);
+        });
+        dispatcher.subscribe(subject);
     }
 
     private void executePreparedStatement(String message) {

@@ -1,5 +1,6 @@
 package com.pivo.app.controllers;
 
+import com.pivo.app.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -31,11 +32,13 @@ public class SettingsController {
         try {
             Node node = switch (setting) {
                 case "Account settings" ->
-                        FXMLLoader.load(Objects.requireNonNull(getClass().getResource("pages/settings/AccountSettings.fxml")));
-                case "Appearances" -> FXMLLoader.load(Objects.requireNonNull(getClass().getResource("pages/settings/Appearance.fxml")));
-                case "Configuration" -> FXMLLoader.load(Objects.requireNonNull(getClass().getResource("pages/settings/Configuration.fxml")));
+                        FXMLLoader.load(Objects.requireNonNull(Application.class.getResource("pages/settings/AccountSettings.fxml")));
+                case "Appearances" ->
+                        FXMLLoader.load(Objects.requireNonNull(Application.class.getResource("pages/settings/Appearance.fxml")));
+                case "Configuration" ->
+                        FXMLLoader.load(Objects.requireNonNull(Application.class.getResource("pages/settings/Configuration.fxml")));
                 case "Profile Information" ->
-                        FXMLLoader.load(Objects.requireNonNull(getClass().getResource("pages/settings/ProfileInformation.fxml")));
+                        FXMLLoader.load(Objects.requireNonNull(Application.class.getResource("pages/settings/ProfileInformation.fxml")));
                 default -> new Label("Selection does not have a corresponding view.");
             };
             detailsPane.getChildren().setAll(node);

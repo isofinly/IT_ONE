@@ -3,6 +3,7 @@ module com.pivo.app {
     requires javafx.fxml;
     requires javafx.graphics;
     requires javafx.base;
+    requires org.slf4j;
 
     requires atlantafx.base;
     requires java.sql;

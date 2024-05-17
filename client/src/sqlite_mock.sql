@@ -1,10 +1,10 @@
 -- Insert mock data into the users table
 INSERT INTO users (username, email, password_hash)
-VALUES ('user1', 'user1@example.com', 'hash1'),
-       ('user2', 'user2@example.com', 'hash2'),
-       ('user3', 'user3@example.com', 'hash3'),
-       ('user4', 'user4@example.com', 'hash4'),
-       ('user5', 'user5@example.com', 'hash5');
+VALUES ('user1', 'user1@example.com', '|$2a$12$/ZI1lUBbu3K.0BqH6ElGeOTE1uSU4zfyid34CocACqkF68AT5rO2G'), -- password is '1234'
+       ('user2', 'user2@example.com', '|$2a$12$/ZI1lUBbu3K.0BqH6ElGeOTE1uSU4zfyid34CocACqkF68AT5rO2G'), -- password is '1234'
+       ('user3', 'user3@example.com', '|$2a$12$/ZI1lUBbu3K.0BqH6ElGeOTE1uSU4zfyid34CocACqkF68AT5rO2G'), -- password is '1234'
+       ('user4', 'user4@example.com', '|$2a$12$/ZI1lUBbu3K.0BqH6ElGeOTE1uSU4zfyid34CocACqkF68AT5rO2G'), -- password is '1234'
+       ('user5', 'user5@example.com', '|$2a$12$/ZI1lUBbu3K.0BqH6ElGeOTE1uSU4zfyid34CocACqkF68AT5rO2G'); -- password is '1234'
 
 -- Insert mock data into the accounts table
 INSERT INTO accounts (user_id, account_type, balance, account_name)
@@ -30,7 +30,6 @@ VALUES (5000, 1, 1, 'Monthly salary'),
        (-100, 3, 3, 'Monthly savings'),
        (-100, 3, 3, 'Monthly savings'),
        (3000, 4, 1, 'Stock investment');
-
 
 INSERT INTO categories (name, user_id)
 VALUES ('Income', 1),

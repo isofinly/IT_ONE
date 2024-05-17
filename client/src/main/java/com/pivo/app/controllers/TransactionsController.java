@@ -189,7 +189,7 @@ public class TransactionsController {
     }
 
     private void deleteTransaction(String dateStr, String description) throws SQLException {
-        String sql = "DELETE FROM transactions WHERE user_id = ? AND transaction_date = ? AND description = ?";
+        String sql = "DELETE FROM transactions WHERE transaction_id IN ( SELECT transaction_id FROM transactions WHERE user_id = ? AND transaction_date = ? AND description = ? LIMIT 1 )";
         try (Connection conn = DatabaseManager.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, Application.fetchUserId()); // Set user_id
             pstmt.setString(2, dateStr);

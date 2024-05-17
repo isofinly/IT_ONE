@@ -8,21 +8,17 @@ import java.io.IOException;
 
 // TODO: Fix env file not loading properly
 public class App {
-    public static final NATSSubscriber NATS_SUBSCRIBER;
-
-    static {
-        try {
-            NATS_SUBSCRIBER = new NATSSubscriber("nats://localhost:4222", "finance_updates");
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    public static NATSSubscriber NATS_SUBSCRIBER;
 
     public static void main(String[] args) {
         // Initialize the server
         RestServer server = new RestServer();
         server.setupRoutes();
-
+        try {
+            NATS_SUBSCRIBER = new NATSSubscriber("nats://localhost:4222", "client_updates");
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         // Load JWT secret from environment variable
         String jwtSecret = System.getenv("JWT_SECRET");
         if (jwtSecret == null) {

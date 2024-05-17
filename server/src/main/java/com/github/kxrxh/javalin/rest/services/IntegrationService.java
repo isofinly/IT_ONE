@@ -38,7 +38,7 @@ public class IntegrationService {
         }
     }
 
-    private Map<String, Long> loadCategoryMappings(Long userId, Connection conn) throws SQLException {
+    private static Map <String, Long> loadCategoryMappings(Long userId, Connection conn) throws SQLException {
         Map<String, Long> categoryMapping = new HashMap<>();
         String query = "SELECT name, category_id FROM categories WHERE user_id = ?";
         PreparedStatement ps = conn.prepareStatement(query);
@@ -51,7 +51,7 @@ public class IntegrationService {
         return categoryMapping;
     }
 
-    private Long categorizeTransaction(String description, Map<String, Long> categoryMapping) {
+    private static Long categorizeTransaction(String description, Map <String, Long> categoryMapping) {
         for (Map.Entry<String, Long> entry : categoryMapping.entrySet()) {
             if (description.toLowerCase().contains(entry.getKey())) {
                 return entry.getValue();
@@ -60,7 +60,7 @@ public class IntegrationService {
         return null;
     }
 
-    private void updateTransactionCategory(Long transactionId, Long categoryId, Connection conn) throws SQLException {
+    private static void updateTransactionCategory(Long transactionId, Long categoryId, Connection conn) throws SQLException {
         String query = "UPDATE transactions SET category_id = ? WHERE transaction_id = ?";
         PreparedStatement ps = conn.prepareStatement(query);
         ps.setLong(1, categoryId);

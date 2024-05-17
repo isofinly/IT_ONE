@@ -29,6 +29,10 @@ public class EditProfileDialogController {
     @FXML
     private void handleUpdate() {
         String sql = "UPDATE users SET username = ?, email = ?, password_hash = ? WHERE username = ?";
+        if (newUsername.getText().isEmpty() || newPassword.getText().isEmpty() || newEmail.getText().isEmpty()) {
+            showAlert("Error", "All fields are required.", Alert.AlertType.ERROR);
+            throw new IllegalArgumentException("All fields are required.");
+        }
         try (
                 Connection conn = DatabaseManager.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, newUsername.getText());

@@ -190,7 +190,7 @@ public class DashboardController {
 
     private String fetchCategoryName(int categoryId) throws SQLException {
         String selectedUser = getConfig(SELECTED_USER);
-        String query = "SELECT c.name FROM categories c JOIN transactions t ON c.category_id = t.category_id JOIN users u ON t.user_id = u.user_id WHERE c.category_id = ? AND u.user_id = " + USER_ID_QUERY;
+        String query = "SELECT DISTINCT c.name FROM categories c JOIN transactions t ON c.category_id = t.category_id JOIN users u ON t.user_id = u.user_id WHERE c.category_id = ? AND u.user_id = " + USER_ID_QUERY;
         try (Connection conn = DatabaseManager.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, categoryId);
             stmt.setString(2, selectedUser);

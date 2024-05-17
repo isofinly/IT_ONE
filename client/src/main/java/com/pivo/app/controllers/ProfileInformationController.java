@@ -1,6 +1,7 @@
 package com.pivo.app.controllers;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import com.pivo.app.Application;
 import com.pivo.app.util.ConfigManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -8,7 +9,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +26,7 @@ public class ProfileInformationController {
     @FXML
     private Label usernameLabel, emailLabel, createdAtLabel;
     @FXML
-    private TextField newUsername, newEmail;
     private String password_hash;
-    @FXML
-    private PasswordField newPassword;
     @FXML
     private PasswordField passwordField;
 
@@ -56,35 +53,10 @@ public class ProfileInformationController {
         }
     }
 
-    @FXML
-    private void createUser() {
-        String sql = "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)";
-        try (Connection conn = DatabaseManager.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, newUsername.getText());
-            pstmt.setString(2, newEmail.getText());
-            pstmt.setString(3, hashPassword(newPassword.getText())); // Hash the password before storing
-            pstmt.executeUpdate();
-            fetchUserInfo(); // Refresh user info display
-            showAlert("Success", "User created successfully", Alert.AlertType.INFORMATION);
-        } catch (SQLException e) {
-            showAlert(ERROR, "Failed to create new user", Alert.AlertType.ERROR);
-            log.error("Failed to create new user", e);
-        }
-    }
-
-    private String hashPassword(String password) {
-        return BCrypt.withDefaults().hashToString(12, password.toCharArray());
-    }
-
-    @FXML
-    private boolean verifyPassword() {
-        return BCrypt.verifyer().verify(passwordField.getText().toCharArray(), password_hash).verified;
-    }
-
     public void editProfile() {
         if (verifyPassword()) {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("pages/settings/EditProfileDialog.fxml"));
+                FXMLLoader loader = new FXMLLoader(Application.class.getResource("pages/settings/EditProfileDialog.fxml"));
                 Stage stage = new Stage();
                 stage.initModality(Modality.APPLICATION_MODAL);
                 stage.setScene(new Scene(loader.load()));
@@ -99,8 +71,8 @@ public class ProfileInformationController {
         }
     }
 
-    public String getCurrentUsername() {
-        return usernameLabel.getText();
+    private boolean verifyPassword() {
+        return BCrypt.verifyer().verify(passwordField.getText().toCharArray(), password_hash).verified;
     }
 
 }

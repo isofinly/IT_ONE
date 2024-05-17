@@ -12,7 +12,7 @@ CREATE TABLE users
     user_id        SERIAL PRIMARY KEY,
     username       TEXT NOT NULL UNIQUE,
     email          TEXT UNIQUE,
-    password       TEXT NOT NULL,
+    password_hash       TEXT NOT NULL,
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login     TIMESTAMP,
     last_synced_at TIMESTAMP -- New field for synchronization
@@ -34,6 +34,7 @@ CREATE TABLE categories
     category_id SERIAL PRIMARY KEY,
     name        TEXT NOT NULL,
     user_id     BIGINT,
+    UNIQUE (user_id, name),
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
 
@@ -68,7 +69,7 @@ CREATE TABLE recurring_transactions
     amount                   BIGINT NOT NULL,
     category_id              BIGINT,
     description              TEXT,
-    frequency                BIGINT   NOT NULL,
+    frequency                BIGINT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories (category_id) ON DELETE SET NULL
 );

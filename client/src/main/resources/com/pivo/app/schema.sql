@@ -36,6 +36,7 @@ CREATE TABLE categories
     category_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name        TEXT NOT NULL,
     user_id     INTEGER,
+    UNIQUE (user_id, name),
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
 
