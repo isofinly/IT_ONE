@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<SplitPane xmlns:fx="http://javafx.com/fxml" dividerPositions="0.3" fx:controller="com.pivo.app.controllers.SettingsController">
+    <VBox style="-fx-padding: 20;">
+        <Label text="Settings" style="-fx-font-size: 24px; -fx-text-fill: #FFF;"/>
+        <ListView fx:id="settingsList" style="-fx-background-color: transparent; -fx-text-fill: #DDD;">
+            <!-- List items added dynamically in the controller -->
+        </ListView>
+    </VBox>
+    <StackPane fx:id="detailsPane" style="-fx-padding: 20;">
+        <!-- Content here will be loaded based on the selection from the ListView -->
+    </StackPane>
+</SplitPane>

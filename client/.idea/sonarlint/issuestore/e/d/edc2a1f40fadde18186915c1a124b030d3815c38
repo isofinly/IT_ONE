@@ -1,0 +1,13 @@
+
+d
+java:S1192™"HDefine a constant instead of duplicating this literal "user_id" 8 times.(×­°Òúÿÿÿÿ
+h
+java:S1192œ"LDefine a constant instead of duplicating this literal "category_id" 4 times.(Ü«—ˆüÿÿÿÿ
+b
+java:S1192›"KDefine a constant instead of duplicating this literal "date_range" 4 times.(æ¸è£
+c
+java:S6201?"HReplace this instanceof check and cast with 'instanceof Integer integer'(ïšµ·øÿÿÿÿ
+\
+java:S6201A"FReplace this instanceof check and cast with 'instanceof Double double'(¤ÛÌÿ
+L
+java:S1144I"6Remove this unused private "handleNATSMessage" method.(©©ôÌ
