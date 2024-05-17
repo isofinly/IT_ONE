@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.github.kxrxh.javalin.rest.database.models.Report;
 import com.github.kxrxh.javalin.rest.services.ReportService;
+
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,6 +16,7 @@ public class ReportController {
     private ReportController() {
     }
 
+    // TODO: generate per user with user_id
     public static void generateMonthlyReport(Context ctx) {
         try {
             String yearStr = ctx.queryParam("year");

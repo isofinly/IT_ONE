@@ -31,7 +31,7 @@ public class AdviceService {
 
         // Implement your logic to generate financial advice here
         // For example, fetching recent transactions and analyzing them
-        String query = "SELECT * FROM transactions WHERE user_id = ? ORDER BY transaction_date DESC LIMIT 10";
+        String query = "SELECT * FROM transactions WHERE account_id = ? ORDER BY transaction_date DESC LIMIT 10";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, userId.toString());
 
@@ -80,7 +80,10 @@ public class AdviceService {
 
         // Implement your logic to generate financial forecast here
         // For example, projecting future transactions based on past data
-        String query = "SELECT * FROM transactions WHERE user_id = ? AND transaction_date BETWEEN ? AND ?";
+        // Caused by: org.postgresql.util.PSQLException: ERROR: operator does not exist: uuid = character varying
+        // Hint: No operator matches the given name and argument types. You might need to add explicit type casts. 
+        // Position: 45
+        String query = "SELECT * FROM transactions WHERE account_id = ? AND transaction_date BETWEEN ? AND ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, userId.toString());
 

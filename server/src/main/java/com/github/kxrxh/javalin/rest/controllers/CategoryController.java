@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class CategoryController {
+    // TODO: check user_id and other fields from token
 
     private CategoryController() {
     }
@@ -19,7 +20,6 @@ public class CategoryController {
             String dateRange = ctx.queryParam("date_range");
 
             UUID categoryId = UUID.fromString(categoryIdStr);
-
             CategoryAnalysisResult analysisResult = CategoryService.analyzeCategory(categoryId, dateRange);
             ctx.json(analysisResult);
         } catch (Exception e) {

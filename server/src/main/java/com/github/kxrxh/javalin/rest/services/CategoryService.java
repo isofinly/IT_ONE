@@ -16,7 +16,7 @@ public class CategoryService {
 
     private CategoryService() {
     }
-
+    // TODO: Add family if any and more info. 
     public static CategoryAnalysisResult analyzeCategory(UUID categoryId, String dateRange) throws SQLException {
         CategoryAnalysisResult result = new CategoryAnalysisResult();
         List<Transaction> transactions = new ArrayList<>();

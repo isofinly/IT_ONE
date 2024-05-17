@@ -2,6 +2,8 @@ package com.github.kxrxh.javalin.rest.api;
 
 import com.github.kxrxh.javalin.rest.controllers.*;
 import io.javalin.Javalin;
+import io.javalin.http.Handler;
+import javalinjwt.JavalinJWT;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -188,6 +190,7 @@ public class RestServer {
     app.before(protectedRoute + "/*", AuthController::securityRouteHandler);
     app.post(protectedRoute + "/login", AuthController::loginRouteHandler);
     app.post(protectedRoute + "/register", AuthController::registerRouteHandler);
+    app.before(AuthController.getInstance().getDecodeHandler());
   }
 
   /**

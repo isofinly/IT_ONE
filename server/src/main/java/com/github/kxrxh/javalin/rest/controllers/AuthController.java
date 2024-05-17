@@ -22,6 +22,7 @@ import com.github.kxrxh.javalin.rest.services.UserService;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import io.javalin.http.Context;
+import io.javalin.http.Handler;
 import javalinjwt.JWTGenerator;
 import javalinjwt.JWTProvider;
 import javalinjwt.JavalinJWT;
@@ -31,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
     private static AuthController instance;
     private final JWTProvider<UserPayload> provider;
+    private final Handler decodeHandler;
 
     private AuthController(Algorithm algorithm, JWTVerifier verifier) {
         JWTGenerator<UserPayload> generator = (user, alg) -> {
@@ -50,6 +52,18 @@ public class AuthController {
         };
 
         this.provider = new JWTProvider<>(algorithm, generator, verifier);
+        this.decodeHandler = JavalinJWT.createHeaderDecodeHandler(provider);
+    }
+
+    public Handler getDecodeHandler() {
+        return decodeHandler;
+    }
+
+    public static AuthController getInstance() {
+        if (instance == null) {
+            throw new NotInitialized();
+        }
+        return instance;
     }
 
     /**
@@ -61,6 +75,7 @@ public class AuthController {
         Algorithm algorithm = Algorithm.HMAC256(secret);
         JWTVerifier verifier = JWT.require(algorithm).build();
         instance = new AuthController(algorithm, verifier);
+
     }
 
     /**
@@ -115,6 +130,8 @@ public class AuthController {
             context.status(401).result("Wrong username or password!");
             return;
         }
+
+        //
 
         // Verifying password
         BCrypt.Result bcryptResult = BCrypt.verifyer().verify(result.getPassword().toCharArray(),

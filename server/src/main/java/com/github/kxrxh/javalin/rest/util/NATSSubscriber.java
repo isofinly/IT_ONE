@@ -161,9 +161,9 @@ public class NATSSubscriber {
     private void handleMergeAccounts(JSONObject json) {
         try {
             JSONArray accountIdsJson = json.getJSONArray("account_ids");
-            String[] accountIds = new String[accountIdsJson.length()];
+            UUID[] accountIds = new UUID[accountIdsJson.length()];
             for (int i = 0; i < accountIdsJson.length(); i++) {
-                accountIds[i] = accountIdsJson.getString(i);
+                accountIds[i] = UUID.fromString(accountIdsJson.getString(i));
             }
             String newAccountName = json.getString("new_account_name");
             String accountType = json.getString("account_type");

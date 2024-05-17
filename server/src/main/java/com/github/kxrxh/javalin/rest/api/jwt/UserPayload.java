@@ -9,5 +9,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserPayload {
     public final UUID userId;
-    public final String username;
+    public final String email;
 }
