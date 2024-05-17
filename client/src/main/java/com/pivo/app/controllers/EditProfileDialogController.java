@@ -23,6 +23,7 @@ public class EditProfileDialogController {
     private PasswordField newPassword;
 
     public void setParentController(ProfileInformationController controller) {
+        // Private constructor to prevent instantiation
     }
 
     @FXML

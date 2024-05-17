@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class DatabaseManager {
     private static DatabaseManager instance = null;
-    private HikariDataSource dataSource;
+    private final HikariDataSource dataSource;
 
     // Private constructor to prevent instantiation from outside
     private DatabaseManager(String driver, String url, String username, String password) {

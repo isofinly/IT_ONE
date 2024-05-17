@@ -1,12 +1,14 @@
 package com.github.kxrxh.javalin.rest.database;
 
+import com.github.kxrxh.javalin.rest.database.models.Users;
+import lombok.extern.slf4j.Slf4j;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import com.github.kxrxh.javalin.rest.database.models.Users;
-
+@Slf4j
 public class DatabaseUserManager {
     private DatabaseUserManager() {
     }
@@ -42,8 +44,7 @@ public class DatabaseUserManager {
                     }
                     rs.close();
                 } catch (SQLException e) {
-                    // TODO: handle more gracefully
-                    System.out.println("SOSI ZHOPU SQLException: " + e.getMessage());
+                    log.error("Error fetching user from database: {}", e.getMessage());
                 }
             }
         }

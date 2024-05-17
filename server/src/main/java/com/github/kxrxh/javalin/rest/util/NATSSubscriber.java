@@ -17,12 +17,13 @@ import java.sql.Timestamp;
 public class NATSSubscriber {
 
     public NATSSubscriber(String natsServerURL, String subject) throws IOException, InterruptedException {
-        io.nats.client.Connection natsConnection = Nats.connect(natsServerURL);
-        Dispatcher dispatcher = natsConnection.createDispatcher((msg) -> {
-            String message = new String(msg.getData(), StandardCharsets.UTF_8);
-            executePreparedStatement(message);
-        });
-        dispatcher.subscribe(subject);
+        try (io.nats.client.Connection natsConnection = Nats.connect(natsServerURL)) {
+            Dispatcher dispatcher = natsConnection.createDispatcher((msg) -> {
+                String message = new String(msg.getData(), StandardCharsets.UTF_8);
+                executePreparedStatement(message);
+            });
+            dispatcher.subscribe(subject);
+        }
     }
 
     private void executePreparedStatement(String message) {
@@ -42,9 +43,8 @@ public class NATSSubscriber {
     private void setPreparedStatementParams(PreparedStatement pstmt, JSONArray paramsJson) throws SQLException {
         for (int i = 0; i < paramsJson.length(); i++) {
             Object param = paramsJson.get(i);
-            if (param instanceof String) {
+            if (param instanceof String str) {
                 // Check if the string can be parsed as a timestamp
-                String str = (String) param;
                 try {
                     Timestamp ts = Timestamp.valueOf(str);
                     pstmt.setTimestamp(i + 1, ts);
@@ -61,6 +61,4 @@ public class NATSSubscriber {
             }
         }
     }
-
-
 }

@@ -7,6 +7,5 @@ public class User {
     User(Long userId, String username) {
         this.userId = userId;
         this.username = username;
-
     }
 }

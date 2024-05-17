@@ -9,6 +9,7 @@ import javafx.scene.layout.StackPane;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Slf4j
 public class SettingsController {
@@ -30,11 +31,11 @@ public class SettingsController {
         try {
             Node node = switch (setting) {
                 case "Account settings" ->
-                        FXMLLoader.load(getClass().getResource("pages/settings/AccountSettings.fxml"));
-                case "Appearances" -> FXMLLoader.load(getClass().getResource("pages/settings/Appearance.fxml"));
-                case "Configuration" -> FXMLLoader.load(getClass().getResource("pages/settings/Configuration.fxml"));
+                        FXMLLoader.load(Objects.requireNonNull(getClass().getResource("pages/settings/AccountSettings.fxml")));
+                case "Appearances" -> FXMLLoader.load(Objects.requireNonNull(getClass().getResource("pages/settings/Appearance.fxml")));
+                case "Configuration" -> FXMLLoader.load(Objects.requireNonNull(getClass().getResource("pages/settings/Configuration.fxml")));
                 case "Profile Information" ->
-                        FXMLLoader.load(getClass().getResource("pages/settings/ProfileInformation.fxml"));
+                        FXMLLoader.load(Objects.requireNonNull(getClass().getResource("pages/settings/ProfileInformation.fxml")));
                 default -> new Label("Selection does not have a corresponding view.");
             };
             detailsPane.getChildren().setAll(node);

@@ -1,4 +1,3 @@
-
 package com.github.kxrxh.javalin.rest;
 
 import com.github.kxrxh.javalin.rest.api.RestServer;
@@ -60,7 +59,7 @@ public class App {
         if (strPort == null) {
             strPort = "3030";
         }
-        Integer port = Integer.valueOf(strPort);
+        int port = Integer.parseInt(strPort);
 
         // Start the server
         server.listen(port);

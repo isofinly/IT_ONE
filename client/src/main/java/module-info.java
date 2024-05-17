@@ -10,8 +10,8 @@ module com.pivo.app {
     requires bcrypt;
     requires com.zaxxer.hikari;
     requires static lombok;
-    requires org.slf4j;
     requires io.nats.jnats;
+
 
     exports com.pivo.app;
     exports com.pivo.app.controllers;

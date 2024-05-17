@@ -1,7 +1,6 @@
 package com.pivo.app;
 
 import com.pivo.app.controllers.DatabaseManager;
-import com.pivo.app.util.ConfigManager;
 import com.pivo.app.util.NATSPublisher;
 import com.pivo.app.util.ThemeUtil;
 import javafx.application.Platform;
@@ -25,11 +24,10 @@ import static com.pivo.app.util.ConfigManager.getConfig;
 @Slf4j
 public class Application extends javafx.application.Application {
     public static final String selectedUser = getConfig("selectedUser");
-    public static NATSPublisher publisher;
+    public static final NATSPublisher publisher;
 
     static {
         try {
-            // TODO FIXME Fix publisher preventing app from exiting normally
             publisher = new NATSPublisher("nats://localhost:4222");
         } catch (IOException | InterruptedException e) {
             log.error("Failed to connect to NATS server", e);
@@ -67,10 +65,10 @@ public class Application extends javafx.application.Application {
     public void start(Stage primaryStage) throws Exception {
         String theme = getConfig("appearance");
         ThemeUtil.changeTheme(Objects.requireNonNullElse(theme, "PrimerDark"));
-        Parent root = FXMLLoader.load(Application.class.getResource("pages/Application.fxml"));
+        Parent root = FXMLLoader.load(Objects.requireNonNull(Application.class.getResource("pages/Application.fxml")));
         Scene scene = new Scene(root);
         try {
-            primaryStage.getIcons().add(new Image(Application.class.getResourceAsStream("logo.png")));
+            primaryStage.getIcons().add(new Image(Objects.requireNonNull(Application.class.getResourceAsStream("logo.png"))));
         } catch (NullPointerException e) {
             log.error("No logo found", e);
         }
@@ -78,5 +76,15 @@ public class Application extends javafx.application.Application {
         primaryStage.setTitle("IT_ONE Личные Финансы");
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        primaryStage.setOnCloseRequest(event -> {
+            try {
+                NATSPublisher.close();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            Platform.exit();
+            System.exit(0);
+        });
     }
 }

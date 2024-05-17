@@ -10,6 +10,7 @@ import javafx.scene.control.TabPane;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Slf4j
 public class ApplicationController {
@@ -40,7 +41,7 @@ public class ApplicationController {
         log.error("Failed to load tab '{}': {}", title, e.getMessage());
 
         try {
-            Node errorContent = FXMLLoader.load(Application.class.getResource("pages/ErrorPage.fxml"));
+            Node errorContent = FXMLLoader.load(Objects.requireNonNull(Application.class.getResource("pages/ErrorPage.fxml")));
             Tab errorTab = new Tab(title, errorContent);
             mainTabPane.getTabs().add(errorTab);
         } catch (IOException ex) {

@@ -1,11 +1,6 @@
 package com.github.kxrxh.javalin.rest.api.jwt;
 
-import java.lang.reflect.Field;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
@@ -16,21 +11,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.github.kxrxh.javalin.rest.database.DatabaseUserManager;
 import com.github.kxrxh.javalin.rest.database.models.Users;
-
-import at.favre.lib.crypto.bcrypt.BCrypt;
 import io.javalin.http.Context;
 import javalinjwt.JWTGenerator;
 import javalinjwt.JWTProvider;
 import javalinjwt.JavalinJWT;
+import lombok.extern.slf4j.Slf4j;
+
+import java.lang.reflect.Field;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Handles authentication-related operations such as token generation and
  * validation.
  */
+@Slf4j
 public class AuthHandlers {
 
-    private JWTProvider<User> provider;
     private static AuthHandlers instance;
+    private final JWTProvider<User> provider;
 
     private AuthHandlers(Algorithm algorithm, JWTVerifier verifier) {
         JWTGenerator<User> generator = (user, alg) -> {
@@ -44,7 +45,7 @@ public class AuthHandlers {
                     }
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                log.error("Error generating token: {}", e.getMessage());
             }
             return token.sign(alg);
         };
@@ -54,7 +55,7 @@ public class AuthHandlers {
 
     /**
      * Creates a new instance of AuthHandlers with the specified secret key.
-     * 
+     *
      * @param secret The secret key used for token generation and validation.
      */
     public static void initialize(String secret) {
@@ -65,7 +66,7 @@ public class AuthHandlers {
 
     /**
      * Handles security for routes requiring authentication.
-     * 
+     *
      * @param context The Javalin context object.
      * @throws RuntimeException if AuthHandlers is not initialized.
      */
@@ -89,7 +90,7 @@ public class AuthHandlers {
 
     /**
      * Handles login route.
-     * 
+     *
      * @param context The Javalin context object.
      */
     public static void loginRouteHandler(Context context) {
@@ -136,7 +137,7 @@ public class AuthHandlers {
 
     /**
      * Handles register route.
-     * 
+     *
      * @param context The Javalin context object.
      */
     public static void registerRouteHandler(Context context) {

@@ -17,6 +17,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.pivo.app.Application.*;
 
@@ -154,7 +155,7 @@ public class TransactionsController {
             int affectedRows = pstmt.executeUpdate();
 
             // Publish to NATS
-            publisher.publishToNATS(sql, Arrays.asList(transactionId));
+            publisher.publishToNATS(sql, List.of(transactionId));
 
             if (affectedRows > 0) {
                 loadTransactions();  // Assuming there is a method to refresh the transactions view
