@@ -15,30 +15,22 @@ VALUES (1, 'Checking', 1000, 'Checking'),
        (4, 'Checking', 2000, 'Checking'),
        (5, 'Savings', 3000, 'Savings');
 
+INSERT INTO accounts (user_id, account_type, balance, account_name)
+VALUES (1, 'Debt', -500, 'Credit Card'),
+       (1, 'Asset', 10000, 'Account');
+
 -- Insert mock data into the transactions table
 INSERT INTO transactions (amount, category_id, user_id, description)
 VALUES (5000, 1, 1, 'Monthly salary'),
        (-1500, 2, 1, 'Grocery shopping'),
        (2000, 1, 1, 'Freelance project'),
+       (2000, 1, 2, 'Freelance project'),
        (-100, 3, 1, 'Monthly savings'),
+       (-100, 3, 3, 'Monthly savings'),
+       (-100, 3, 3, 'Monthly savings'),
+       (-100, 3, 3, 'Monthly savings'),
        (3000, 4, 1, 'Stock investment');
 
-
--- Insert mock data into the local_groups table
-INSERT INTO local_groups (name)
-VALUES ('Group A'),
-       ('Group B'),
-       ('Group C');
-
--- Insert mock data into the group_members table
-INSERT INTO group_members (group_id, user_id)
-VALUES (1, 1),
-       (1, 2),
-       (1, 3),
-       (2, 2),
-       (2, 4),
-       (3, 3),
-       (3, 5);
 
 INSERT INTO categories (name, user_id)
 VALUES ('Income', 1),
@@ -52,7 +44,7 @@ VALUES ('Income', 1),
 
 INSERT INTO transactions (amount, transaction_date, category_id, user_id, description)
 VALUES (5000, '2024-05-04 07:14:53', 1, 1, 'Monthly salary'),
-       (-1500, '2024-05-03 07:14:53', 2, 1, 'Grocery shopping'),
-       (2000, '2024-02-01 07:14:53', 1, 1, 'Freelance project'),
+       (-1500, '2024-05-03 07:14:53', 2, 3, 'Grocery shopping'),
+       (2000, '2024-02-01 07:14:53', 1, 2, 'Freelance project'),
        (-100, '2024-02-03 07:14:53', 3, 1, 'Monthly savings'),
-       (3000, '2024-03-02 07:14:53', 4, 1, 'Stock investment');
+       (3000, '2024-03-02 07:14:53', 4, 5, 'Stock investment');

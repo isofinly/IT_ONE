@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.ValuationsController" spacing="20"
+      style="-fx-padding: 20;" HBox.hgrow="ALWAYS">
+    <Label text="Asset Management" style="-fx-font-size: 24px;"/>
+    <VBox spacing="20">
+        <HBox spacing="10">
+            <Label text="Assets"/>
+            <TableView fx:id="assetsTable" HBox.hgrow="ALWAYS">
+                <columns>
+                    <TableColumn text="Account Name" fx:id="accountNameColumn"/>
+                    <TableColumn text="Account Type" fx:id="accountTypeColumn"/>
+                    <TableColumn text="Balance" fx:id="balanceColumn"/>
+                </columns>
+            </TableView>
+            <Button text="Add Asset" onAction="#handleAddAsset"/>
+            <Button text="Delete Asset" onAction="#handleDeleteAsset"/>
+        </HBox>
+        <HBox spacing="10">
+            <Label text="Categories"/>
+            <ListView fx:id="categoryList"/>
+            <HBox spacing="10">
+                <TextField fx:id="newCategoryName" promptText="New Category Name" HBox.hgrow="ALWAYS"/>
+                <Button text="Add Category" onAction="#handleAddCategory"/>
+            </HBox>
+        </HBox>
+    </VBox>
+</VBox>

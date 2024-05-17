@@ -13,6 +13,7 @@ module com.pivo.app {
     requires java.sql;
     requires jdk.jfr;
     requires org.json;
+    requires bcrypt;
 
     opens com.pivo.app to javafx.fxml;
     exports com.pivo.app;

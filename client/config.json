@@ -1,3 +1,6 @@
 {
-  "databasePath": "data.db"
+    "databasePath": "data.db",
+    "viewPoint": "Standard View",
+    "appearance": "Dracula",
+    "selectedUser": "user1"
 }

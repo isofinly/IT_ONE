@@ -1,4 +1,3 @@
--- Creating the users table
 CREATE TABLE users
 (
     user_id       INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,10 +16,9 @@ CREATE TABLE accounts
     balance      REAL NOT NULL,
     account_name TEXT NOT NULL, -- e.g., 'Bank of America - Checking'
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
-    CHECK(account_type IN ('Checking', 'Savings', 'Investment', 'Credit', 'Credit Card', 'Debt', 'Asset'))
+    CHECK (account_type IN ('Checking', 'Savings', 'Investment', 'Credit', 'Credit Card', 'Debt', 'Asset'))
 );
 
--- Creating the transactions table
 CREATE TABLE transactions
 (
     transaction_id   INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,7 +31,6 @@ CREATE TABLE transactions
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
 
--- Creating the categories table
 CREATE TABLE categories
 (
     category_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,7 +39,6 @@ CREATE TABLE categories
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
 
--- Creating the budgets table
 CREATE TABLE budgets
 (
     budget_id    INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,23 +50,3 @@ CREATE TABLE budgets
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories (category_id) ON DELETE CASCADE
 );
-
--- Creating the local_groups table
-CREATE TABLE local_groups
-(
-    group_id   INTEGER PRIMARY KEY AUTOINCREMENT,
-    name       TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- Creating the group_members table
-CREATE TABLE group_members
-(
-    group_id INTEGER,
-    user_id  INTEGER,
-    PRIMARY KEY (group_id, user_id),
-    FOREIGN KEY (group_id) REFERENCES local_groups (group_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
-);
-
-

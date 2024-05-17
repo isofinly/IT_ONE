@@ -16,10 +16,10 @@ public class ApplicationController {
 
     @FXML
     public void initialize() {
-        loadTab("pages/DashboardTab.fxml", "Dashboard");
-        loadTab("pages/TransactionsTab.fxml", "Transactions");
-        loadTab("pages/ValuationsTab.fxml", "Valuations");
-        loadTab("pages/SettingsTab.fxml", "Settings");
+        loadTab("pages/tabs/DashboardTab.fxml", "Dashboard");
+        loadTab("pages/tabs/TransactionsTab.fxml", "Transactions");
+        loadTab("pages/tabs/ValuationsTab.fxml", "Valuations");
+        loadTab("pages/tabs/SettingsTab.fxml", "Settings");
     }
 
     private void loadTab(String resource, String title) {
@@ -32,6 +32,7 @@ public class ApplicationController {
             loadFallbackTab(title, e);
         }
     }
+
     private void loadFallbackTab(String title, Exception e) {
         // TODO handle exception
         System.err.println("Failed to load tab '" + title + "': " + e.getMessage());

@@ -5,14 +5,17 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+
+import static com.pivo.app.Application.*;
 
 public class TransactionsController {
     @FXML
@@ -35,14 +38,11 @@ public class TransactionsController {
     private ListView<String> transactionsCategoriesList;
 
     public void initialize() {
-        try (Connection conn = DatabaseController.connect()) {
+        try {
             loadTransactions(conn);
             loadCategories(conn);
             populateCategories(conn);
-
-        } catch (SQLException | FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -50,8 +50,10 @@ public class TransactionsController {
 
     private void populateCategories(Connection conn) throws SQLException {
         ObservableList<String> categories = FXCollections.observableArrayList();
-        String query = "SELECT name FROM categories";
-        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+        String query = "SELECT DISTINCT name FROM categories WHERE user_id = (SELECT user_id FROM users WHERE username = ? )";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, selectedUser);
+            ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 categories.add(rs.getString("name"));
             }
@@ -61,8 +63,12 @@ public class TransactionsController {
 
     private void loadTransactions(Connection conn) throws SQLException {
         ObservableList<String> transactions = FXCollections.observableArrayList();
-        String query = "SELECT transaction_date, description, amount FROM transactions ORDER BY transaction_date DESC LIMIT 10";
-        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+        String query = "SELECT transaction_date, description, amount FROM transactions " +
+                "WHERE user_id = (SELECT user_id FROM users WHERE username = ? ) " +
+                "ORDER BY transaction_date DESC LIMIT 10";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        try (conn; stmt; ResultSet rs = stmt.executeQuery();) {
+            stmt.setString(1, selectedUser);
             while (rs.next()) {
                 String entry = String.format("%s - %s: %.2f",
                         rs.getString("transaction_date"),
@@ -70,20 +76,34 @@ public class TransactionsController {
                         rs.getDouble("amount") / 100.0); // Convert cents to dollars
                 transactions.add(entry);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         transactionsList.setItems(transactions);
     }
 
     private void loadCategories(Connection conn) throws SQLException {
         ObservableList<String> categories = FXCollections.observableArrayList();
-        String query = "SELECT name, SUM(amount) as total FROM transactions JOIN categories ON transactions.category_id = categories.category_id GROUP BY categories.category_id";
-        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+        String query = "SELECT DISTINCT c.name, SUM(t.amount) as total, u.user_id " +
+                "FROM transactions t " +
+                "JOIN categories c ON t.category_id = c.category_id " +
+                "JOIN users u ON t.user_id = u.user_id " +
+                "WHERE u.user_id = (SELECT user_id FROM users WHERE username = ?) " +
+                "GROUP BY c.category_id, u.user_id";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+
+        try (stmt; ResultSet rs = stmt.executeQuery()) {
+            stmt.setString(1, selectedUser);
             while (rs.next()) {
-                String entry = String.format("%s: %.2f",
+                String entry = String.format("%s (User ID: %d): %.2f",
                         rs.getString("name"),
+                        rs.getInt("user_id"),
                         rs.getDouble("total") / 100.0); // Convert cents to dollars
                 categories.add(entry);
             }
+        } catch (SQLException e) {
+            // TODO handle error
         }
         transactionsCategoriesList.setItems(categories);
     }
@@ -120,8 +140,8 @@ public class TransactionsController {
     private void insertTransaction(LocalDateTime dateTime, double amount, String category, String description) throws SQLException {
         String dateTimeFormatted = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         String sql = "INSERT INTO transactions (amount, transaction_date, category_id, description) VALUES (?, ?, (SELECT category_id FROM categories WHERE name = ?), ?)";
-        try (Connection conn = DatabaseController.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setDouble(1, amount);
             pstmt.setString(2, dateTimeFormatted);
             pstmt.setString(3, category);
@@ -130,8 +150,9 @@ public class TransactionsController {
             if (affectedRows > 0) {
                 loadTransactions(conn);
             }
-        } catch (IOException e) {
+        } catch (SQLException e) {
             // TODO Handle file not found exception
+            showAlert("Error", "Failed to insert transaction", Alert.AlertType.ERROR);
             throw new RuntimeException(e);
         }
     }
