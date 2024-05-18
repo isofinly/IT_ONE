@@ -104,14 +104,14 @@ public class CurrencyConversion {
     }
 
     public double convert(double amount, String fromCurrency, String toCurrency) {
+        if (fromCurrency.equals(toCurrency)) {
+            return amount;
+        }
+
         // if exchange rates are not loaded, synchronize them
         if (exchangeRates.keySet().isEmpty()) {
             log.info("Synchronizing exchange rates");
             syncRates();
-        }
-
-        if (fromCurrency.equals(toCurrency)) {
-            return amount;
         }
 
         String directPair = fromCurrency + "_" + toCurrency;
