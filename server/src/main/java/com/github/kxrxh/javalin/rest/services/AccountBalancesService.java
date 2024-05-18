@@ -49,7 +49,10 @@ public class AccountBalancesService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT id, account_id, user_id, date, balance, currency, created_at, updated_at FROM account_balances WHERE id = ? AND user_id = ?")) {
+                "SELECT id, account_id, date, balance, currency, created_at, updated_at " +
+                        "FROM account_balances " +
+                        "WHERE id = ? " +
+                        "AND account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
             ps.setObject(1, balanceId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
@@ -57,7 +60,6 @@ public class AccountBalancesService extends AbstractService {
                     return AccountBalance.builder()
                             .id(UUID.fromString(rs.getString("id")))
                             .accountId(UUID.fromString(rs.getString("account_id")))
-                            .accountId(UUID.fromString(rs.getString("user_id")))
                             .date(rs.getDate("date").toLocalDate())
                             .balance(rs.getLong("balance"))
                             .currency(rs.getString("currency"))
@@ -68,8 +70,6 @@ public class AccountBalancesService extends AbstractService {
                     throw new SQLException("Balance not found");
                 }
             }
-        } finally {
-            conn.close();
         }
     }
 
@@ -85,7 +85,7 @@ public class AccountBalancesService extends AbstractService {
         try (PreparedStatement ps = conn.prepareStatement(
                 "UPDATE account_balances SET account_id = ?, date = ?, balance = ?, currency = ?, updated_at = CURRENT_TIMESTAMP "
                         +
-                        "WHERE id = ? AND user_id = ?")) {
+                        "WHERE id = ? AND account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setDate(2, Date.valueOf(date));
             ps.setLong(3, balance);
@@ -93,8 +93,6 @@ public class AccountBalancesService extends AbstractService {
             ps.setObject(5, balanceId, java.sql.Types.OTHER);
             ps.setObject(6, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
-        } finally {
-            conn.close();
         }
     }
 
@@ -107,16 +105,14 @@ public class AccountBalancesService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "DELETE FROM account_balances WHERE id = ? AND user_id = ?")) {
+                "DELETE FROM account_balances WHERE id = ? AND account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
             ps.setObject(1, balanceId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
-        } finally {
-            conn.close();
         }
     }
 
-    public static long calculateTotalBalance(UUID userId, UUID accountId) throws SQLException {
+    public static long calculateTotalBalance(UUID userId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -125,9 +121,8 @@ public class AccountBalancesService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT SUM(balance) as total_balance FROM account_balances WHERE user_id = ? AND account_id = ?")) {
+                "SELECT SUM(balance) as total_balance FROM account_balances WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
             ps.setObject(1, userId, java.sql.Types.OTHER);
-            ps.setObject(2, accountId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getLong("total_balance");
@@ -135,8 +130,7 @@ public class AccountBalancesService extends AbstractService {
                     throw new SQLException("Balances not found for the specified user and account");
                 }
             }
-        } finally {
-            conn.close();
         }
     }
+
 }

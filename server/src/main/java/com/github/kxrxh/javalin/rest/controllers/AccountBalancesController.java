@@ -141,23 +141,14 @@ public class AccountBalancesController extends AbstractController {
     public static void calculateTotalBalance(Context ctx) {
         UUID userId = Utils.getUUIDFromContext(ctx);
 
-        String accountIdStr = ctx.queryParam(ACCOUNT_ID);
-
-        if (accountIdStr == null || accountIdStr.isEmpty()) {
-            ctx.status(400).result(MISSING_REQUIERED_STRING);
-            return;
-        }
-
         try {
-            UUID accountId = UUID.fromString(accountIdStr);
-            long totalBalance = AccountBalancesService.calculateTotalBalance(userId, accountId);
+            long totalBalance = AccountBalancesService.calculateTotalBalance(userId);
             ctx.json(new TotalBalanceResponse(totalBalance));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             ctx.status(500).result(INTERNAL_ERROR + e.getMessage());
         }
     }
-
     @Getter
     @Setter
     @NoArgsConstructor

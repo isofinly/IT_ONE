@@ -180,4 +180,6 @@ persistence
 /target/
 /target/*
 /client/target
-
+*.jks
+*.srl
+*.p12

@@ -2,9 +2,13 @@ package com.github.kxrxh.javalin.rest.util;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+
+import javax.net.ssl.SSLContext;
 
 import io.nats.client.Connection;
 import io.nats.client.Nats;
+import io.nats.client.Options;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -25,7 +29,20 @@ public class NATSUtil {
 
     public static void connect(String natsServerURL) throws IOException, InterruptedException {
         if (natsConnection == null) {
-            natsConnection = Nats.connect(natsServerURL);
+            try {
+                SSLContext sslContext = SSLUtils.createSSLContext();
+                Options options = new Options.Builder()
+                        .server(natsServerURL)
+                        .sslContext(sslContext)
+                        .connectionTimeout(Duration.ofSeconds(10))
+                        .build();
+
+                natsConnection = Nats.connect(options);
+                log.info("NATS connection established");
+            } catch (Exception e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Failed to create SSL context", e);
+            }
         }
     }
 

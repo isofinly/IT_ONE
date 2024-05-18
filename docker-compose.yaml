@@ -1,19 +1,19 @@
 services:
-#   backend-api:
-#     build: ./server
-#     ports:
-#       - "3030:3030"
-#       - "7080:7080"
-#     depends_on:
-#       - database
-#       - nats
-#     environment:
-#       - "NATS_URL=nats://nats:4222"
-#       - "DATABASE_URL=jdbc:postgresql://postgres_container:5432/postgres"
-#       - DATABASE_USER=postgres
-#       - DATABASE_PASSWORD=pgpwd
-#       - PORT=3030
-#       - JWT_SECRET=secret
+  backend-api:
+    build: ./server
+    ports:
+      - "3030:3030"
+      - "7080:7080"
+    depends_on:
+      - database
+      - nats
+    environment:
+      - "NATS_URL=nats://nats:4222"
+      - "DATABASE_URL=jdbc:postgresql://postgres_container:5432/postgres?ssl=on&sslrootcert=cert/ca-cert.pem"
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=pgpwd
+      - PORT=3030
+      - JWT_SECRET=secret
 
   nats:
     image: nats:latest
@@ -25,6 +25,13 @@ services:
     environment:
       - NATS_SERVER_NAME=hackathon_mq
       - NATS_LOG_TIME=true
+    volumes:
+      - ./certs:/etc/nats/certs
+    command: >
+      -tls
+      -tlscert /etc/nats/certs/server-cert.pem
+      -tlskey /etc/nats/certs/server-key.pem
+      -tlscacert /etc/nats/certs/ca-cert.pem
     hostname: nats-server
 
   database:
@@ -38,6 +45,10 @@ services:
     volumes:
       - ./persistence/:/docker-entrypoint-initdb.d
       - ./persistence/postgres/:/var/lib/postgresql/data
+      - ./certs/server-cert.pem:/var/lib/postgresql/data/server-cert.pem
+      - ./certs/server-key.pem:/var/lib/postgresql/data/server-key.pem
+      - ./certs/ca-cert.pem:/var/lib/postgresql/data/ca-cert.pem
+      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
     ports:
       - "5432:5432"
     healthcheck:

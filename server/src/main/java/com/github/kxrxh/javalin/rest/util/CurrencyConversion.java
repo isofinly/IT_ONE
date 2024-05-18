@@ -33,7 +33,7 @@ public class CurrencyConversion {
             if (csvFilePath != null) {
                 loadExchangeRatesFromCSV(csvFilePath);
             } else {
-                throw new RuntimeException("Environment variable EXCHANGE_RATES_CSV is not set");
+                System.exit(1);
             }
 
         }
@@ -57,6 +57,12 @@ public class CurrencyConversion {
             return true;
         } catch (SQLException e) {
             return false;
+        } finally {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -70,7 +76,7 @@ public class CurrencyConversion {
                 exchangeRates.put(currencyPair, rate);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load exchange rates from CSV file", e);
+            System.exit(1);
         }
     }
 
@@ -80,6 +86,9 @@ public class CurrencyConversion {
         }
 
         String directPair = fromCurrency + "_" + toCurrency;
+        for (Map.Entry<String, Double> entry : exchangeRates.entrySet()) {
+            System.out.println(entry.getKey());
+        }
         Double directRate = exchangeRates.get(directPair);
         if (directRate != null) {
             return amount * directRate;
