@@ -1,17 +1,20 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
-import com.github.kxrxh.javalin.rest.api.jwt.Utils;
-import com.github.kxrxh.javalin.rest.database.models.Transaction;
-import com.github.kxrxh.javalin.rest.services.TransactionService;
-import io.javalin.http.Context;
-import lombok.extern.slf4j.Slf4j;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.github.kxrxh.javalin.rest.api.jwt.Utils;
+import com.github.kxrxh.javalin.rest.database.models.Transaction;
+import com.github.kxrxh.javalin.rest.services.TransactionService;
+
+import io.javalin.http.Context;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TransactionController extends AbstractController {
@@ -60,7 +63,8 @@ public class TransactionController extends AbstractController {
         UUID categoryId = UUID.fromString(categoryIdStr);
         UUID accountId = UUID.fromString(accountIdStr);
         long amount = Long.parseLong(amountStr);
-        LocalDateTime date = LocalDateTime.parse(dateStr);
+        LocalDateTime date = Timestamp.valueOf(dateStr).toLocalDateTime();
+
         Transaction.TransactionType transactionType = Transaction.TransactionType
                 .valueOf(transactionTypeStr.toUpperCase());
 
