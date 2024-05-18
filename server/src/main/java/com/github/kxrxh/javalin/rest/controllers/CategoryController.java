@@ -49,7 +49,7 @@ public class CategoryController extends AbstractController {
 
     public static void readCategory(Context ctx) {
         UUID userId = Utils.getUUIDFromContext(ctx);
-        String categoryIdStr = ctx.pathParam(CATEGORY_ID);
+        String categoryIdStr = ctx.queryParam(CATEGORY_ID);
 
         if (categoryIdStr == null) {
             ctx.status(400).result(MISSING_REQUIERED_STRING);
@@ -69,7 +69,7 @@ public class CategoryController extends AbstractController {
 
     public static void updateCategory(Context ctx) {
         UUID userId = Utils.getUUIDFromContext(ctx);
-        String categoryIdStr = ctx.pathParam(CATEGORY_ID);
+        String categoryIdStr = ctx.queryParam(CATEGORY_ID);
         
         JSONObject requestBody;
         try {
@@ -100,7 +100,7 @@ public class CategoryController extends AbstractController {
 
     public static void deleteCategory(Context ctx) {
         UUID userId = Utils.getUUIDFromContext(ctx);
-        String categoryIdStr = ctx.pathParam(CATEGORY_ID);
+        String categoryIdStr = ctx.queryParam(CATEGORY_ID);
 
         if (categoryIdStr == null) {
             ctx.status(400).result(MISSING_REQUIERED_STRING);
