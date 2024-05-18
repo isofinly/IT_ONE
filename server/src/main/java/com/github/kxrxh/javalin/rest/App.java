@@ -11,8 +11,15 @@ import java.io.IOException;
 @Slf4j(topic = "App")
 public class App {
     public static void main(String[] args) {
+        String natsUrl = System.getenv("NATS_URL");
+        if (natsUrl == null) {
+            log.warn("NATS_URL environment variable not set");
+            natsUrl = "nats://localhost:4222";
+        }
+
+
         try {
-            NATSSubscriber.connect("nats://localhost:4222", "client_updates");
+            NATSSubscriber.connect(natsUrl, "client_updates");
         } catch (IOException | InterruptedException e) {
             log.error("Unable to connect to NATS: " + e.getMessage());
             Thread.currentThread().interrupt();

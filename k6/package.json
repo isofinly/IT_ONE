@@ -1,0 +1,12 @@
+{
+  "name": "k6",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/k6": "^0.51.0",
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.4.5"
+  }
+}

@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -27,12 +26,7 @@ public class Transaction {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastSyncedAt;
-    // FIXME @KXRXH: this field should not be in the /api/v1/transactions/search response
-    private List<Transaction> transactions;
 
-    public void setTransactions(List<Transaction> transactions) {
-        this.transactions = transactions;
-    }
 
     public enum TransactionType {
         INFLOW, OUTFLOW

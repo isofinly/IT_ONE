@@ -370,7 +370,7 @@ num_notifications_per_user = 2
 num_exchange_rates = 10
 num_imports_per_account = 2
 num_valuations_per_account = 3
-num_taxes = 5
+num_taxes = 10
 
 families = generate_families(num_families)
 users = generate_users(families, num_users_per_family)
@@ -467,3 +467,15 @@ for loan in loans:
 
 for asset in other_assets:
     print(generate_sql_insert('account_other_assets', asset))
+    
+for tax in taxes:
+    print(generate_sql_insert('taxes', tax))
+
+for valuation in valuations:
+    print(generate_sql_insert('valuations', valuation))
+    
+# for _import in imports:
+#     print(generate_sql_insert('imports', _import))
+    
+for exchange_rate in exchange_rates:
+    print(generate_sql_insert('exchange_rates', exchange_rate))

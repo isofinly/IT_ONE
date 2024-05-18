@@ -41,7 +41,6 @@ public class RestServer {
         app.after(ctx -> log.info(ctx.req().getMethod() + " " + ctx.req().getPathInfo() + " " + ctx.statusCode()));
     }
 
-
     public RestServer() {
         this(false);
     }
@@ -127,7 +126,8 @@ public class RestServer {
          * POST /api/v1/monthly_report
          * Описание: Создание финансовых отчетов за выбранный период.
          * Параметры: year, month.
-         * curl -X POST -d '{year: 2022, month: 1}' http://localhost:8080/api/v1/monthly_report
+         * curl -X POST -d '{year: 2022, month: 1}'
+         * http://localhost:8080/api/v1/monthly_report
          */
         app.get("/api/v1/monthly_report", ReportController::generateMonthlyReport);
 

@@ -1,16 +1,13 @@
 package com.github.kxrxh.javalin.rest.database.models;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Report {
@@ -20,10 +17,5 @@ public class Report {
     private String dateRange;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
     private List<Transaction> transactions;
-
-    public void setTransactions(List<Transaction> transactions) {
-        this.transactions = transactions;
-    }
 }

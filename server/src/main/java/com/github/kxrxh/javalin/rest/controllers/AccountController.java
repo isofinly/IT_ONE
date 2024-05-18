@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 @Slf4j
 public class AccountController {
 
@@ -16,9 +19,13 @@ public class AccountController {
     public static void transferFunds(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String fromAccountId = ctx.formParam("from_account_id");
-            String toAccountId = ctx.formParam("to_account_id");
-            String amountStr = ctx.formParam("amount");
+            // Parse JSON data from request body
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            // Extract data from JSON
+            String fromAccountId = requestBody.optString("from_account_id");
+            String toAccountId = requestBody.optString("to_account_id");
+            String amountStr = requestBody.optString("amount");
 
             if (fromAccountId == null || toAccountId == null || amountStr == null) {
                 ctx.status(400).result("Missing required parameters");
@@ -38,9 +45,18 @@ public class AccountController {
     public static void mergeAccounts(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String[] accountIds = ctx.formParams("account_ids").toArray(new String[0]);
-            String newAccountName = ctx.formParam("new_account_name");
-            String accountType = ctx.formParam("account_type");
+
+            // Parse JSON data from request body
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            // Extract data from JSON
+            JSONArray accountIdsJson = requestBody.getJSONArray("account_ids");
+            String[] accountIds = new String[accountIdsJson.length()];
+            for (int i = 0; i < accountIdsJson.length(); i++) {
+                accountIds[i] = accountIdsJson.getString(i);
+            }
+            String newAccountName = requestBody.optString("new_account_name");
+            String accountType = requestBody.optString("account_type");
 
             if (accountIds.length == 0 || newAccountName == null || accountType == null) {
                 ctx.status(400).result("Missing required parameters");

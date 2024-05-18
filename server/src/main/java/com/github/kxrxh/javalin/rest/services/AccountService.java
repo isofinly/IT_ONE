@@ -1,6 +1,7 @@
 package com.github.kxrxh.javalin.rest.services;
 
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,15 +11,12 @@ import java.util.*;
 
 public class AccountService {
 
-    // Flag to disable user check (for debugging)
-    private static final boolean DISABLE_USER_CHECK = false;
 
     private AccountService() {
     }
 
-    public static void transferFunds(UUID userId, UUID fromAccountId, UUID toAccountId, long amount)
-            throws SQLException {
-        if (!DISABLE_USER_CHECK && !isUserAuthorized(userId, fromAccountId)) {
+   public static void transferFunds(UUID userId, UUID fromAccountId, UUID toAccountId, long amount) throws SQLException {
+        if (!isUserAuthorized(userId, fromAccountId)) {
             throw new SQLException("User not authorized to transfer from this account");
         }
 
@@ -30,10 +28,10 @@ public class AccountService {
         Connection conn = optConn.get();
         conn.setAutoCommit(false);
 
-        try (PreparedStatement ps1 = conn
-                .prepareStatement("UPDATE accounts SET balance = balance - ? WHERE account_id = ?");
-             PreparedStatement ps2 = conn
-                     .prepareStatement("UPDATE accounts SET balance = balance + ? WHERE account_id = ?")) {
+        try (PreparedStatement ps1 = conn.prepareStatement(
+                "UPDATE accounts SET balance = balance - ? WHERE account_id = ?");
+             PreparedStatement ps2 = conn.prepareStatement(
+                     "UPDATE accounts SET balance = balance + ? WHERE account_id = ?")) {
             ps1.setLong(1, amount);
             ps1.setObject(2, fromAccountId, java.sql.Types.OTHER);
             int rowsUpdated = ps1.executeUpdate();
@@ -54,8 +52,7 @@ public class AccountService {
         }
     }
 
-    public static void mergeAccounts(UUID userId, String[] accountIds, String newAccountName, String accountType)
-            throws SQLException {
+    public static void mergeAccounts(UUID userId, String[] accountIds, String newAccountName, String accountType) throws SQLException {
         // Check for duplicate account IDs
         Set<String> accountIdSet = new HashSet<>(Arrays.asList(accountIds));
         if (accountIdSet.size() != accountIds.length) {
@@ -64,7 +61,7 @@ public class AccountService {
 
         for (String accountIdStr : accountIds) {
             UUID accountId = UUID.fromString(accountIdStr);
-            if (!DISABLE_USER_CHECK && !isUserAuthorized(userId, accountId)) {
+            if (!isUserAuthorized(userId, accountId)) {
                 throw new SQLException("User not authorized to merge this account");
             }
         }
@@ -82,12 +79,15 @@ public class AccountService {
         try {
             for (String accountIdStr : accountIds) {
                 UUID accountId = UUID.fromString(accountIdStr);
-                try (PreparedStatement ps = conn
-                        .prepareStatement("SELECT balance FROM accounts WHERE account_id = ?")) {
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "SELECT balance, currency FROM accounts WHERE account_id = ?")) {
                     ps.setObject(1, accountId, java.sql.Types.OTHER);
                     try (ResultSet rs = ps.executeQuery()) {
                         if (rs.next()) {
-                            totalBalance += rs.getLong("balance");
+                            long balance = rs.getLong("balance");
+                            String currency = rs.getString("currency");
+                            double convertedBalance = CurrencyConversion.convert(balance, currency, "RUB"); // Convert all balances to RUB
+                            totalBalance += convertedBalance;
                         } else {
                             throw new SQLException("Account with ID " + accountId + " not found");
                         }
@@ -127,7 +127,6 @@ public class AccountService {
         }
     }
 
-
     private static boolean isUserAuthorized(UUID userId, UUID accountId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -136,8 +135,8 @@ public class AccountService {
 
         Connection conn = optConn.get();
 
-        try (PreparedStatement ps = conn
-                .prepareStatement("SELECT * FROM accounts WHERE account_id = ? AND user_id = ?")) {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT * FROM accounts WHERE account_id = ? AND user_id = ?")) {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
@@ -145,5 +144,6 @@ public class AccountService {
             }
         }
     }
+
 
 }
