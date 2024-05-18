@@ -13,8 +13,8 @@ import com.github.kxrxh.javalin.rest.database.models.AccountDepository;
 
 public class AccountDepositoriesService extends AbstractService {
 
-    public static void createDepository(UUID userId, UUID accountId, String bankName, String accountNumber,
-            String routingNumber, double interestRate, long overdraftLimit) throws SQLException {
+    public static void createDepository(UUID accountId, String bankName, String accountNumber,
+                                        String routingNumber, double interestRate, long overdraftLimit) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -23,22 +23,19 @@ public class AccountDepositoriesService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "INSERT INTO account_depositories (id, account_id, user_id, bank_name, account_number, routing_number, interest_rate, overdraft_limit, created_at, updated_at) "
-                        +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+                "INSERT INTO account_depositories (id, account_id, bank_name, account_number, routing_number, interest_rate, overdraft_limit, created_at, updated_at) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             ps.setObject(1, UUID.randomUUID(), java.sql.Types.OTHER);
             ps.setObject(2, accountId, java.sql.Types.OTHER);
-            ps.setObject(3, userId, java.sql.Types.OTHER);
-            ps.setString(4, bankName);
-            ps.setString(5, accountNumber);
-            ps.setString(6, routingNumber);
-            ps.setDouble(7, interestRate);
-            ps.setLong(8, overdraftLimit);
+            ps.setString(3, bankName);
+            ps.setString(4, accountNumber);
+            ps.setString(5, routingNumber);
+            ps.setDouble(6, interestRate);
+            ps.setLong(7, overdraftLimit);
             ps.executeUpdate();
         } finally {
             conn.close();
         }
-
     }
 
     public static AccountDepository readDepository(UUID userId, UUID depositoryId) throws SQLException {
@@ -50,7 +47,9 @@ public class AccountDepositoriesService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT * FROM account_depositories WHERE id = ? AND user_id = ?")) {
+                "SELECT ad.* FROM account_depositories ad " +
+                        "JOIN accounts a ON ad.account_id = a.account_id " +
+                        "WHERE ad.id = ? AND a.user_id = ?")) {
             ps.setObject(1, depositoryId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
@@ -58,7 +57,6 @@ public class AccountDepositoriesService extends AbstractService {
                     return AccountDepository.builder()
                             .id(UUID.fromString(rs.getString("id")))
                             .accountId(UUID.fromString(rs.getString("account_id")))
-                            .userId(UUID.fromString(rs.getString("user_id")))
                             .bankName(rs.getString("bank_name"))
                             .accountNumber(rs.getString("account_number"))
                             .routingNumber(rs.getString("routing_number"))

@@ -17,13 +17,10 @@ import com.github.kxrxh.javalin.rest.util.NATSUtil;
 
 public class AccountLoansService extends AbstractService {
 
-    private AccountLoansService() {
-    }
-
     public static void createLoan(UUID userId, UUID accountId, long loanAmount,
-            long outstandingBalance, double interestRate,
-            String loanTerm, LocalDate dueDate,
-            String paymentFrequency, String collateral)
+                                  long outstandingBalance, double interestRate,
+                                  String loanTerm, LocalDate dueDate,
+                                  String paymentFrequency, String collateral)
             throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -32,21 +29,18 @@ public class AccountLoansService extends AbstractService {
 
         Connection conn = optConn.get();
 
-        try (
-                PreparedStatement ps = conn.prepareStatement(
-                        "INSERT INTO account_loans (id, account_id, user_id, loan_amount, outstanding_balance, interest_rate, loan_term, due_date, payment_frequency, collateral, created_at, updated_at) "
-                                +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "INSERT INTO account_loans (id, account_id, loan_amount, outstanding_balance, interest_rate, loan_term, due_date, payment_frequency, collateral, created_at, updated_at) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             ps.setObject(1, UUID.randomUUID(), java.sql.Types.OTHER);
             ps.setObject(2, accountId, java.sql.Types.OTHER);
-            ps.setObject(3, userId, java.sql.Types.OTHER);
-            ps.setLong(4, loanAmount);
-            ps.setLong(5, outstandingBalance);
-            ps.setDouble(6, interestRate);
-            ps.setString(7, loanTerm);
-            ps.setDate(8, Date.valueOf(dueDate));
-            ps.setString(9, paymentFrequency);
-            ps.setString(10, collateral);
+            ps.setLong(3, loanAmount);
+            ps.setLong(4, outstandingBalance);
+            ps.setDouble(5, interestRate);
+            ps.setString(6, loanTerm);
+            ps.setDate(7, Date.valueOf(dueDate));
+            ps.setString(8, paymentFrequency);
+            ps.setString(9, collateral);
             ps.executeUpdate();
         } finally {
             conn.close();
@@ -63,7 +57,9 @@ public class AccountLoansService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT id, account_id, user_id, loan_amount, outstanding_balance, interest_rate, loan_term, due_date, payment_frequency, created_at, updated_at FROM account_loans WHERE id = ? AND user_id = ?")) {
+                "SELECT al.* FROM account_loans al " +
+                        "JOIN accounts a ON al.account_id = a.account_id " +
+                        "WHERE al.id = ? AND a.user_id = ?")) {
             ps.setObject(1, loanId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
@@ -71,13 +67,13 @@ public class AccountLoansService extends AbstractService {
                     return AccountLoan.builder()
                             .id(UUID.fromString(rs.getString("id")))
                             .accountId(UUID.fromString(rs.getString("account_id")))
-                            .userId(UUID.fromString(rs.getString("user_id")))
                             .loanAmount(rs.getLong("loan_amount"))
                             .outstandingBalance(rs.getLong("outstanding_balance"))
                             .interestRate(rs.getDouble("interest_rate"))
                             .loanTerm(rs.getString("loan_term"))
                             .dueDate(rs.getDate("due_date").toLocalDate())
                             .paymentFrequency(rs.getString("payment_frequency"))
+                            .collateral(rs.getString("collateral"))
                             .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                             .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
                             .build();
@@ -91,10 +87,10 @@ public class AccountLoansService extends AbstractService {
     }
 
     public static void updateLoan(UUID userId, UUID loanId, UUID accountId,
-            long loanAmount, long outstandingBalance,
-            double interestRate, String loanTerm,
-            LocalDate dueDate, String paymentFrequency,
-            String collateral) throws SQLException {
+                                  long loanAmount, long outstandingBalance,
+                                  double interestRate, String loanTerm,
+                                  LocalDate dueDate, String paymentFrequency,
+                                  String collateral) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -102,10 +98,9 @@ public class AccountLoansService extends AbstractService {
 
         Connection conn = optConn.get();
 
-        try (
-                PreparedStatement ps = conn.prepareStatement(
-                        "UPDATE account_loans SET account_id = ?, loan_amount = ?, outstanding_balance = ?, interest_rate = ?, loan_term = ?, due_date = ?, payment_frequency = ?, collateral = ?, updated_at = CURRENT_TIMESTAMP "
-                                + "WHERE id = ? AND user_id = ?")) {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "UPDATE account_loans SET account_id = ?, loan_amount = ?, outstanding_balance = ?, interest_rate = ?, loan_term = ?, due_date = ?, payment_frequency = ?, collateral = ?, updated_at = CURRENT_TIMESTAMP " +
+                        "WHERE id = ? AND account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setLong(2, loanAmount);
             ps.setLong(3, outstandingBalance);
@@ -131,7 +126,7 @@ public class AccountLoansService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "DELETE FROM account_loans WHERE id = ? AND user_id = ?")) {
+                "DELETE FROM account_loans WHERE id = ? AND account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
             ps.setObject(1, loanId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
@@ -149,9 +144,10 @@ public class AccountLoansService extends AbstractService {
 
         Connection conn = optConn.get();
 
-        try (
-                PreparedStatement ps = conn.prepareStatement(
-                        "SELECT outstanding_balance, interest_rate FROM account_loans WHERE id = ? AND user_id = ?")) {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT al.outstanding_balance, al.interest_rate FROM account_loans al " +
+                        "JOIN accounts a ON al.account_id = a.account_id " +
+                        "WHERE al.id = ? AND a.user_id = ?")) {
             ps.setObject(1, loanId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
@@ -162,9 +158,9 @@ public class AccountLoansService extends AbstractService {
 
                     long newOutstandingBalance = outstandingBalance + (long) interest;
 
-                    try (
-                            PreparedStatement psUpdate = conn.prepareStatement(
-                                    "UPDATE account_loans SET outstanding_balance = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?")) {
+                    try (PreparedStatement psUpdate = conn.prepareStatement(
+                            "UPDATE account_loans SET outstanding_balance = ?, updated_at = CURRENT_TIMESTAMP " +
+                                    "WHERE id = ? AND account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
                         psUpdate.setLong(1, newOutstandingBalance);
                         psUpdate.setObject(2, loanId, java.sql.Types.OTHER);
                         psUpdate.setObject(3, userId, java.sql.Types.OTHER);
@@ -190,7 +186,9 @@ public class AccountLoansService extends AbstractService {
 
         Connection conn = optConn.get();
 
-        String query = "SELECT id, due_date FROM account_loans WHERE user_id = ?";
+        String query = "SELECT al.id, al.due_date FROM account_loans al " +
+                "JOIN accounts a ON al.account_id = a.account_id " +
+                "WHERE a.user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setObject(1, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {

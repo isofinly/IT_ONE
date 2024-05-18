@@ -14,9 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AdviceController extends AbstractController {
 
-    private AdviceController() {
-    }
-
     public static void getFinancialAdvice(Context ctx) {
         UUID userId = Utils.getUUIDFromContext(ctx);
 
