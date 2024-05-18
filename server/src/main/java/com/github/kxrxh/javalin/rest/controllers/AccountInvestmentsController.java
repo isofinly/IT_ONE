@@ -27,6 +27,7 @@ public class AccountInvestmentsController extends AbstractController {
             ctx.status(400).result(WRONG_BODY_FORMAT + e.getMessage());
             return;
         }
+
         String accountIdStr = requestBody.optString("account_id");
         String investmentType = requestBody.optString("investment_type");
         String marketValueStr = requestBody.optString("market_value");

@@ -1,16 +1,12 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.ExchangeRate;
+
+import java.sql.*;
+import java.util.Optional;
+import java.util.UUID;
 
 public class ExchangeRateService extends AbstractService {
 
@@ -69,7 +65,7 @@ public class ExchangeRateService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT * FROM exchange_rates WHERE base_currency = ? AND converted_currency = ? AND date = ?")) {
+                "SELECT id, base_currency, converted_currency, rate, date FROM exchange_rates WHERE base_currency = ? AND converted_currency = ? AND date = ?")) {
             ps.setString(1, baseCurrency);
             ps.setString(2, convertedCurrency);
             ps.setDate(3, date);
@@ -104,7 +100,7 @@ public class ExchangeRateService extends AbstractService {
      * @throws SQLException If an SQL error occurs.
      */
     public static void updateExchangeRate(UUID id, String baseCurrency, String convertedCurrency, double rate,
-            Date date) throws SQLException {
+                                          Date date) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();

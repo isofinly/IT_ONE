@@ -1,5 +1,12 @@
 package com.github.kxrxh.javalin.rest.util;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import io.nats.client.Dispatcher;
+import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -7,15 +14,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Optional;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-
-import io.nats.client.Dispatcher;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class for subscribing to NATS messages and executing SQL prepared
@@ -64,10 +62,10 @@ public class NATSSubscriber {
                 } catch (IllegalArgumentException e) {
                     pstmt.setString(i + 1, str);
                 }
-            } else if (param instanceof Integer) {
-                pstmt.setInt(i + 1, (Integer) param);
-            } else if (param instanceof Double) {
-                pstmt.setDouble(i + 1, (Double) param);
+            } else if (param instanceof Integer integer) {
+                pstmt.setInt(i + 1, integer);
+            } else if (param instanceof Double dbl) {
+                pstmt.setDouble(i + 1, dbl);
             } else {
                 pstmt.setObject(i + 1, param);
             }

@@ -173,7 +173,6 @@ public class AccountLoansController extends AbstractController {
         try {
             AccountLoansService.checkDueDateNotifications(userId);
             ctx.status(200).result("Due date notifications checked");
-            // todo: replace with actual implementation
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             ctx.status(500).result(INTERNAL_ERROR + e.getMessage());

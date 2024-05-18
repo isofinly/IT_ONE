@@ -2,6 +2,7 @@ package com.github.kxrxh.javalin.rest.entities;
 
 import com.github.kxrxh.javalin.rest.database.models.Transaction;
 import com.github.kxrxh.javalin.rest.services.TransactionService;
+import io.javalin.validation.ValidationException;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,7 +17,7 @@ public class MockBankIntegration extends AbstractBankIntegration {
     }
 
     @Override
-    public void integrateWithBank(UUID userId, String bankCredentials) throws Exception {
+    public void integrateWithBank(UUID userId, String bankCredentials) throws ValidationException {
         try {
             List<Transaction> transactions = fetchTransactions(bankCredentials);
 

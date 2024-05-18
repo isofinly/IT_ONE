@@ -54,7 +54,7 @@ public class ValuationController extends AbstractController {
 
         UUID userId = Utils.getUUIDFromContext(ctx);
 
-        String valuationIdStr = ctx.queryParam("valuation_id");
+        String valuationIdStr = ctx.queryParam(VALUATION_ID);
         String targetCurrency = ctx.queryParam("target_currency");
 
         if (valuationIdStr == null || targetCurrency == null) {
@@ -82,7 +82,7 @@ public class ValuationController extends AbstractController {
             ctx.status(400).result(WRONG_BODY_FORMAT + e.getMessage());
             return;
         }
-        String valuationIdStr = requestBody.optString("valuation_id");
+        String valuationIdStr = requestBody.optString(VALUATION_ID);
         String accountIdStr = requestBody.optString("account_id");
         String dateStr = requestBody.optString("date");
         String valueStr = requestBody.optString("value");
@@ -116,7 +116,7 @@ public class ValuationController extends AbstractController {
             ctx.status(400).result(WRONG_BODY_FORMAT + e.getMessage());
             return;
         }
-        String valuationIdStr = requestBody.optString("valuation_id");
+        String valuationIdStr = requestBody.optString(VALUATION_ID);
 
         if (valuationIdStr.isEmpty()) {
             ctx.status(400).result(MISSING_REQUIERED_STRING);

@@ -1,12 +1,16 @@
 package com.github.kxrxh.javalin.rest.entities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.models.Transaction;
 import com.github.kxrxh.javalin.rest.interfaces.BankIntegration;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,8 +22,8 @@ public abstract class AbstractBankIntegration implements BankIntegration {
     protected abstract String getBankApiUrl();
 
     @Override
-    public List<Transaction> fetchTransactions(String bankCredentials) throws Exception {
-        URL url = new URL(getBankApiUrl());
+    public List<Transaction> fetchTransactions(String bankCredentials) throws ConnectionRetrievingException, IOException, URISyntaxException {
+        URL url = new URI(getBankApiUrl()).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Authorization", "Bearer " + bankCredentials);
@@ -48,7 +52,7 @@ public abstract class AbstractBankIntegration implements BankIntegration {
         }
     }
 
-    class FetchingException extends RuntimeException {
+    static class FetchingException extends RuntimeException {
         public FetchingException(String message) {
             super("Failed to fetch transactions: " + message);
         }

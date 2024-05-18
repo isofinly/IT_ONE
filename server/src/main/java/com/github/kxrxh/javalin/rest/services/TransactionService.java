@@ -1,20 +1,16 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.Transaction;
+import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
+
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.Transaction;
-import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
 
 public class TransactionService extends AbstractService {
 
@@ -31,7 +27,7 @@ public class TransactionService extends AbstractService {
      * @throws SQLException If an SQL error occurs.
      */
     public static List<Transaction> searchTransactions(UUID userId, String amountRange, String dateRange,
-            UUID categoryId, String description) throws SQLException {
+                                                       UUID categoryId, String description) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -119,13 +115,26 @@ public class TransactionService extends AbstractService {
      * @throws SQLException If an SQL error occurs.
      */
     public static void createTransaction(UUID userId, UUID accountId, UUID categoryId, long amount, String name,
-            LocalDateTime date, String currency, String notes, TransactionType transactionType) throws SQLException {
+                                         LocalDateTime date, String currency, String notes, TransactionType transactionType) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
             throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT EXISTS (SELECT 1 FROM accounts WHERE user_id = ? AND account_id = ?)")) {
+            ps.setObject(1, userId, java.sql.Types.OTHER);
+            ps.setObject(2, accountId, java.sql.Types.OTHER);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next() && rs.getBoolean(1)) {
+                    throw new IllegalArgumentException("No result found.");
+                }
+            }
+        } finally {
+            conn.close();
+        }
+
         String query = "INSERT INTO transactions (account_id, category_id, amount, name, date, currency, notes, transaction_type, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
@@ -161,7 +170,7 @@ public class TransactionService extends AbstractService {
      * @throws SQLException If an SQL error occurs.
      */
     public static void updateTransaction(UUID userId, UUID transactionId, UUID accountId, UUID categoryId, long amount,
-            String name, LocalDateTime date, String currency, String notes, TransactionType transactionType)
+                                         String name, LocalDateTime date, String currency, String notes, TransactionType transactionType)
             throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
@@ -226,7 +235,7 @@ public class TransactionService extends AbstractService {
      * @throws SQLException If an SQL error occurs.
      */
     public static void createRecurringTransaction(UUID userId, long amount, UUID categoryId, String description,
-            long frequency) throws SQLException {
+                                                  long frequency) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
             throw new ConnectionRetrievingException();

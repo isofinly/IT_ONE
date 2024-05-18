@@ -1,5 +1,8 @@
 package com.github.kxrxh.javalin.rest.util;
 
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -11,10 +14,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class CurrencyConversion {
@@ -66,9 +65,9 @@ public class CurrencyConversion {
         }
 
         try (Connection conn = optConn.get();
-                PreparedStatement ps = conn.prepareStatement(
-                        "SELECT base_currency, converted_currency, rate FROM exchange_rates WHERE date = CURRENT_DATE");
-                ResultSet rs = ps.executeQuery()) {
+             PreparedStatement ps = conn.prepareStatement(
+                     "SELECT base_currency, converted_currency, rate FROM exchange_rates WHERE date = CURRENT_DATE");
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 String currencyPair = rs.getString("base_currency") + "_" + rs.getString("converted_currency");
                 double rate = rs.getDouble("rate");

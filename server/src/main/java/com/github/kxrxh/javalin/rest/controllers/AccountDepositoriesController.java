@@ -18,7 +18,6 @@ public class AccountDepositoriesController extends AbstractController {
     }
 
     public static void createDepository(Context ctx) {
-        UUID userId = Utils.getUUIDFromContext(ctx);
 
         // Parse JSON data from request body
         JSONObject requestBody;

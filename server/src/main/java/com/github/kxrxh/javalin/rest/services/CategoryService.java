@@ -1,15 +1,5 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.Category;
@@ -17,13 +7,18 @@ import com.github.kxrxh.javalin.rest.database.models.Transaction;
 import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
 import com.github.kxrxh.javalin.rest.entities.CategoryAnalysisResult;
 
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 public class CategoryService extends AbstractService {
 
-    // TODO: Add family if any and more info.
     /**
      * Analyzes transactions belonging to the specified category within the given
      * date range.
-     * 
+     *
      * @param userId     The ID of the user performing the analysis.
      * @param categoryId The ID of the category to analyze.
      * @param dateRange  A string representing the date range in the format
@@ -46,7 +41,7 @@ public class CategoryService extends AbstractService {
         // Fetch the family ID for the given user
         UUID familyId = getFamilyIdForUser(conn, userId);
         if (familyId == null) {
-            throw new SQLException("No family found for the given user.");
+            throw new SQLException(NO_FAMILY_FOUND);
         }
 
         // Check if the user has access to the specified category
@@ -119,7 +114,7 @@ public class CategoryService extends AbstractService {
 
     /**
      * Retrieves the family ID associated with the specified user.
-     * 
+     *
      * @param conn   The database connection.
      * @param userId The ID of the user.
      * @return The family ID associated with the user, or null if not found.
@@ -142,7 +137,7 @@ public class CategoryService extends AbstractService {
     /**
      * Checks whether the user has access to the specified category within the given
      * family.
-     * 
+     *
      * @param conn       The database connection.
      * @param userId     The ID of the user.
      * @param categoryId The ID of the category.
@@ -150,15 +145,27 @@ public class CategoryService extends AbstractService {
      * @return True if the user has access to the category, false otherwise.
      * @throws SQLException If an SQL error occurs during the access check.
      */
-    private static boolean userHasAccessToCategory(Connection conn, UUID _userId, UUID categoryId, UUID familyId)
-            throws SQLException {
-        String query = "SELECT COUNT(*) FROM categories WHERE category_id = ? AND family_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setObject(1, categoryId);
-            ps.setObject(2, familyId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
+    private static boolean userHasAccessToCategory(Connection conn, UUID userId, UUID categoryId, UUID familyId) throws SQLException {
+        // Check if the user belongs to the specified family
+        String userFamilyQuery = "SELECT COUNT(*) FROM users WHERE user_id = ? AND family_id = ?";
+        try (PreparedStatement psUserFamily = conn.prepareStatement(userFamilyQuery)) {
+            psUserFamily.setObject(1, userId, java.sql.Types.OTHER);
+            psUserFamily.setObject(2, familyId, java.sql.Types.OTHER);
+            try (ResultSet rsUserFamily = psUserFamily.executeQuery()) {
+                if (rsUserFamily.next() && rsUserFamily.getInt(1) > 0) {
+                    // User belongs to the specified family, now check if the category belongs to the same family
+                    String categoryFamilyQuery = "SELECT COUNT(*) FROM categories WHERE category_id = ? AND family_id = ?";
+                    try (PreparedStatement psCategoryFamily = conn.prepareStatement(categoryFamilyQuery)) {
+                        psCategoryFamily.setObject(1, categoryId, java.sql.Types.OTHER);
+                        psCategoryFamily.setObject(2, familyId, java.sql.Types.OTHER);
+                        try (ResultSet rsCategoryFamily = psCategoryFamily.executeQuery()) {
+                            if (rsCategoryFamily.next()) {
+                                return rsCategoryFamily.getInt(1) > 0;
+                            } else {
+                                return false;
+                            }
+                        }
+                    }
                 } else {
                     return false;
                 }
@@ -166,9 +173,10 @@ public class CategoryService extends AbstractService {
         }
     }
 
+
     /**
      * Retrieves all category IDs associated with the specified family.
-     * 
+     *
      * @param conn     The database connection.
      * @param familyId The ID of the family.
      * @return A list of category IDs associated with the family.
@@ -190,7 +198,7 @@ public class CategoryService extends AbstractService {
 
     /**
      * Creates a new category in the database for the specified user's family.
-     * 
+     *
      * @param userId The ID of the user creating the category.
      * @param name   The name of the new category.
      * @return The created Category object.
@@ -206,7 +214,7 @@ public class CategoryService extends AbstractService {
 
         UUID familyId = getFamilyIdForUser(conn, userId);
         if (familyId == null) {
-            throw new SQLException("No family found for the given user.");
+            throw new SQLException(NO_FAMILY_FOUND);
         }
 
         UUID categoryId = UUID.randomUUID();
@@ -227,7 +235,7 @@ public class CategoryService extends AbstractService {
     /**
      * Retrieves a category from the database based on the provided category ID and
      * user ID.
-     * 
+     *
      * @param userId     The ID of the user retrieving the category.
      * @param categoryId The ID of the category to retrieve.
      * @return The Category object corresponding to the provided IDs.
@@ -244,11 +252,11 @@ public class CategoryService extends AbstractService {
 
         UUID familyId = getFamilyIdForUser(conn, userId);
         if (familyId == null) {
-            throw new SQLException("No family found for the given user.");
+            throw new SQLException(NO_FAMILY_FOUND);
         }
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT * FROM categories WHERE category_id = ? AND family_id = ?")) {
+                "SELECT category_id, name, family_id, created_at, updated_at FROM categories WHERE category_id = ? AND family_id = ?")) {
             ps.setObject(1, categoryId, java.sql.Types.OTHER);
             ps.setObject(2, familyId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
@@ -271,7 +279,7 @@ public class CategoryService extends AbstractService {
 
     /**
      * Updates the name of an existing category in the database.
-     * 
+     *
      * @param userId     The ID of the user updating the category.
      * @param categoryId The ID of the category to update.
      * @param name       The new name for the category.
@@ -289,7 +297,7 @@ public class CategoryService extends AbstractService {
 
         UUID familyId = getFamilyIdForUser(conn, userId);
         if (familyId == null) {
-            throw new SQLException("No family found for the given user.");
+            throw new SQLException(NO_FAMILY_FOUND);
         }
 
         try (PreparedStatement ps = conn.prepareStatement(
@@ -307,7 +315,7 @@ public class CategoryService extends AbstractService {
 
     /**
      * Deletes a category from the database.
-     * 
+     *
      * @param userId     The ID of the user deleting the category.
      * @param categoryId The ID of the category to delete.
      * @throws SQLException If the category is not found, or an SQL error occurs
@@ -323,7 +331,7 @@ public class CategoryService extends AbstractService {
 
         UUID familyId = getFamilyIdForUser(conn, userId);
         if (familyId == null) {
-            throw new SQLException("No family found for the given user.");
+            throw new SQLException(NO_FAMILY_FOUND);
         }
 
         try (PreparedStatement ps = conn.prepareStatement(

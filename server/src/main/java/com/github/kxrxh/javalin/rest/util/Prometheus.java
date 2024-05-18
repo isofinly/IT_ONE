@@ -1,13 +1,12 @@
 package com.github.kxrxh.javalin.rest.util;
 
-import java.io.IOException;
-
-import org.eclipse.jetty.server.handler.StatisticsHandler;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-
 import io.prometheus.client.exporter.HTTPServer;
 import io.prometheus.client.hotspot.DefaultExports;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jetty.server.handler.StatisticsHandler;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+
+import java.io.IOException;
 
 /**
  * Utility class for initializing and shutting down Prometheus metrics.

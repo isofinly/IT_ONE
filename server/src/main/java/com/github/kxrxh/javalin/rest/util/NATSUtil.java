@@ -1,15 +1,13 @@
 package com.github.kxrxh.javalin.rest.util;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-
-import javax.net.ssl.SSLContext;
-
 import io.nats.client.Connection;
 import io.nats.client.Nats;
 import io.nats.client.Options;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Utility class for managing NATS connections and publishing messages.

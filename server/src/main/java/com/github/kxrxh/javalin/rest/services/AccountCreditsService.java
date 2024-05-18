@@ -82,7 +82,7 @@ public class AccountCreditsService extends AbstractService {
                             .accountId(UUID.fromString(rs.getString("account_id")))
                             .creditLimit(rs.getLong("credit_limit"))
                             .interestRate(rs.getDouble("interest_rate"))
-                            .dueDate(rs.getDate("due_date") != null ? rs.getDate("due_date").toLocalDate() : null)
+                            .dueDate(rs.getDate(DUE_DATE) != null ? rs.getDate(DUE_DATE).toLocalDate() : null)
                             .minimumPayment(rs.getLong("minimum_payment"))
                             .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                             .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
