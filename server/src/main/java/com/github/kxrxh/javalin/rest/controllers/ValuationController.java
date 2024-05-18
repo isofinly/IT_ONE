@@ -1,15 +1,17 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
-import com.github.kxrxh.javalin.rest.api.jwt.Utils;
-import com.github.kxrxh.javalin.rest.database.models.Valuation;
-import com.github.kxrxh.javalin.rest.services.ValuationService;
-import io.javalin.http.Context;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDate;
+import java.util.UUID;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.time.LocalDate;
-import java.util.UUID;
+import com.github.kxrxh.javalin.rest.api.jwt.Utils;
+import com.github.kxrxh.javalin.rest.database.models.Valuation;
+import com.github.kxrxh.javalin.rest.services.ValuationService;
+
+import io.javalin.http.Context;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ValuationController extends AbstractController {

@@ -130,6 +130,7 @@ public class CategoryController extends AbstractController {
         String categoryIdStr = ctx.queryParam(CATEGORY_ID);
         String dateRange = ctx.queryParam("date_range");
 
+        dateRange = dateRange.replaceAll("_", " ");
         UUID categoryId = UUID.fromString(categoryIdStr);
 
         try {

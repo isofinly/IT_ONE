@@ -74,6 +74,8 @@ public class ReportService extends AbstractService {
         reportData.put("TrendAnalysis", "Comparison with the previous month (" + getMonthName(month - 1) + " " + year
                 + "): Expenses increased by " + trend + "%");
 
+        conn.close();
+
         return reportData;
     }
 

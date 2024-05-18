@@ -2,7 +2,6 @@ package com.github.kxrxh.javalin.rest.util;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 
 import javax.net.ssl.SSLContext;
 

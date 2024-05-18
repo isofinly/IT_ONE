@@ -1,13 +1,17 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.AccountBalance;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.AccountBalance;
 
 public class AccountBalancesService extends AbstractService {
 
@@ -66,11 +70,13 @@ public class AccountBalancesService extends AbstractService {
                     throw new SQLException("Balance not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
     public static void updateBalance(UUID userId, UUID balanceId, UUID accountId, LocalDate date, long balance,
-                                     String currency) throws SQLException {
+            String currency) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -89,6 +95,8 @@ public class AccountBalancesService extends AbstractService {
             ps.setObject(5, balanceId, java.sql.Types.OTHER);
             ps.setObject(6, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -105,6 +113,8 @@ public class AccountBalancesService extends AbstractService {
             ps.setObject(1, balanceId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -126,6 +136,8 @@ public class AccountBalancesService extends AbstractService {
                     throw new SQLException("Balances not found for the specified user and account");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 

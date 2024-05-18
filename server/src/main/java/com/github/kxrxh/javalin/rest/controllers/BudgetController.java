@@ -1,15 +1,17 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
-import com.github.kxrxh.javalin.rest.api.jwt.Utils;
-import com.github.kxrxh.javalin.rest.entities.BudgetAnalysisResult;
-import com.github.kxrxh.javalin.rest.services.BudgetService;
-import io.javalin.http.Context;
-import lombok.extern.slf4j.Slf4j;
+import java.sql.SQLException;
+import java.util.UUID;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.sql.SQLException;
-import java.util.UUID;
+import com.github.kxrxh.javalin.rest.api.jwt.Utils;
+import com.github.kxrxh.javalin.rest.entities.BudgetAnalysisResult;
+import com.github.kxrxh.javalin.rest.services.BudgetService;
+
+import io.javalin.http.Context;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class BudgetController extends AbstractController {
@@ -56,6 +58,8 @@ public class BudgetController extends AbstractController {
             ctx.status(400).result(MISSING_REQUIERED_STRING);
             return;
         }
+
+        dateRange = dateRange.replaceAll("_", " ");
         UUID budgetId = UUID.fromString(budgetIdStr);
 
         try {

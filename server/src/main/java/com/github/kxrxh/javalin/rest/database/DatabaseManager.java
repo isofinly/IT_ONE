@@ -1,38 +1,30 @@
 package com.github.kxrxh.javalin.rest.database;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Optional;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.dbcp.BasicDataSource;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DatabaseManager {
     private static DatabaseManager instance = null;
-    private final HikariDataSource dataSource;
+    private final BasicDataSource dataSource;
 
     // Private constructor to prevent instantiation from outside
     private DatabaseManager(String driver, String url, String username, String password) {
-        HikariConfig config = new HikariConfig();
-        config.setDriverClassName(driver);
-        config.setJdbcUrl(url);
-        config.setUsername(username);
-        config.setPassword(password);
+        dataSource = new BasicDataSource();
 
-        // Configure HikariCP settings as needed
-        config.addDataSourceProperty("cachePrepStmts", "false");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        config.setValidationTimeout(3000);
-        config.setMaxLifetime(1800000);
-        config.setIdleTimeout(60000);
-        config.setMaximumPoolSize(500);
-        config.setAutoCommit(true);
+        dataSource.setDriverClassName(driver);
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
 
-
-        dataSource = new HikariDataSource(config);
+        dataSource.setMinIdle(5);
+        dataSource.setMaxIdle(10);
+        dataSource.setMaxOpenPreparedStatements(100);
     }
 
     // Method to get the singleton instance of DatabaseManager
@@ -51,7 +43,7 @@ public class DatabaseManager {
     }
 
     // Method to close the connection to the database
-    public void disconnect() {
+    public void disconnect() throws SQLException {
         if (dataSource != null) {
             dataSource.close();
         }

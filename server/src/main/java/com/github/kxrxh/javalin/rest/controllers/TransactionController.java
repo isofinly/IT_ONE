@@ -30,6 +30,10 @@ public class TransactionController extends AbstractController {
         String categoryIdStr = ctx.queryParam("category_id");
         String description = ctx.queryParam("description");
 
+        if (dateRange != null) {
+            dateRange = dateRange.replaceAll("_", " ");
+        }
+
         UUID categoryId = categoryIdStr != null ? UUID.fromString(categoryIdStr) : null;
 
         try {

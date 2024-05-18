@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class CurrencyConversion {
-
     private static final String BASE_CURRENCY = "RUB";
     private static CurrencyConversion instance;
     private final Map<String, Double> exchangeRates;
@@ -67,16 +66,19 @@ public class CurrencyConversion {
 
         try (Connection conn = optConn.get();
                 PreparedStatement ps = conn.prepareStatement(
-                        "SELECT base_currency, converted_currency, rate FROM exchange_rates WHERE date = CURRENT_DATE");
+                        "SELECT base_currency, converted_currency, rate FROM exchange_rates");
                 ResultSet rs = ps.executeQuery()) {
+            boolean added = false;
             while (rs.next()) {
                 String currencyPair = rs.getString("base_currency") + "_" + rs.getString("converted_currency");
                 double rate = rs.getDouble("rate");
                 synchronized (exchangeRates) {
                     exchangeRates.put(currencyPair, rate);
                 }
+                added = true;
             }
-            return true;
+
+            return added;
         } catch (SQLException e) {
             log.warn("Error loading exchange rates from database", e);
             return false;

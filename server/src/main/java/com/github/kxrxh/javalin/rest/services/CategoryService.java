@@ -114,6 +114,8 @@ public class CategoryService extends AbstractService {
             return result;
         } catch (SQLException e) {
             throw new SQLException("Could not execute query: " + e.getMessage());
+        } finally {
+            conn.close();
         }
     }
 

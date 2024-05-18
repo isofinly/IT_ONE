@@ -101,7 +101,6 @@ public class UserService extends AbstractService {
             conn.rollback(); // Rollback transaction if any exception occurs
             throw e;
         } finally {
-            conn.setAutoCommit(true);
             conn.close(); // Reset auto-commit mode
         }
 

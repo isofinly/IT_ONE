@@ -1,14 +1,15 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
+import java.sql.SQLException;
+import java.util.UUID;
+
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.entities.FinancialAdvice;
 import com.github.kxrxh.javalin.rest.entities.FinancialForecast;
 import com.github.kxrxh.javalin.rest.services.AdviceService;
+
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
-
-import java.sql.SQLException;
-import java.util.UUID;
 
 @Slf4j
 public class AdviceController extends AbstractController {
@@ -32,6 +33,8 @@ public class AdviceController extends AbstractController {
             ctx.status(400).result("Bad Request: date_range parameter is required");
             return;
         }
+
+        dateRange = dateRange.replaceAll("_", " ");
 
         try {
             FinancialForecast forecast = AdviceService.getFinancialForecast(userId, dateRange);

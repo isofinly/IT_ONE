@@ -49,6 +49,8 @@ public class BudgetService extends AbstractService {
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new SQLException("Could not set budget alert threshold", e);
+        } finally {
+            conn.close();
         }
     }
 
@@ -139,15 +141,15 @@ public class BudgetService extends AbstractService {
 
             checkBudgetNotifications(userId, result);
 
+        } finally {
+            conn.close();
         }
 
-        List<BudgetComparisonResult> comparisons = compareWithPastPeriods(conn, result.getCategoryId(), dateRange);
+        List<BudgetComparisonResult> comparisons = compareWithPastPeriods(result.getCategoryId(), dateRange);
         result.setComparisons(comparisons);
 
         BudgetSuggestions suggestions = suggestNewBudgetLimits(result.getTotalSpent(), result.getLimitAmount());
         result.setSuggestions(suggestions);
-
-        conn.close();
 
         return result;
     }
@@ -184,8 +186,16 @@ public class BudgetService extends AbstractService {
      * @return A list of comparison results between current and past transactions.
      * @throws SQLException If an SQL error occurs during the comparison.
      */
-    private static List<BudgetComparisonResult> compareWithPastPeriods(Connection conn, UUID categoryId,
+    private static List<BudgetComparisonResult> compareWithPastPeriods(UUID categoryId,
             String dateRange) throws SQLException {
+
+        Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
+        if (opConn.isEmpty()) {
+            throw new ConnectionRetrievingException();
+        }
+
+        Connection conn = opConn.get();
+
         List<BudgetComparisonResult> comparisons = new ArrayList<>();
 
         String pastPeriodsQuery = "SELECT transaction_id, name, date, amount, currency, account_id, category_id, excluded, notes, transaction_type, created_at, updated_at, last_synced_at FROM transactions WHERE category_id = ? AND date < ?";
@@ -218,6 +228,8 @@ public class BudgetService extends AbstractService {
 
                 comparisons.add(comparison);
             }
+        } finally {
+            conn.close();
         }
 
         return comparisons;
