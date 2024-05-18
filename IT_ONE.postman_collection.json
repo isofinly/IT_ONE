@@ -19,17 +19,17 @@
 							"formdata": [
 								{
 									"key": "from_account_id",
-									"value": "35",
+									"value": "3811a5e9-c9db-4650-8d5b-899fe7e1ea30",
 									"type": "text"
 								},
 								{
 									"key": "to_account_id",
-									"value": "37",
+									"value": "4254e078-7acc-498a-a698-364bf793736f",
 									"type": "text"
 								},
 								{
 									"key": "amount",
-									"value": "500",
+									"value": "1000",
 									"type": "text"
 								}
 							]
@@ -59,17 +59,17 @@
 							"formdata": [
 								{
 									"key": "account_ids",
-									"value": "41",
+									"value": "999d4a39-95b1-4fea-98f4-6eed35e50c39",
 									"type": "text"
 								},
 								{
 									"key": "account_ids",
-									"value": "44",
+									"value": "b32a90d0-51a6-46b5-be0f-13c758a09a02",
 									"type": "text"
 								},
 								{
 									"key": "new_account_name",
-									"value": "New Account",
+									"value": "Totally New Account",
 									"type": "text"
 								},
 								{
@@ -119,7 +119,7 @@
 							]
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/transactions/search?user_id=1",
+							"raw": "{{base_url}}/api/v1/transactions/search?amount_range=1200-1800",
 							"host": [
 								"{{base_url}}"
 							],
@@ -132,26 +132,26 @@
 							"query": [
 								{
 									"key": "user_id",
-									"value": "1"
-								},
-								{
-									"key": "amount_range",
-									"value": null,
+									"value": "1",
 									"disabled": true
 								},
 								{
+									"key": "amount_range",
+									"value": "1200-1800"
+								},
+								{
 									"key": "date_range",
-									"value": null,
+									"value": "2024-04-05 10:00:00 to 2024-05-27 10:00:00",
 									"disabled": true
 								},
 								{
 									"key": "category_id",
-									"value": null,
+									"value": "",
 									"disabled": true
 								},
 								{
 									"key": "description",
-									"value": null,
+									"value": "",
 									"disabled": true
 								}
 							]
@@ -315,7 +315,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/api/v1/budgets/{{budget_id}}/analysis",
+							"raw": "{{base_url}}/api/v1/budgets/{{budget_id}}/analysis?date_range=2020-01-01 10:10:00 to 2024-05-05 10:01:00",
 							"host": [
 								"{{base_url}}"
 							],
@@ -325,6 +325,12 @@
 								"budgets",
 								"{{budget_id}}",
 								"analysis"
+							],
+							"query": [
+								{
+									"key": "date_range",
+									"value": "2020-01-01 10:10:00 to 2024-05-05 10:01:00"
+								}
 							]
 						}
 					},
@@ -336,59 +342,47 @@
 			"name": "Reports",
 			"item": [
 				{
-					"name": "Create Reports",
+					"name": "Get Monthly Report",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
-						"method": "POST",
+						"method": "GET",
 						"header": [],
 						"body": {
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "user_id",
-									"value": "1",
+									"key": "month",
+									"value": "10",
 									"type": "text"
 								},
 								{
-									"key": "report_type",
-									"value": "montly",
-									"type": "text"
-								},
-								{
-									"key": "date_range",
-									"value": "2023-04-01 20:20:20 to 2024-04-01 20:20:20",
+									"key": "year",
+									"value": "2023",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/reports",
+							"raw": "{{base_url}}/api/v1/monthly_report?year=2024&month=5",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"reports"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Report",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/api/v1/reports/{{report_id}}",
-							"host": [
-								"{{base_url}}"
+								"monthly_report"
 							],
-							"path": [
-								"api",
-								"v1",
-								"reports",
-								"{{report_id}}"
+							"query": [
+								{
+									"key": "year",
+									"value": "2024"
+								},
+								{
+									"key": "month",
+									"value": "5"
+								}
 							]
 						}
 					},
@@ -561,7 +555,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\": \"meme\",\n    \"password\": \"aboba@\"\n}",
+					"raw": "{\n    \"email\": \"keke\",\n    \"password\": \"1234\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -618,7 +612,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\": \"memee\",\n    \"password\": \"aboba@\"\n}",
+					"raw": "{\n    \"email\": \"dBgf3J@example.com\",\n    \"password\": \"1234\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
