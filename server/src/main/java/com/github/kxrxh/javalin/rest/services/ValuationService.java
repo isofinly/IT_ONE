@@ -1,5 +1,10 @@
 package com.github.kxrxh.javalin.rest.services;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.Valuation;
+import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,11 +12,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.Valuation;
-import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
 
 public class ValuationService extends AbstractService {
 
@@ -71,11 +71,11 @@ public class ValuationService extends AbstractService {
 
         Connection conn = optConn.get();
 
-        try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM valuations WHERE id = ?")) {
+        try (PreparedStatement ps = conn.prepareStatement("SELECT id, account_id, date, value, currency FROM valuations WHERE id = ?")) {
             ps.setObject(1, valuationId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    UUID accountId = UUID.fromString(rs.getString("account_id"));
+                    UUID accountId = UUID.fromString(rs.getString(ACCOUNT_ID));
                     if (!isUserAuthorized(userId, accountId)) {
                         throw new SQLException("User not authorized to read valuation for this account");
                     }
@@ -84,12 +84,12 @@ public class ValuationService extends AbstractService {
                     String currency = rs.getString("currency");
                     double convertedValue = CurrencyConversion.getInstance().convert(value, currency, targetCurrency);
 
-                    return new Valuation(
-                            UUID.fromString(rs.getString("id")),
-                            UUID.fromString(rs.getString("account_id")),
-                            rs.getDate("date").toLocalDate(),
-                            Math.round(convertedValue),
-                            targetCurrency);
+                    return Valuation.builder()
+                            .id(UUID.fromString(rs.getString("id")))
+                            .accountId(accountId).date(rs.getDate("date").toLocalDate())
+                            .value((long) convertedValue)
+                            .currency(currency)
+                            .build();
                 } else {
                     throw new SQLException("Valuation not found");
                 }
@@ -111,7 +111,7 @@ public class ValuationService extends AbstractService {
      * @throws SQLException If an SQL error occurs.
      */
     public static void updateValuation(UUID userId, UUID valuationId, UUID accountId, LocalDate date, long value,
-            String currency) throws SQLException {
+                                       String currency) throws SQLException {
         if (!isUserAuthorized(userId, accountId)) {
             throw new SQLException("User not authorized to update valuation for this account");
         }
@@ -175,12 +175,12 @@ public class ValuationService extends AbstractService {
 
     /**
      * Checks if the user is authorized to read valuations for this account.
-     * 
+     *
      * @param userId
      * @param accountId
      * @return True if the user is authorized to read valuations for this account.
-     *         False otherwise.
-     *         Throws an SQLException if an SQL error occurs.
+     * False otherwise.
+     * Throws an SQLException if an SQL error occurs.
      */
     private static boolean isUserAuthorized(UUID userId, UUID accountId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();

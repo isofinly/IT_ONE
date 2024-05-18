@@ -1,15 +1,15 @@
 package com.github.kxrxh.javalin.rest.services;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.User;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.User;
 
 public class UserService extends AbstractService {
     private static final String USER_ID = "user_id";
@@ -27,7 +27,7 @@ public class UserService extends AbstractService {
      * @param email    The email of the user.
      * @param password The hashed password of the user.
      * @return An optional containing the created user if successful, empty
-     *         otherwise.
+     * otherwise.
      * @throws SQLException If an SQL error occurs.
      */
     public static Optional<User> createUser(UUID userId, String email, String password) throws SQLException {
@@ -113,7 +113,7 @@ public class UserService extends AbstractService {
      * @param email    The email of the user.
      * @param password The hashed password of the user.
      * @return An optional containing the created user if successful, empty
-     *         otherwise.
+     * otherwise.
      * @throws SQLException If an SQL error occurs.
      */
     public static Optional<User> createUser(String email, String password) throws SQLException {
@@ -136,7 +136,7 @@ public class UserService extends AbstractService {
 
         Connection conn = opConn.get();
 
-        String sql = "SELECT * password_digest FROM users WHERE user_id =?";
+        String sql = "SELECT user_id, email, password_digest, family_id, first_name, last_name FROM users WHERE user_id =?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setObject(1, userId, java.sql.Types.OTHER);
             ResultSet rs = ps.executeQuery();
@@ -172,7 +172,7 @@ public class UserService extends AbstractService {
 
         Connection conn = opConn.get();
 
-        String sql = "SELECT * FROM users WHERE email =?";
+        String sql = "SELECT user_id, email, password_digest, family_id, first_name, last_name FROM users WHERE email =?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
@@ -211,7 +211,7 @@ public class UserService extends AbstractService {
 
         Connection conn = opConn.get();
 
-        String sql = "SELECT * FROM users WHERE email =? AND password_digest =?";
+        String sql = "SELECT user_id, email, password_digest, family_id, first_name, last_name FROM users WHERE email =? AND password_digest =?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ps.setString(2, password); // Assuming password is already hashed

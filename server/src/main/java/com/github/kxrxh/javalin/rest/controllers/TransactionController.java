@@ -1,20 +1,18 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
+import com.github.kxrxh.javalin.rest.api.jwt.Utils;
+import com.github.kxrxh.javalin.rest.database.models.Transaction;
+import com.github.kxrxh.javalin.rest.services.TransactionService;
+import io.javalin.http.Context;
+import lombok.extern.slf4j.Slf4j;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.github.kxrxh.javalin.rest.api.jwt.Utils;
-import com.github.kxrxh.javalin.rest.database.models.Transaction;
-import com.github.kxrxh.javalin.rest.services.TransactionService;
-
-import io.javalin.http.Context;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TransactionController extends AbstractController {
@@ -27,7 +25,7 @@ public class TransactionController extends AbstractController {
 
         String amountRange = ctx.queryParam("amount_range");
         String dateRange = ctx.queryParam("date_range");
-        String categoryIdStr = ctx.queryParam("category_id");
+        String categoryIdStr = ctx.queryParam(CATEGORY_ID);
         String description = ctx.queryParam("description");
 
         if (dateRange != null) {
@@ -55,12 +53,12 @@ public class TransactionController extends AbstractController {
             ctx.status(400).result(WRONG_BODY_FORMAT + e.getMessage());
             return;
         }
-        String amountStr = requestBody.optString("amount");
-        String categoryIdStr = requestBody.optString("category_id");
-        String accountIdStr = requestBody.optString("account_id");
-        String name = requestBody.optString("name");
-        String dateStr = requestBody.optString("date");
-        String currency = requestBody.optString("currency");
+        String amountStr = requestBody.optString(AMOUNT);
+        String categoryIdStr = requestBody.optString(CATEGORY_ID);
+        String accountIdStr = requestBody.optString(ACCOUNT_ID);
+        String name = requestBody.optString(NAME);
+        String dateStr = requestBody.optString(DATE);
+        String currency = requestBody.optString(CURRENCY);
         String notes = requestBody.optString("notes");
         String transactionTypeStr = requestBody.optString("transaction_type");
 
@@ -94,12 +92,12 @@ public class TransactionController extends AbstractController {
         String transactionIdStr = requestBody.optString("transaction_id");
         UUID transactionId = UUID.fromString(transactionIdStr);
 
-        String amountStr = requestBody.optString("amount");
-        String categoryIdStr = requestBody.optString("category_id");
-        String accountIdStr = requestBody.optString("account_id");
-        String name = requestBody.optString("name");
-        String dateStr = requestBody.optString("date");
-        String currency = requestBody.optString("currency");
+        String amountStr = requestBody.optString(AMOUNT);
+        String categoryIdStr = requestBody.optString(CATEGORY_ID);
+        String accountIdStr = requestBody.optString(ACCOUNT_ID);
+        String name = requestBody.optString(NAME);
+        String dateStr = requestBody.optString(DATE);
+        String currency = requestBody.optString(CURRENCY);
         String notes = requestBody.optString("notes");
         String transactionTypeStr = requestBody.optString("transaction_type");
 
@@ -150,8 +148,8 @@ public class TransactionController extends AbstractController {
             ctx.status(400).result(WRONG_BODY_FORMAT + e.getMessage());
             return;
         }
-        String amountStr = requestBody.optString("amount");
-        String categoryIdStr = requestBody.optString("category_id");
+        String amountStr = requestBody.optString(AMOUNT);
+        String categoryIdStr = requestBody.optString(CATEGORY_ID);
         String description = requestBody.optString("description");
         long frequency = Long.parseLong(Objects.requireNonNull(requestBody.optString("frequency")));
 

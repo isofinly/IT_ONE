@@ -17,7 +17,7 @@ public class TaxController extends AbstractController {
     }
 
     public static void createTax(Context ctx) {
-        UUID userId = Utils.getUUIDFromContext(ctx);
+
         JSONObject requestBody;
         try {
             requestBody = new JSONObject(ctx.body());
@@ -38,7 +38,7 @@ public class TaxController extends AbstractController {
         long rate = Long.parseLong(rateStr);
 
         try {
-            TaxService.createTax(userId, name, description, rate, currency);
+            TaxService.createTax(name, description, rate, currency);
             ctx.status(200).result("Tax created successfully");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -47,8 +47,6 @@ public class TaxController extends AbstractController {
     }
 
     public static void readTax(Context ctx) {
-        UUID userId = Utils.getUUIDFromContext(ctx);
-
         String taxIdStr = ctx.queryParam(TAX_ID);
 
         if (taxIdStr == null || taxIdStr.isEmpty()) {
@@ -58,7 +56,7 @@ public class TaxController extends AbstractController {
 
         UUID taxId = UUID.fromString(taxIdStr);
         try {
-            Tax tax = TaxService.readTax(userId, taxId);
+            Tax tax = TaxService.readTax(taxId);
             ctx.json(tax);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -67,7 +65,6 @@ public class TaxController extends AbstractController {
     }
 
     public static void updateTax(Context ctx) {
-        UUID userId = Utils.getUUIDFromContext(ctx);
         JSONObject requestBody;
         try {
             requestBody = new JSONObject(ctx.body());
@@ -90,7 +87,7 @@ public class TaxController extends AbstractController {
         long rate = Long.parseLong(rateStr);
 
         try {
-            TaxService.updateTax(userId, taxId, name, description, rate, currency);
+            TaxService.updateTax(taxId, name, description, rate, currency);
             ctx.status(200).result("Tax updated successfully");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -99,7 +96,6 @@ public class TaxController extends AbstractController {
     }
 
     public static void deleteTax(Context ctx) {
-        UUID userId = Utils.getUUIDFromContext(ctx);
         JSONObject requestBody;
         try {
             requestBody = new JSONObject(ctx.body());
@@ -116,7 +112,7 @@ public class TaxController extends AbstractController {
 
         UUID taxId = UUID.fromString(taxIdStr);
         try {
-            TaxService.deleteTax(userId, taxId);
+            TaxService.deleteTax(taxId);
             ctx.status(200).result("Tax deleted successfully");
         } catch (Exception e) {
             log.error(e.getMessage(), e);

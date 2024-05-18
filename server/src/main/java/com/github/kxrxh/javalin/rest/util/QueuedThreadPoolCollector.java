@@ -1,13 +1,12 @@
 package com.github.kxrxh.javalin.rest.util;
 
+import io.prometheus.client.Collector;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-
-import io.prometheus.client.Collector;
 
 /**
  * Collector for Jetty QueuedThreadPool metrics to be used with Prometheus.

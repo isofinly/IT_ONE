@@ -1,17 +1,13 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.AccountOtherAsset;
+
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.UUID;
 
 public class AccountOtherAssetsService extends AbstractService {
 
@@ -30,7 +26,7 @@ public class AccountOtherAssetsService extends AbstractService {
      *                      process.
      */
     public static void createAsset(UUID userId, UUID accountId, String assetType, long purchasePrice, long currentValue,
-            LocalDate purchaseDate, double depreciationRate) throws SQLException {
+                                   LocalDate purchaseDate, double depreciationRate) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -38,6 +34,18 @@ public class AccountOtherAssetsService extends AbstractService {
 
         Connection conn = optConn.get();
 
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT EXISTS (SELECT 1 FROM accounts WHERE user_id = ? AND account_id = ?)")) {
+            ps.setObject(1, userId, java.sql.Types.OTHER);
+            ps.setObject(2, accountId, java.sql.Types.OTHER);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next() && rs.getBoolean(1)) {
+                    throw new IllegalArgumentException("No result found.");
+                }
+            }
+        } finally {
+            conn.close();
+        }
         try (PreparedStatement ps = conn.prepareStatement(
                 "INSERT INTO account_other_assets (id, account_id, asset_type, purchase_price, current_value, purchase_date, depreciation_rate, created_at, updated_at) "
                         +
@@ -116,7 +124,7 @@ public class AccountOtherAssetsService extends AbstractService {
      *                      process.
      */
     public static void updateAsset(UUID userId, UUID assetId, UUID accountId, String assetType, long purchasePrice,
-            long currentValue, LocalDate purchaseDate, double depreciationRate) throws SQLException {
+                                   long currentValue, LocalDate purchaseDate, double depreciationRate) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();

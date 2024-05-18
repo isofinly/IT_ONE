@@ -1,21 +1,17 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.Transaction;
 import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
 import com.github.kxrxh.javalin.rest.entities.FinancialAdvice;
 import com.github.kxrxh.javalin.rest.entities.FinancialForecast;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class AdviceService extends AbstractService {
 
@@ -60,17 +56,16 @@ public class AdviceService extends AbstractService {
                         .amount(rs.getLong("amount"))
                         .currency(rs.getString("currency"))
                         .accountId(UUID.fromString(rs.getString("account_id")))
-                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id")) : null)
+                        .categoryId(rs.getString(CATEGORY_ID) != null ? UUID.fromString(rs.getString(CATEGORY_ID)) : null)
                         .excluded(rs.getBoolean("excluded"))
                         .notes(rs.getString("notes"))
                         .transactionType(TransactionType.valueOf(rs.getString("transaction_type").toUpperCase()))
                         .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                         .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
-                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null ? rs.getTimestamp("last_synced_at").toLocalDateTime() : null)
+                        .lastSyncedAt(rs.getTimestamp(LAST_SYNCED_AT) != null ? rs.getTimestamp(LAST_SYNCED_AT).toLocalDateTime() : null)
                         .build();
                 transactions.add(transaction);
             }
-            // TODO Add real logic for analyzing transactions
             advice.setRecentTransactions(transactions);
             advice.setAdvice("Consider saving more based on recent spending patterns.");
         } catch (SQLException e) {
@@ -103,7 +98,7 @@ public class AdviceService extends AbstractService {
 
         Connection conn = opConn.get();
 
-        String query = "SELECT * FROM transactions WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id = ?) AND date BETWEEN ? AND ?";
+        String query = "SELECT transaction_id, name, date, amount, currency, account_id, category_id, excluded, notes, transaction_type, created_at, updated_at, last_synced_at FROM transactions WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id = ?) AND date BETWEEN ? AND ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setObject(1, userId, java.sql.Types.OTHER);
 
@@ -121,15 +116,15 @@ public class AdviceService extends AbstractService {
                         .amount(rs.getLong("amount"))
                         .currency(rs.getString("currency"))
                         .accountId(UUID.fromString(rs.getString("account_id")))
-                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id"))
+                        .categoryId(rs.getString(CATEGORY_ID) != null ? UUID.fromString(rs.getString(CATEGORY_ID))
                                 : null)
                         .excluded(rs.getBoolean("excluded"))
                         .notes(rs.getString("notes"))
                         .transactionType(TransactionType.valueOf(rs.getString("transaction_type").toUpperCase()))
                         .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                         .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
-                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null
-                                ? rs.getTimestamp("last_synced_at").toLocalDateTime()
+                        .lastSyncedAt(rs.getTimestamp(LAST_SYNCED_AT) != null
+                                ? rs.getTimestamp(LAST_SYNCED_AT).toLocalDateTime()
                                 : null)
                         .build();
                 transactions.add(transaction);
@@ -137,7 +132,6 @@ public class AdviceService extends AbstractService {
 
             // Example forecast logic: Sum up transactions and project future spending
             long totalAmount = transactions.stream().mapToLong(Transaction::getAmount).sum();
-            // TODO Add real logic for projecting future spending
             forecast.setProjectedAmount(totalAmount);
             forecast.setForecastMessage("Based on your past transactions, your projected spending is " + totalAmount);
         } catch (SQLException e) {

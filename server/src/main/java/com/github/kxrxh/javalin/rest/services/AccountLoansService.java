@@ -1,26 +1,21 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.AccountLoan;
 import com.github.kxrxh.javalin.rest.util.NATSUtil;
+
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.Optional;
+import java.util.UUID;
 
 public class AccountLoansService extends AbstractService {
 
     /**
      * Creates a new loan associated with a user account.
      *
-     * @param userId             The UUID of the user who owns the account.
      * @param accountId          The UUID of the account to which the loan will be
      *                           associated.
      * @param loanAmount         The amount of the loan.
@@ -34,9 +29,9 @@ public class AccountLoansService extends AbstractService {
      *                      process.
      */
     public static void createLoan(UUID userId, UUID accountId, long loanAmount,
-            long outstandingBalance, double interestRate,
-            String loanTerm, LocalDate dueDate,
-            String paymentFrequency, String collateral)
+                                  long outstandingBalance, double interestRate,
+                                  String loanTerm, LocalDate dueDate,
+                                  String paymentFrequency, String collateral)
             throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -44,6 +39,19 @@ public class AccountLoansService extends AbstractService {
         }
 
         Connection conn = optConn.get();
+
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT EXISTS (SELECT 1 FROM accounts WHERE user_id = ? AND account_id = ?)")) {
+            ps.setObject(1, userId, java.sql.Types.OTHER);
+            ps.setObject(2, accountId, java.sql.Types.OTHER);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next() && rs.getBoolean(1)) {
+                    throw new IllegalArgumentException("No result found.");
+                }
+            }
+        } finally {
+            conn.close();
+        }
 
         try (PreparedStatement ps = conn.prepareStatement(
                 "INSERT INTO account_loans (id, account_id, loan_amount, outstanding_balance, interest_rate, loan_term, due_date, payment_frequency, collateral, created_at, updated_at) "
@@ -84,7 +92,7 @@ public class AccountLoansService extends AbstractService {
 
         try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT al.* FROM account_loans al " +
-                        "JOIN accounts a ON al.account_id = a.account_id " +
+                        ON_AL_ACCOUNT_ID_A_ACCOUNT_ID +
                         "WHERE al.id = ? AND a.user_id = ?")) {
             ps.setObject(1, loanId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
@@ -130,10 +138,10 @@ public class AccountLoansService extends AbstractService {
      *                      process.
      */
     public static void updateLoan(UUID userId, UUID loanId, UUID accountId,
-            long loanAmount, long outstandingBalance,
-            double interestRate, String loanTerm,
-            LocalDate dueDate, String paymentFrequency,
-            String collateral) throws SQLException {
+                                  long loanAmount, long outstandingBalance,
+                                  double interestRate, String loanTerm,
+                                  LocalDate dueDate, String paymentFrequency,
+                                  String collateral) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();

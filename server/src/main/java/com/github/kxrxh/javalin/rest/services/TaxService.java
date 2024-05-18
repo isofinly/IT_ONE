@@ -1,15 +1,15 @@
 package com.github.kxrxh.javalin.rest.services;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.Tax;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.Tax;
 
 public class TaxService extends AbstractService {
 
@@ -23,7 +23,7 @@ public class TaxService extends AbstractService {
      * @param currency    The currency of the tax.
      * @throws SQLException If an SQL error occurs.
      */
-    public static void createTax(UUID userId, String name, String description, long rate, String currency)
+    public static void createTax(String name, String description, long rate, String currency)
             throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -53,7 +53,7 @@ public class TaxService extends AbstractService {
      * @return The Tax object if found.
      * @throws SQLException If the tax is not found or if an SQL error occurs.
      */
-    public static Tax readTax(UUID userId, UUID taxId) throws SQLException {
+    public static Tax readTax(UUID taxId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -61,7 +61,7 @@ public class TaxService extends AbstractService {
 
         Connection conn = optConn.get();
 
-        try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM taxes WHERE id = ?")) {
+        try (PreparedStatement ps = conn.prepareStatement("SELECT id, name, description, rate, currency FROM taxes WHERE id = ?")) {
             ps.setObject(1, taxId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -92,7 +92,7 @@ public class TaxService extends AbstractService {
      * @param currency    The updated currency of the tax.
      * @throws SQLException If an SQL error occurs.
      */
-    public static void updateTax(UUID userId, UUID taxId, String name, String description, long rate, String currency)
+    public static void updateTax(UUID taxId, String name, String description, long rate, String currency)
             throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -121,7 +121,7 @@ public class TaxService extends AbstractService {
      * @param taxId  The ID of the tax to delete.
      * @throws SQLException If an SQL error occurs.
      */
-    public static void deleteTax(UUID userId, UUID taxId) throws SQLException {
+    public static void deleteTax(UUID taxId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();

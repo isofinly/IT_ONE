@@ -21,6 +21,19 @@ public class AccountInvestmentsService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT EXISTS (SELECT 1 FROM accounts WHERE user_id = ? AND account_id = ?)")) {
+            ps.setObject(1, userId, java.sql.Types.OTHER);
+            ps.setObject(2, accountId, java.sql.Types.OTHER);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next() && rs.getBoolean(1)) {
+                    throw new IllegalArgumentException("No result found.");
+                }
+            }
+        } finally {
+            conn.close();
+        }
+
+        try (PreparedStatement ps = conn.prepareStatement(
                 "INSERT INTO account_investments (id, account_id, investment_type, market_value, purchase_price, purchase_date, dividends, interest_rate, created_at, updated_at) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             ps.setObject(1, UUID.randomUUID(), java.sql.Types.OTHER);

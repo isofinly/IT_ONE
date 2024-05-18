@@ -19,8 +19,6 @@ import com.github.kxrxh.javalin.rest.entities.BudgetComparisonResult;
 import com.github.kxrxh.javalin.rest.entities.BudgetSuggestions;
 import com.github.kxrxh.javalin.rest.util.NATSUtil;
 
-// TODO @KXRXH: Check logic
-// TODO: Логика сравнения бюджетов за прошлые периоды и возможные предложения по лимитам и интервалам
 public class BudgetService extends AbstractService {
 
     private BudgetService() {
@@ -61,7 +59,7 @@ public class BudgetService extends AbstractService {
      * @param budgetId  The ID of the budget to analyze.
      * @param dateRange The date range for the analysis.
      * @return The analysis result containing budget details, transactions,
-     *         comparisons, and suggestions.
+     * comparisons, and suggestions.
      * @throws SQLException If an SQL error occurs during the analysis.
      */
     public static BudgetAnalysisResult analyzeBudget(UUID userId, UUID budgetId, String dateRange) throws SQLException {
@@ -90,9 +88,9 @@ public class BudgetService extends AbstractService {
                 throw new SQLException("Budget not found for the user.");
             }
 
-            result.setBudgetId(UUID.fromString(rs.getString("budget_id")));
-            result.setUserId(UUID.fromString(rs.getString("user_id")));
-            result.setCategoryId(UUID.fromString(rs.getString("category_id")));
+            result.setBudgetId(UUID.fromString(rs.getString(BUDGET_ID)));
+            result.setUserId(UUID.fromString(rs.getString(USER_ID)));
+            result.setCategoryId(UUID.fromString(rs.getString(CATEGORY_ID)));
             result.setLimitAmount(rs.getLong("limit_amount"));
             result.setStartDate(rs.getTimestamp("start_date").toLocalDateTime());
             result.setEndDate(
@@ -115,21 +113,21 @@ public class BudgetService extends AbstractService {
             long totalSpent = 0;
             while (rs.next()) {
                 Transaction transaction = Transaction.builder()
-                        .transactionId(UUID.fromString(rs.getString("transaction_id")))
-                        .name(rs.getString("name"))
-                        .date(rs.getTimestamp("date").toLocalDateTime())
-                        .amount(rs.getLong("amount"))
-                        .currency(rs.getString("currency"))
-                        .accountId(UUID.fromString(rs.getString("account_id")))
-                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id"))
+                        .transactionId(UUID.fromString(rs.getString(TRANSACTION_ID)))
+                        .name(rs.getString(NAME))
+                        .date(rs.getTimestamp(DATE).toLocalDateTime())
+                        .amount(rs.getLong(AMOUNT))
+                        .currency(rs.getString(CURRENCY))
+                        .accountId(UUID.fromString(rs.getString(ACCOUNT_ID)))
+                        .categoryId(rs.getString(CATEGORY_ID) != null ? UUID.fromString(rs.getString(CATEGORY_ID))
                                 : null)
                         .excluded(rs.getBoolean("excluded"))
                         .notes(rs.getString("notes"))
                         .transactionType(TransactionType.valueOf(rs.getString("transaction_type").toUpperCase()))
                         .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                         .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
-                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null
-                                ? rs.getTimestamp("last_synced_at").toLocalDateTime()
+                        .lastSyncedAt(rs.getTimestamp(LAST_SYNCED_AT) != null
+                                ? rs.getTimestamp(LAST_SYNCED_AT).toLocalDateTime()
                                 : null)
                         .build();
                 transactions.add(transaction);
@@ -209,21 +207,21 @@ public class BudgetService extends AbstractService {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 BudgetComparisonResult comparison = new BudgetComparisonResult();
-                comparison.setTransactionId(UUID.fromString(rs.getString("transaction_id")));
-                comparison.setName(rs.getString("name"));
-                comparison.setDate(rs.getTimestamp("date").toLocalDateTime());
-                comparison.setAmount(rs.getLong("amount"));
-                comparison.setCurrency(rs.getString("currency"));
-                comparison.setAccountId(UUID.fromString(rs.getString("account_id")));
+                comparison.setTransactionId(UUID.fromString(rs.getString(TRANSACTION_ID)));
+                comparison.setName(rs.getString(NAME));
+                comparison.setDate(rs.getTimestamp(DATE).toLocalDateTime());
+                comparison.setAmount(rs.getLong(AMOUNT));
+                comparison.setCurrency(rs.getString(CURRENCY));
+                comparison.setAccountId(UUID.fromString(rs.getString(ACCOUNT_ID)));
                 comparison.setCategoryId(
-                        rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id")) : null);
+                        rs.getString(CATEGORY_ID) != null ? UUID.fromString(rs.getString(CATEGORY_ID)) : null);
                 comparison.setExcluded(rs.getBoolean("excluded"));
                 comparison.setNotes(rs.getString("notes"));
                 comparison.setTransactionType(TransactionType.valueOf(rs.getString("transaction_type").toUpperCase()));
                 comparison.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
                 comparison.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
                 comparison.setLastSyncedAt(
-                        rs.getTimestamp("last_synced_at") != null ? rs.getTimestamp("last_synced_at").toLocalDateTime()
+                        rs.getTimestamp(LAST_SYNCED_AT) != null ? rs.getTimestamp(LAST_SYNCED_AT).toLocalDateTime()
                                 : null);
 
                 comparisons.add(comparison);

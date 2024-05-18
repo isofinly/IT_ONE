@@ -1,19 +1,11 @@
 package com.github.kxrxh.javalin.rest.util;
 
+import javax.net.ssl.*;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.security.*;
 import java.security.cert.CertificateException;
-
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 
 public class SSLUtils {
     public static final String KEYSTORE_PATH = "certs/keystore.jks";
@@ -39,21 +31,21 @@ public class SSLUtils {
         return store;
     }
 
-    public static KeyManager[] createKeyManagers() throws Exception {
+    public static KeyManager[] createKeyManagers() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException {
         KeyStore store = loadKeystore(KEYSTORE_PATH);
         KeyManagerFactory factory = KeyManagerFactory.getInstance(ALGORITHM);
         factory.init(store, KEY_PASSWORD.toCharArray());
         return factory.getKeyManagers();
     }
 
-    public static TrustManager[] createTrustManagers() throws Exception {
+    public static TrustManager[] createTrustManagers() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
         KeyStore store = loadKeystore(TRUSTSTORE_PATH);
         TrustManagerFactory factory = TrustManagerFactory.getInstance(ALGORITHM);
         factory.init(store);
         return factory.getTrustManagers();
     }
 
-    public static SSLContext createSSLContext() throws Exception {
+    public static SSLContext createSSLContext() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
         SSLContext ctx = SSLContext.getInstance("TLS");
         ctx.init(createKeyManagers(), createTrustManagers(), new SecureRandom());
         return ctx;

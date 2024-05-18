@@ -1,18 +1,13 @@
 package com.github.kxrxh.javalin.rest.services;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import java.util.*;
 
 public class ReportService extends AbstractService {
 
@@ -164,7 +159,7 @@ public class ReportService extends AbstractService {
      * @return A map containing the expense distribution chart.
      */
     private static Map<String, String> generateExpenseDistributionChart(Map<String, Long> expensesByCategory,
-            long totalExpenses) {
+                                                                        long totalExpenses) {
         Map<String, String> chart = new HashMap<>();
         for (Map.Entry<String, Long> entry : expensesByCategory.entrySet()) {
             double percentage = ((double) entry.getValue() / totalExpenses) * 100;
@@ -181,7 +176,7 @@ public class ReportService extends AbstractService {
      * @param year   The year for which the expenses are fetched.
      * @param month  The month for which the expenses are fetched (1-12).
      * @return A list containing maps with description and amount of the largest
-     *         expenses.
+     * expenses.
      * @throws SQLException If an SQL error occurs.
      */
     private static List<Map<String, String>> fetchLargestExpenses(Connection conn, UUID userId, int year, int month)
@@ -234,8 +229,8 @@ public class ReportService extends AbstractService {
      * @return The name of the month.
      */
     private static String getMonthName(int month) {
-        String[] monthNames = { "January", "February", "March", "April", "May", "June", "July", "August", "September",
-                "October", "November", "December" };
+        String[] monthNames = {"January", "February", "March", "April", "May", "June", "July", "August", "September",
+                "October", "November", "December"};
         return monthNames[(month - 1 + 12) % 12];
     }
 }

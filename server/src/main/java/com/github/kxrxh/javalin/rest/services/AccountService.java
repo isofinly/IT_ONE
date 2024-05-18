@@ -1,18 +1,14 @@
 package com.github.kxrxh.javalin.rest.services;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
+import java.util.*;
 
 public class AccountService extends AbstractService {
 
@@ -43,8 +39,8 @@ public class AccountService extends AbstractService {
 
         try (PreparedStatement ps1 = conn.prepareStatement(
                 "UPDATE accounts SET balance = balance - ? WHERE account_id = ?");
-                PreparedStatement ps2 = conn.prepareStatement(
-                        "UPDATE accounts SET balance = balance + ? WHERE account_id = ?")) {
+             PreparedStatement ps2 = conn.prepareStatement(
+                     "UPDATE accounts SET balance = balance + ? WHERE account_id = ?")) {
             ps1.setLong(1, amount);
             ps1.setObject(2, fromAccountId, java.sql.Types.OTHER);
             int rowsUpdated = ps1.executeUpdate();
@@ -162,7 +158,7 @@ public class AccountService extends AbstractService {
      * @param userId    The UUID of the user to check authorization for.
      * @param accountId The UUID of the account to check authorization for.
      * @return True if the user is authorized to perform operations on the account,
-     *         false otherwise.
+     * false otherwise.
      * @throws SQLException If an SQL exception occurs while checking authorization.
      */
     private static boolean isUserAuthorized(UUID userId, UUID accountId) throws SQLException {

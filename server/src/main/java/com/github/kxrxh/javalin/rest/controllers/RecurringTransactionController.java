@@ -46,7 +46,7 @@ public class RecurringTransactionController extends AbstractController {
     public static void readRecurringTransaction(Context ctx) {
         UUID userId = Utils.getUUIDFromContext(ctx);
 
-        String recurringTransactionIdStr = ctx.queryParam("recurring_transaction_id");
+        String recurringTransactionIdStr = ctx.queryParam(RECURRING_TRANSACTION_ID);
 
         if (recurringTransactionIdStr == null || recurringTransactionIdStr.isEmpty()) {
             ctx.status(400).result("Missing required parameters");
@@ -69,7 +69,7 @@ public class RecurringTransactionController extends AbstractController {
         UUID userId = Utils.getUUIDFromContext(ctx);
         JSONObject requestBody = new JSONObject(ctx.body());
 
-        String recurringTransactionIdStr = requestBody.optString("recurring_transaction_id");
+        String recurringTransactionIdStr = requestBody.optString(RECURRING_TRANSACTION_ID);
         String amountStr = requestBody.optString("amount");
         String categoryIdStr = requestBody.optString("category_id");
         String description = requestBody.optString("description");
@@ -99,7 +99,7 @@ public class RecurringTransactionController extends AbstractController {
         UUID userId = Utils.getUUIDFromContext(ctx);
         JSONObject requestBody = new JSONObject(ctx.body());
 
-        String recurringTransactionIdStr = requestBody.optString("recurring_transaction_id");
+        String recurringTransactionIdStr = requestBody.optString(RECURRING_TRANSACTION_ID);
 
         if (recurringTransactionIdStr == null) {
             ctx.status(400).result(MISSING_REQUIERED_STRING);

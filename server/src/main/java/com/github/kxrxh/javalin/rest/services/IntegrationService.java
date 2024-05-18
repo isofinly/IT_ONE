@@ -1,5 +1,12 @@
 package com.github.kxrxh.javalin.rest.services;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.entities.MockBankIntegration;
+import com.github.kxrxh.javalin.rest.interfaces.BankIntegration;
+import io.javalin.validation.ValidationException;
+
+import java.net.ConnectException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,11 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.entities.MockBankIntegration;
-import com.github.kxrxh.javalin.rest.interfaces.BankIntegration;
 
 public class IntegrationService extends AbstractService {
 
@@ -34,12 +36,12 @@ public class IntegrationService extends AbstractService {
      * @param bankCredentials The credentials for accessing the bank.
      * @throws Exception If no integration is found for the specified bank.
      */
-    public static void integrateWithBank(UUID userId, String bankName, String bankCredentials) throws Exception {
+    public static void integrateWithBank(UUID userId, String bankName, String bankCredentials) throws ValidationException, ConnectException {
         BankIntegration integration = integrations.get(bankName.toLowerCase());
         if (integration != null) {
             integration.integrateWithBank(userId, bankCredentials);
         } else {
-            throw new Exception("No integration found for bank: " + bankName);
+            throw new ConnectException("No integration found for bank: " + bankName);
         }
     }
 
@@ -87,7 +89,7 @@ public class IntegrationService extends AbstractService {
      * @param userId The ID of the user.
      * @param conn   The database connection.
      * @return A map containing category names as keys and their corresponding UUIDs
-     *         as values.
+     * as values.
      * @throws SQLException If an SQL error occurs.
      */
     private static Map<String, UUID> loadCategoryMappings(UUID userId, Connection conn) throws SQLException {
