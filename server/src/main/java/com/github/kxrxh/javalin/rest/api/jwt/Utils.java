@@ -1,5 +1,11 @@
 package com.github.kxrxh.javalin.rest.api.jwt;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import io.javalin.http.Context;
+import javalinjwt.JavalinJWT;
+import lombok.extern.slf4j.Slf4j;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,13 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-
-import io.javalin.http.Context;
-import javalinjwt.JavalinJWT;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Utils {
@@ -44,7 +43,7 @@ public class Utils {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(query);
-                ResultSet rs = ps.executeQuery()) {
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 UUID userId = UUID.fromString(rs.getString("user_id"));
                 userIds.add(userId);

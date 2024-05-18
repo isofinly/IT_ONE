@@ -1,5 +1,10 @@
 package com.github.kxrxh.javalin.rest.services;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.entities.MockBankIntegration;
+import com.github.kxrxh.javalin.rest.interfaces.BankIntegration;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,21 +14,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.entities.MockBankIntegration;
-import com.github.kxrxh.javalin.rest.interfaces.BankIntegration;
-
 public class IntegrationService extends AbstractService {
-
-    private IntegrationService() {
-    }
 
     private static final Map<String, BankIntegration> integrations = new HashMap<>();
 
     static {
         integrations.put("mockbank", new MockBankIntegration());
         // Add other bank integrations here
+    }
+
+    private IntegrationService() {
     }
 
     public static void integrateWithBank(UUID userId, String bankName, String bankCredentials) throws Exception {

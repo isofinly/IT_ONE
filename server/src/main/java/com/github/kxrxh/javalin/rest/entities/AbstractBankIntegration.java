@@ -1,18 +1,17 @@
 package com.github.kxrxh.javalin.rest.entities;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.kxrxh.javalin.rest.database.models.Transaction;
+import com.github.kxrxh.javalin.rest.interfaces.BankIntegration;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.kxrxh.javalin.rest.database.models.Transaction;
-import com.github.kxrxh.javalin.rest.interfaces.BankIntegration;
 
 public abstract class AbstractBankIntegration implements BankIntegration {
 

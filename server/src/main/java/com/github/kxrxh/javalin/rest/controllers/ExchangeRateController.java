@@ -1,17 +1,15 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
-import java.sql.Date;
-import java.sql.SQLException;
-import java.util.UUID;
-
+import com.github.kxrxh.javalin.rest.database.models.ExchangeRate;
+import com.github.kxrxh.javalin.rest.services.ExchangeRateService;
+import io.javalin.http.Context;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.github.kxrxh.javalin.rest.database.models.ExchangeRate;
-import com.github.kxrxh.javalin.rest.services.ExchangeRateService;
-
-import io.javalin.http.Context;
-import lombok.extern.slf4j.Slf4j;
+import java.sql.Date;
+import java.sql.SQLException;
+import java.util.UUID;
 
 @Slf4j
 public class ExchangeRateController extends AbstractController {

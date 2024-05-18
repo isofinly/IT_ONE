@@ -1,5 +1,7 @@
 package com.github.kxrxh.javalin.rest.util;
 
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,18 +14,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-
 public class CurrencyConversion {
-
-    private CurrencyConversion() {
-    }
 
     private static final Map<String, Double> exchangeRates = new HashMap<>();
     private static final String BASE_CURRENCY = "RUB";
 
     static {
         loadExchangeRates();
+    }
+
+    private CurrencyConversion() {
     }
 
     private static void loadExchangeRates() {
@@ -48,7 +48,7 @@ public class CurrencyConversion {
         Connection conn = optConn.get();
         try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT base_currency, converted_currency, rate FROM exchange_rates WHERE date = CURRENT_DATE");
-                ResultSet rs = ps.executeQuery()) {
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 String currencyPair = rs.getString("base_currency") + "_" + rs.getString("converted_currency");
                 double rate = rs.getDouble("rate");

@@ -1,21 +1,17 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.Category;
 import com.github.kxrxh.javalin.rest.database.models.Transaction;
 import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
 import com.github.kxrxh.javalin.rest.entities.CategoryAnalysisResult;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class CategoryService extends AbstractService {
 

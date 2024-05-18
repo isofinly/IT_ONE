@@ -1,25 +1,21 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.Transaction;
+import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
+
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.Transaction;
-import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
-
 public class TransactionService extends AbstractService {
 
     public static List<Transaction> searchTransactions(UUID userId, String amountRange, String dateRange,
-            UUID categoryId, String description) throws SQLException {
+                                                       UUID categoryId, String description) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -92,7 +88,7 @@ public class TransactionService extends AbstractService {
     }
 
     public static void createTransaction(UUID userId, UUID accountId, UUID categoryId, long amount, String name,
-            LocalDateTime date, String currency, String notes, TransactionType transactionType) throws SQLException {
+                                         LocalDateTime date, String currency, String notes, TransactionType transactionType) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -118,7 +114,7 @@ public class TransactionService extends AbstractService {
     }
 
     public static void updateTransaction(UUID userId, UUID transactionId, UUID accountId, UUID categoryId, long amount,
-            String name, LocalDateTime date, String currency, String notes, TransactionType transactionType)
+                                         String name, LocalDateTime date, String currency, String notes, TransactionType transactionType)
             throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
@@ -166,7 +162,7 @@ public class TransactionService extends AbstractService {
     }
 
     public static void createRecurringTransaction(UUID userId, long amount, UUID categoryId, String description,
-            long frequency) throws SQLException {
+                                                  long frequency) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
             throw new ConnectionRetrievingException();

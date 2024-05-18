@@ -1,6 +1,4 @@
 
-E
-src/sqlite_schema.sql,8/9/892f05db8fd9f7d39544f32b70e0fe8c1e2ffc01
 _
 /src/main/java/com/pivo/app/MainApplication.java,9/0/909eadd11815f7616f7e6f278485474702c2cf33
 e
@@ -21,42 +19,20 @@ d
 mvnw,5/d/5d837c4ed85ecaaf932c506e80ff5d7b9f3d590d
 C
 src/sqlite_mock.sql,4/0/402ed56573e7637359734bf4621952a8d6e7b4a9
-]
--src/main/java/com/pivo/app/Configuration.java,6/a/6ab29ee755ed05ae5809458579f460bd2fc1656d
 7
 pom.xml,4/4/442292b8a7efeabbe4cc176709b833b1792140ec
 b
 2src/main/java/com/pivo/app/DatabaseController.java,0/c/0c913bdced8df305d9e166a90536fa00158bce2b
-?
-src/config.json,1/5/15854bb039f5ff793f308f0d5599d1c950914088
 ;
 config.json,c/5/c5fd3201494e82cf94e6a681cdc535b306134e1a
 X
 (src/main/java/com/pivo/app/Launcher.java,1/e/1e69b96f9b97a7b0e7d36e3ec4db392626537e3e
-[
-+src/main/java/com/pivo/app/Application.java,5/c/5c23d0214e193966a33f46614b022df764966ee1
-J
-dependency-reduced-pom.xml,8/a/8a88dfd5af6f2db5a5431581b56e901f5f143d92
 M
 .idea/artifacts/ClientApp.xml,b/2/b2e88a4a6150cb6e3f549b15e487ba62a1443562
 i
 9src/main/java/com/pivo/app/AccountSettingsController.java,a/4/a44f2ff99eb70e7f6822f1f586c5d73203c27625
-T
-$src/main/java/com/pivo/app/User.java,c/f/cf8921188a35f3896af5c63018f2d13a593bc394
 W
 'src/main/java/com/pivo/app/Account.java,7/b/7b675e5312caa33484253af6706f9f00b5fbea78
-[
-+src/main/java/com/pivo/app/Transaction.java,3/a/3a78e9e3495ca1651809a9824e529ea6253d1972
-X
-(src/main/java/com/pivo/app/Category.java,a/6/a67e2e188f13d0d78145ca96f437906f9e72fcc9
-^
-.src/main/java/com/pivo/app/UserController.java,d/9/d9c6751c1b1aa010e20ef104605560be8019ea32
-_
-/src/main/java/com/pivo/app/DatabaseService.java,2/d/2d38b908fba615c4d6818d94ff652d13306beb3f
-d
-4src/main/java/com/pivo/app/UserInterfaceManager.java,5/0/505d0a42cfa2a7856b0fec1aafa66c0d8023b8f4
-<
-src/mock.sql,7/1/71c85da5334e2243f24ed8bfa8870999d4719fd6
 S
 #.idea/sonarlint/issuestore/index.pb,9/f/9fe84ebb15faf917b7def6236dba604453cc61e0
 ]
@@ -75,3 +51,13 @@ l
 <src/main/java/com/pivo/app/AutoCommitTextFieldTableCell.java,d/b/db3a27ac5dc8ac4c25055c1e1b3147cc13221e8e
 d
 4src/main/java/com/pivo/app/AppearanceController.java,c/6/c6b4675a2500996768a62727a6cb5b53e489a92c
+}
+Msrc/main/java/com/github/kxrxh/javalin/rest/services/AccountLoansService.java,9/2/9232ff74748ca097cf927a3ca1f74f72ad6ec097
+o
+?src/main/java/com/github/kxrxh/javalin/rest/api/RestServer.java,2/4/24eca5224aa71297481aeb12c744547c85d70ce4
+d
+4src/main/java/com/github/kxrxh/javalin/rest/App.java,d/c/dc175df282799b327181fb4a232d391988d9bced
+…
+Usrc/main/java/com/github/kxrxh/javalin/rest/controllers/AccountCreditsController.java,a/f/afd55b61513218c7f6f2260f364aa07b60153ef9
+
+Osrc/main/java/com/github/kxrxh/javalin/rest/services/AccountCreditsService.java,c/f/cf189824943de0d6ef86d0f4a3865ca8912108f6

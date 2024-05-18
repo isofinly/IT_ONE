@@ -1,16 +1,12 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.ExchangeRate;
+
+import java.sql.*;
+import java.util.Optional;
+import java.util.UUID;
 
 public class ExchangeRateService extends AbstractService {
 
@@ -73,7 +69,7 @@ public class ExchangeRateService extends AbstractService {
     }
 
     public static void updateExchangeRate(UUID id, String baseCurrency, String convertedCurrency, double rate,
-            Date date) throws SQLException {
+                                          Date date) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();

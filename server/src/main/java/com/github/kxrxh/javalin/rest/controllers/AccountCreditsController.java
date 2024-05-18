@@ -1,18 +1,16 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.UUID;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.database.models.AccountCredit;
 import com.github.kxrxh.javalin.rest.services.AccountCreditsService;
-
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Slf4j
 public class AccountCreditsController extends AbstractController {
@@ -34,7 +32,7 @@ public class AccountCreditsController extends AbstractController {
         String dueDateStr = requestBody.optString("due_date");
         String minimumPaymentStr = requestBody.optString("minimum_payment");
 
-        if ( accountName.isEmpty() || creditLimitStr.isEmpty() || interestRateStr.isEmpty() || dueDateStr.isEmpty()
+        if (accountName.isEmpty() || creditLimitStr.isEmpty() || interestRateStr.isEmpty() || dueDateStr.isEmpty()
                 || minimumPaymentStr.isEmpty()) {
             ctx.status(400).result(MISSING_REQUIERED_STRING);
             return;

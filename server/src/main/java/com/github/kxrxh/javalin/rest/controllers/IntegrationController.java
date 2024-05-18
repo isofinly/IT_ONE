@@ -1,22 +1,20 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
-import java.sql.SQLException;
-import java.util.UUID;
-
+import com.github.kxrxh.javalin.rest.api.jwt.Utils;
+import com.github.kxrxh.javalin.rest.services.IntegrationService;
+import io.javalin.http.Context;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.github.kxrxh.javalin.rest.api.jwt.Utils;
-import com.github.kxrxh.javalin.rest.services.IntegrationService;
-
-import io.javalin.http.Context;
-import lombok.extern.slf4j.Slf4j;
+import java.sql.SQLException;
+import java.util.UUID;
 
 @Slf4j
 public class IntegrationController extends AbstractController {
 
     public static void integrateWithBank(Context ctx) {
-        
+
         UUID userId = Utils.getUUIDFromContext(ctx);
         String bankName;
         JSONObject requestBody;

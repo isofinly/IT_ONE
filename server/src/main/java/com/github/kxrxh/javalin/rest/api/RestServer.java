@@ -1,6 +1,14 @@
 package com.github.kxrxh.javalin.rest.api;
 
-import static com.github.kxrxh.javalin.rest.util.Prometheus.initializePrometheus;
+import com.github.kxrxh.javalin.rest.api.jwt.Utils;
+import com.github.kxrxh.javalin.rest.controllers.*;
+import com.github.kxrxh.javalin.rest.services.AccountCreditsService;
+import com.github.kxrxh.javalin.rest.services.AccountLoansService;
+import com.github.kxrxh.javalin.rest.util.PrometheusInitializationException;
+import io.javalin.Javalin;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jetty.server.handler.StatisticsHandler;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -9,35 +17,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jetty.server.handler.StatisticsHandler;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-
-import com.github.kxrxh.javalin.rest.api.jwt.Utils;
-import com.github.kxrxh.javalin.rest.controllers.AccountBalancesController;
-import com.github.kxrxh.javalin.rest.controllers.AccountController;
-import com.github.kxrxh.javalin.rest.controllers.AccountCreditsController;
-import com.github.kxrxh.javalin.rest.controllers.AccountDepositoriesController;
-import com.github.kxrxh.javalin.rest.controllers.AccountInvestmentsController;
-import com.github.kxrxh.javalin.rest.controllers.AccountLoansController;
-import com.github.kxrxh.javalin.rest.controllers.AccountOtherAssetsController;
-import com.github.kxrxh.javalin.rest.controllers.AdviceController;
-import com.github.kxrxh.javalin.rest.controllers.AuthController;
-import com.github.kxrxh.javalin.rest.controllers.BudgetController;
-import com.github.kxrxh.javalin.rest.controllers.CategoryController;
-import com.github.kxrxh.javalin.rest.controllers.ExchangeRateController;
-import com.github.kxrxh.javalin.rest.controllers.IntegrationController;
-import com.github.kxrxh.javalin.rest.controllers.RecurringTransactionController;
-import com.github.kxrxh.javalin.rest.controllers.ReportController;
-import com.github.kxrxh.javalin.rest.controllers.TaxController;
-import com.github.kxrxh.javalin.rest.controllers.TransactionController;
-import com.github.kxrxh.javalin.rest.controllers.ValuationController;
-import com.github.kxrxh.javalin.rest.controllers.VisualizationController;
-import com.github.kxrxh.javalin.rest.services.AccountCreditsService;
-import com.github.kxrxh.javalin.rest.services.AccountLoansService;
-import com.github.kxrxh.javalin.rest.util.PrometheusInitializationException;
-
-import io.javalin.Javalin;
-import lombok.extern.slf4j.Slf4j;
+import static com.github.kxrxh.javalin.rest.util.Prometheus.initializePrometheus;
 
 /**
  * Represents a RESTful server built with Javalin framework.

@@ -1,18 +1,14 @@
 package com.github.kxrxh.javalin.rest.services;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
+import java.util.*;
 
 public class AccountService extends AbstractService {
 
@@ -32,8 +28,8 @@ public class AccountService extends AbstractService {
 
         try (PreparedStatement ps1 = conn.prepareStatement(
                 "UPDATE accounts SET balance = balance - ? WHERE account_id = ?");
-                PreparedStatement ps2 = conn.prepareStatement(
-                        "UPDATE accounts SET balance = balance + ? WHERE account_id = ?")) {
+             PreparedStatement ps2 = conn.prepareStatement(
+                     "UPDATE accounts SET balance = balance + ? WHERE account_id = ?")) {
             ps1.setLong(1, amount);
             ps1.setObject(2, fromAccountId, java.sql.Types.OTHER);
             int rowsUpdated = ps1.executeUpdate();
@@ -92,9 +88,9 @@ public class AccountService extends AbstractService {
                             long balance = rs.getLong("balance");
                             String currency = rs.getString("currency");
                             double convertedBalance = CurrencyConversion.convert(balance, currency, "RUB"); // Convert
-                                                                                                            // all
-                                                                                                            // balances
-                                                                                                            // to RUB
+                            // all
+                            // balances
+                            // to RUB
                             totalBalance += convertedBalance;
                         } else {
                             throw new SQLException("Account with ID " + accountId + " not found");

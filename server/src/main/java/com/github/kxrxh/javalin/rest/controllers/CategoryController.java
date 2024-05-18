@@ -1,15 +1,14 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
-import java.sql.SQLException;
-import java.util.UUID;
-
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.database.models.Category;
 import com.github.kxrxh.javalin.rest.entities.CategoryAnalysisResult;
 import com.github.kxrxh.javalin.rest.services.CategoryService;
-
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
+
+import java.sql.SQLException;
+import java.util.UUID;
 
 @Slf4j
 public class CategoryController extends AbstractController {

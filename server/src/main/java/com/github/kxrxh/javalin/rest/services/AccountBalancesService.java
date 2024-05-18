@@ -1,17 +1,13 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.AccountBalance;
+
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.UUID;
 
 public class AccountBalancesService extends AbstractService {
 
@@ -74,7 +70,7 @@ public class AccountBalancesService extends AbstractService {
     }
 
     public static void updateBalance(UUID userId, UUID balanceId, UUID accountId, LocalDate date, long balance,
-            String currency) throws SQLException {
+                                     String currency) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();

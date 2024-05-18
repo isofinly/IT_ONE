@@ -1,7 +1,7 @@
 package com.github.kxrxh.javalin.rest.services;
 
 
-public abstract class AbstractService{
+public abstract class AbstractService {
     protected static final String WRONG_BODY_FORMAT = "Wrong body format: ";
     protected static final String MISSING_REQUIERED_STRING = "Missing required parameters";
     protected static final String INTERNAL_ERROR = "Internal Server Error: ";
@@ -17,7 +17,6 @@ public abstract class AbstractService{
     protected static final String ACCOUNT_ID = "account_id";
     protected static final String BALANCE_ID = "balance_id";
     protected static final String TOTAL_EXPENSES = "totalExpenses";
-
 
 
     protected AbstractService() {

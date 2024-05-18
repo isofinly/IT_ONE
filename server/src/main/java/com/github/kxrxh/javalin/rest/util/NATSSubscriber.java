@@ -1,5 +1,12 @@
 package com.github.kxrxh.javalin.rest.util;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import io.nats.client.Dispatcher;
+import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -7,15 +14,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Optional;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-
-import io.nats.client.Dispatcher;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class NATSSubscriber {
