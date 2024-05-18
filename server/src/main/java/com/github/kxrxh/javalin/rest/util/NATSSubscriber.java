@@ -19,9 +19,10 @@ import java.util.Optional;
 @Slf4j
 public class NATSSubscriber {
 
-    private NATSSubscriber() {}
-
     private static io.nats.client.Connection natsConnection;
+
+    private NATSSubscriber() {
+    }
 
     public static void connect(String natsServerURL, String subject) throws IOException, InterruptedException {
         if (natsConnection == null) {

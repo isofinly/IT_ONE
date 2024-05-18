@@ -1,16 +1,12 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.AccountBalance;
+
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.AccountBalance;
 
 public class AccountBalancesService {
 
@@ -55,15 +51,15 @@ public class AccountBalancesService {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return AccountBalance.builder()
-                    .id(UUID.fromString(rs.getString("id")))
-                    .accountId(UUID.fromString(rs.getString("account_id")))
-                    .accountId(UUID.fromString(rs.getString("user_id")))
-                    .date(rs.getDate("date").toLocalDate())
-                    .balance(rs.getLong("balance"))
-                    .currency(rs.getString("currency"))
-                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
-                    .build();
+                            .id(UUID.fromString(rs.getString("id")))
+                            .accountId(UUID.fromString(rs.getString("account_id")))
+                            .accountId(UUID.fromString(rs.getString("user_id")))
+                            .date(rs.getDate("date").toLocalDate())
+                            .balance(rs.getLong("balance"))
+                            .currency(rs.getString("currency"))
+                            .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                            .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
+                            .build();
                 } else {
                     throw new SQLException("Balance not found");
                 }
@@ -72,7 +68,7 @@ public class AccountBalancesService {
     }
 
     public static void updateBalance(UUID userId, UUID balanceId, UUID accountId, LocalDate date, long balance,
-            String currency) throws SQLException {
+                                     String currency) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new SQLException("Could not get connection from pool");

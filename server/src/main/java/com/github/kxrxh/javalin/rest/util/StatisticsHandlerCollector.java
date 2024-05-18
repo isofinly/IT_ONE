@@ -1,16 +1,17 @@
 package com.github.kxrxh.javalin.rest.util;
 
 import io.prometheus.client.Collector;
+import org.eclipse.jetty.server.handler.StatisticsHandler;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.eclipse.jetty.server.handler.StatisticsHandler;
 
 public class StatisticsHandlerCollector extends Collector {
 
-    private final StatisticsHandler statisticsHandler;
     private static final List<String> EMPTY_LIST = new ArrayList<>();
+    private final StatisticsHandler statisticsHandler;
 
     private StatisticsHandlerCollector(StatisticsHandler statisticsHandler) {
         this.statisticsHandler = statisticsHandler;
@@ -18,6 +19,33 @@ public class StatisticsHandlerCollector extends Collector {
 
     public static void initialize(StatisticsHandler statisticsHandler) {
         new StatisticsHandlerCollector(statisticsHandler).register();
+    }
+
+    private static MetricFamilySamples buildGauge(String name, String help, double value) {
+        return new MetricFamilySamples(
+                name,
+                Type.GAUGE,
+                help,
+                Collections.singletonList(new MetricFamilySamples.Sample(name, EMPTY_LIST, EMPTY_LIST, value))
+        );
+    }
+
+    private static MetricFamilySamples buildCounter(String name, String help, double value) {
+        return new MetricFamilySamples(
+                name,
+                Type.COUNTER,
+                help,
+                Collections.singletonList(new MetricFamilySamples.Sample(name, EMPTY_LIST, EMPTY_LIST, value))
+        );
+    }
+
+    private static MetricFamilySamples.Sample buildStatusSample(String name, String status, double value) {
+        return new MetricFamilySamples.Sample(
+                name,
+                Collections.singletonList("code"),
+                Collections.singletonList(status),
+                value
+        );
     }
 
     @Override
@@ -44,24 +72,6 @@ public class StatisticsHandlerCollector extends Collector {
         );
     }
 
-    private static MetricFamilySamples buildGauge(String name, String help, double value) {
-        return new MetricFamilySamples(
-                name,
-                Type.GAUGE,
-                help,
-                Collections.singletonList(new MetricFamilySamples.Sample(name, EMPTY_LIST, EMPTY_LIST, value))
-        );
-    }
-
-    private static MetricFamilySamples buildCounter(String name, String help, double value) {
-        return new MetricFamilySamples(
-                name,
-                Type.COUNTER,
-                help,
-                Collections.singletonList(new MetricFamilySamples.Sample(name, EMPTY_LIST, EMPTY_LIST, value))
-        );
-    }
-
     private MetricFamilySamples buildStatusCounter() {
         String name = "jetty_responses_total";
         return new MetricFamilySamples(
@@ -75,15 +85,6 @@ public class StatisticsHandlerCollector extends Collector {
                         buildStatusSample(name, "4xx", statisticsHandler.getResponses4xx()),
                         buildStatusSample(name, "5xx", statisticsHandler.getResponses5xx())
                 )
-        );
-    }
-
-    private static MetricFamilySamples.Sample buildStatusSample(String name, String status, double value) {
-        return new MetricFamilySamples.Sample(
-                name,
-                Collections.singletonList("code"),
-                Collections.singletonList(status),
-                value
         );
     }
 

@@ -15,7 +15,7 @@ public class AccountService {
     private AccountService() {
     }
 
-   public static void transferFunds(UUID userId, UUID fromAccountId, UUID toAccountId, long amount) throws SQLException {
+    public static void transferFunds(UUID userId, UUID fromAccountId, UUID toAccountId, long amount) throws SQLException {
         if (!isUserAuthorized(userId, fromAccountId)) {
             throw new SQLException("User not authorized to transfer from this account");
         }

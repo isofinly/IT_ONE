@@ -1,3 +1,15 @@
+package com.github.kxrxh.javalin.rest.services;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.AccountLoan;
+import com.github.kxrxh.javalin.rest.database.models.Valuation;
+import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
+
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.UUID;
+
+
 public class AccountLoansService {
 
     private AccountLoansService() {
@@ -48,13 +60,13 @@ public class AccountLoansService {
                             UUID.fromString(rs.getString("user_id")),
                             rs.getLong("loan_amount"),
                             rs.getLong("outstanding_balance"),
-                            rs.getDouble("interest_rate"),
+                            rs.getBigDecimal("interest_rate"),
                             rs.getString("loan_term"),
                             rs.getDate("due_date").toLocalDate(),
                             rs.getString("payment_frequency"),
                             rs.getString("collateral"),
-                            rs.getTimestamp("created_at").toInstant(),
-                            rs.getTimestamp("updated_at").toInstant()
+                            rs.getTimestamp("created_at").toLocalDateTime(),
+                            rs.getTimestamp("updated_at").toLocalDateTime()
                     );
                 } else {
                     throw new SQLException("Loan not found");

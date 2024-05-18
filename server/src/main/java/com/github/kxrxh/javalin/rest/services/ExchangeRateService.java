@@ -1,3 +1,12 @@
+package com.github.kxrxh.javalin.rest.services;
+
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.ExchangeRate;
+
+import java.sql.*;
+import java.util.Optional;
+import java.util.UUID;
+
 public class ExchangeRateService {
 
     private ExchangeRateService() {
@@ -41,10 +50,10 @@ public class ExchangeRateService {
                             UUID.fromString(rs.getString("id")),
                             rs.getString("base_currency"),
                             rs.getString("converted_currency"),
-                            rs.getDouble("rate"),
+                            rs.getLong("rate"),
                             rs.getDate("date").toLocalDate(),
-                            rs.getTimestamp("created_at").toInstant(),
-                            rs.getTimestamp("updated_at").toInstant()
+                            rs.getTimestamp("created_at").toLocalDateTime(),
+                            rs.getTimestamp("updated_at").toLocalDateTime()
                     );
                 } else {
                     throw new SQLException("Exchange rate not found");

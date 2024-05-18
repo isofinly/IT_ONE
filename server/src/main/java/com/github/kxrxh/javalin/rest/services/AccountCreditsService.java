@@ -1,3 +1,15 @@
+package com.github.kxrxh.javalin.rest.services;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.AccountCredit;
+import com.github.kxrxh.javalin.rest.database.models.Valuation;
+import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
+
+import java.math.BigDecimal;
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.UUID;
+
 public class AccountCreditsService {
 
     private AccountCreditsService() {
@@ -44,11 +56,11 @@ public class AccountCreditsService {
                             UUID.fromString(rs.getString("account_id")),
                             UUID.fromString(rs.getString("user_id")),
                             rs.getLong("credit_limit"),
-                            rs.getDouble("interest_rate"),
+                            rs.getBigDecimal("interest_rate"),
                             rs.getDate("due_date").toLocalDate(),
                             rs.getLong("minimum_payment"),
-                            rs.getTimestamp("created_at").toInstant(),
-                            rs.getTimestamp("updated_at").toInstant()
+                            rs.getTimestamp("created_at").toLocalDateTime(),
+                            rs.getTimestamp("updated_at").toLocalDateTime()
                     );
                 } else {
                     throw new SQLException("Credit not found");

@@ -2,11 +2,9 @@ package com.github.kxrxh.javalin.rest.controllers;
 
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.database.models.Valuation;
-import com.github.kxrxh.javalin.rest.services.AccountService;
-import com.github.kxrxh.javalin.rest.services.*;
+import com.github.kxrxh.javalin.rest.services.ValuationService;
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
-
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -55,7 +53,7 @@ public class ValuationController {
             }
 
             UUID valuationId = UUID.fromString(valuationIdStr);
-        Valuation valuation = ValuationService.readValuation(userId, valuationId, targetCurrency);
+            Valuation valuation = ValuationService.readValuation(userId, valuationId, targetCurrency);
             ctx.json(valuation);
         } catch (Exception e) {
             log.error(e.getMessage(), e);

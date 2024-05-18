@@ -1,3 +1,18 @@
+package com.github.kxrxh.javalin.rest.services;
+
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.AccountDepository;
+import com.github.kxrxh.javalin.rest.database.models.Valuation;
+import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.UUID;
+
 public class AccountDepositoriesService {
 
     private AccountDepositoriesService() {
@@ -47,10 +62,10 @@ public class AccountDepositoriesService {
                             rs.getString("bank_name"),
                             rs.getString("account_number"),
                             rs.getString("routing_number"),
-                            rs.getDouble("interest_rate"),
+                            rs.getBigDecimal("interest_rate"),
                             rs.getLong("overdraft_limit"),
-                            rs.getTimestamp("created_at").toInstant(),
-                            rs.getTimestamp("updated_at").toInstant()
+                            rs.getTimestamp("created_at").toLocalDateTime(),
+                            rs.getTimestamp("updated_at").toLocalDateTime()
                     );
                 } else {
                     throw new SQLException("Depository not found");

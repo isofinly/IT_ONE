@@ -1,3 +1,15 @@
+package com.github.kxrxh.javalin.rest.services;
+
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.AccountInvestment;
+import com.github.kxrxh.javalin.rest.database.models.Valuation;
+import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
+
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.UUID;
+
 public class AccountInvestmentsService {
 
     private AccountInvestmentsService() {
@@ -50,9 +62,9 @@ public class AccountInvestmentsService {
                             rs.getLong("purchase_price"),
                             rs.getDate("purchase_date").toLocalDate(),
                             rs.getLong("dividends"),
-                            rs.getDouble("interest_rate"),
-                            rs.getTimestamp("created_at").toLocalDate(),
-                            rs.getTimestamp("updated_at").toLocalDate()
+                            rs.getBigDecimal("interest_rate"),
+                            rs.getTimestamp("created_at").toLocalDateTime(),
+                            rs.getTimestamp("updated_at").toLocalDateTime()
                     );
                 } else {
                     throw new SQLException("Investment not found");

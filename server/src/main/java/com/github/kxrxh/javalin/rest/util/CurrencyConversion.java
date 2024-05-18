@@ -1,5 +1,8 @@
 package com.github.kxrxh.javalin.rest.util;
 
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,10 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 public class CurrencyConversion {
 
@@ -26,17 +25,18 @@ public class CurrencyConversion {
         loadExchangeRates();
     }
 
-private static void loadExchangeRates() {
+    private static void loadExchangeRates() {
         if (!loadExchangeRatesFromDB()) {
             String csvFilePath = System.getenv("EXCHANGE_RATES_CSV") != null ? System.getenv("EXCHANGE_RATES_CSV")
-                : "./data/EXCHANGE_RATES.csv";
-        if (csvFilePath != null) {
-            loadExchangeRatesFromCSV(csvFilePath);
-        } else {
-            throw new RuntimeException("Environment variable EXCHANGE_RATES_CSV is not set");
+                    : "./data/EXCHANGE_RATES.csv";
+            if (csvFilePath != null) {
+                loadExchangeRatesFromCSV(csvFilePath);
+            } else {
+                throw new RuntimeException("Environment variable EXCHANGE_RATES_CSV is not set");
+            }
+
         }
-        
-    }}
+    }
 
 
     private static boolean loadExchangeRatesFromDB() {

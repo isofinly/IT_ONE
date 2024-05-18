@@ -1,12 +1,13 @@
 package com.github.kxrxh.javalin.rest.services;
+
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.RecurringTransaction;
-import java.util.*;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 public class RecurringTransactionService {

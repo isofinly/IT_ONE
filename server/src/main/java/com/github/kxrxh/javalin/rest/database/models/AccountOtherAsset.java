@@ -17,6 +17,7 @@ import java.util.UUID;
 public class AccountOtherAsset {
     private UUID id;
     private UUID accountId;
+    private UUID userId;
     private String assetType;
     private long purchasePrice;
     private long currentValue;
@@ -25,4 +26,18 @@ public class AccountOtherAsset {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastSyncedAt;
+
+    public AccountOtherAsset(UUID id, UUID accountId, UUID userId, String assetType, long purchasePrice, long currentValue, LocalDate purchaseDate, BigDecimal depreciationRate, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.accountId = accountId;
+        this.userId = userId;
+        this.assetType = assetType;
+        this.purchasePrice = purchasePrice;
+        this.currentValue = currentValue;
+        this.purchaseDate = purchaseDate;
+        this.depreciationRate = depreciationRate;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
 }

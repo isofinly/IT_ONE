@@ -20,7 +20,7 @@ public class Tax {
     private String currency;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    
+
     public Tax(UUID id, String name, String description, long rate, String currency) {
         this.id = id;
         this.name = name;

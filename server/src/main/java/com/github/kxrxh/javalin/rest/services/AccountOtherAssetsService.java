@@ -1,3 +1,14 @@
+package com.github.kxrxh.javalin.rest.services;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.AccountOtherAsset;
+import com.github.kxrxh.javalin.rest.database.models.Valuation;
+import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
+
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.UUID;
+
 public class AccountOtherAssetsService {
 
     private AccountOtherAssetsService() {
@@ -48,9 +59,9 @@ public class AccountOtherAssetsService {
                             rs.getLong("purchase_price"),
                             rs.getLong("current_value"),
                             rs.getDate("purchase_date").toLocalDate(),
-                            rs.getDouble("depreciation_rate"),
-                            rs.getTimestamp("created_at").toInstant(),
-                            rs.getTimestamp("updated_at").toInstant()
+                            rs.getBigDecimal("depreciation_rate"),
+                            rs.getTimestamp("created_at").toLocalDateTime(),
+                            rs.getTimestamp("updated_at").toLocalDateTime()
                     );
                 } else {
                     throw new SQLException("Asset not found");

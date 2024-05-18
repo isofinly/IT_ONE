@@ -1,6 +1,12 @@
-import java.sql.Date;
+package com.github.kxrxh.javalin.rest.controllers;
 
+import com.github.kxrxh.javalin.rest.database.models.ExchangeRate;
+import com.github.kxrxh.javalin.rest.services.ExchangeRateService;
+import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
+
+import java.sql.Date;
+import java.util.UUID;
 
 @Slf4j
 public class ExchangeRateController {
@@ -55,4 +61,42 @@ public class ExchangeRateController {
         try {
             String idStr = ctx.pathParam("id");
             String baseCurrency = ctx.formParam("base_currency");
-            String convertedCurrency
+            String convertedCurrency = ctx.formParam("converted_currency");
+            String rateStr = ctx.formParam("rate");
+            String dateStr = ctx.formParam("date");
+
+            if (idStr == null || baseCurrency == null || convertedCurrency == null || rateStr == null || dateStr == null) {
+                ctx.status(400).result("Missing required parameters");
+                return;
+            }
+
+            UUID id = UUID.fromString(idStr);
+            double rate = Double.parseDouble(rateStr);
+            Date date = Date.valueOf(dateStr);
+
+            ExchangeRateService.updateExchangeRate(id, baseCurrency, convertedCurrency, rate, date);
+            ctx.status(200).result("Exchange rate updated successfully");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            ctx.status(500).result("Internal Server Error: " + e.getMessage());
+        }
+    }
+
+    public static void deleteExchangeRate(Context ctx) {
+        try {
+            String idStr = ctx.pathParam("id");
+
+            if (idStr == null) {
+                ctx.status(400).result("Missing required parameters");
+                return;
+            }
+
+            UUID id = UUID.fromString(idStr);
+            ExchangeRateService.deleteExchangeRate(id);
+            ctx.status(200).result("Exchange rate deleted successfully");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            ctx.status(500).result("Internal Server Error: " + e.getMessage());
+        }
+    }
+}
