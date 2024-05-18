@@ -1,15 +1,15 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
-import java.util.UUID;
-
+import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.entities.BudgetAnalysisResult;
 import com.github.kxrxh.javalin.rest.services.BudgetService;
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.UUID;
+
 @Slf4j
 public class BudgetController {
-    // TODO: check user_id and other fields from token
     private BudgetController() {
     }
 
@@ -36,11 +36,16 @@ public class BudgetController {
 
     public static void analyzeBudget(Context ctx) {
         try {
-            String budgetIdStr = ctx.pathParam("budget_id");
+            UUID budgetId = UUID.fromString(ctx.pathParam("budget_id"));
+            String dateRange = ctx.queryParam("date_range");
+            UUID userId = Utils.getUUIDFromContext(ctx);
 
-            UUID budgetId = UUID.fromString(budgetIdStr);
+            if (dateRange == null) {
+                ctx.status(400).result("Missing required parameters");
+                return;
+            }
 
-            BudgetAnalysisResult analysisResult = BudgetService.analyzeBudget(budgetId);
+            BudgetAnalysisResult analysisResult = BudgetService.analyzeBudget(userId, budgetId, dateRange);
             ctx.json(analysisResult);
         } catch (Exception e) {
             log.error(e.getMessage());

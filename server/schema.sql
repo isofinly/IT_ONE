@@ -18,11 +18,15 @@ DROP TABLE IF EXISTS accounts CASCADE;
 DROP TABLE IF EXISTS families CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
-DROP TYPE IF EXISTS import_status;
-DROP TYPE IF EXISTS account_status;
+DROP
+TYPE IF EXISTS import_status;
+DROP
+TYPE IF EXISTS account_status;
 
-CREATE TYPE account_status AS ENUM ('ok', 'syncing', 'error');
-CREATE TYPE import_status AS ENUM ('pending', 'importing', 'complete', 'failed');
+CREATE
+TYPE account_status AS ENUM ('ok', 'syncing', 'error');
+CREATE
+TYPE import_status AS ENUM ('pending', 'importing', 'complete', 'failed');
 
 CREATE TABLE families
 (

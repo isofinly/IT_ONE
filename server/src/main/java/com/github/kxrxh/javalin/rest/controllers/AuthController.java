@@ -1,11 +1,6 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
-import java.lang.reflect.Field;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
@@ -19,14 +14,18 @@ import com.github.kxrxh.javalin.rest.api.jwt.NotInitialized;
 import com.github.kxrxh.javalin.rest.api.jwt.UserPayload;
 import com.github.kxrxh.javalin.rest.database.models.User;
 import com.github.kxrxh.javalin.rest.services.UserService;
-
-import at.favre.lib.crypto.bcrypt.BCrypt;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import javalinjwt.JWTGenerator;
 import javalinjwt.JWTProvider;
 import javalinjwt.JavalinJWT;
 import lombok.extern.slf4j.Slf4j;
+
+import java.lang.reflect.Field;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 public class AuthController {
@@ -53,10 +52,6 @@ public class AuthController {
 
         this.provider = new JWTProvider<>(algorithm, generator, verifier);
         this.decodeHandler = JavalinJWT.createHeaderDecodeHandler(provider);
-    }
-
-    public Handler getDecodeHandler() {
-        return decodeHandler;
     }
 
     public static AuthController getInstance() {
@@ -194,5 +189,9 @@ public class AuthController {
             log.error(e.getMessage());
             context.status(500).result("Internal server error. Unable to create user in database!");
         }
+    }
+
+    public Handler getDecodeHandler() {
+        return decodeHandler;
     }
 }

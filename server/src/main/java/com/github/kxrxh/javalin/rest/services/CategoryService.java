@@ -16,8 +16,9 @@ public class CategoryService {
 
     private CategoryService() {
     }
-    // TODO: Add family if any and more info. 
-    public static CategoryAnalysisResult analyzeCategory(UUID categoryId, String dateRange) throws SQLException {
+
+    // TODO: Add family if any and more info.
+    public static CategoryAnalysisResult analyzeCategory(UUID userId, UUID categoryId, String dateRange) throws SQLException {
         CategoryAnalysisResult result = new CategoryAnalysisResult();
         List<Transaction> transactions = new ArrayList<>();
 
@@ -28,15 +29,37 @@ public class CategoryService {
 
         Connection conn = opConn.get();
 
-        StringBuilder query = new StringBuilder("SELECT * FROM transactions WHERE category_id = ?");
-        List<Object> params = new ArrayList<>();
-        params.add(categoryId);
+        // Fetch the family ID for the given user
+        UUID familyId = getFamilyIdForUser(conn, userId);
+        if (familyId == null) {
+            throw new SQLException("No family found for the given user.");
+        }
+
+        // Check if the user has access to the specified category
+        if (!userHasAccessToCategory(conn, userId, categoryId, familyId)) {
+            throw new SQLException("User does not have access to the specified category.");
+        }
+
+        // Retrieve all categories for the family
+        List<UUID> familyCategoryIds = getFamilyCategoryIds(conn, familyId);
+
+        // Find transactions that belong to the family's categories within the given time interval
+        StringBuilder query = new StringBuilder("SELECT * FROM transactions WHERE category_id IN (");
+        for (int i = 0; i < familyCategoryIds.size(); i++) {
+            query.append("?");
+            if (i < familyCategoryIds.size() - 1) {
+                query.append(",");
+            }
+        }
+        query.append(")");
+
+        List<Object> params = new ArrayList<>(familyCategoryIds);
 
         if (dateRange != null) {
             query.append(" AND date BETWEEN ? AND ?");
             String[] dates = dateRange.split("to");
-            params.add(Timestamp.valueOf(dates[0].trim() + " 00:00:00"));
-            params.add(Timestamp.valueOf(dates[1].trim() + " 23:59:59"));
+            params.add(Timestamp.valueOf(dates[0].trim()));
+            params.add(Timestamp.valueOf(dates[1].trim()));
         }
 
         try (PreparedStatement ps = conn.prepareStatement(query.toString())) {
@@ -68,11 +91,58 @@ public class CategoryService {
                 totalAmount += transaction.getAmount();
             }
 
+            // Calculate statistics
             result.setTransactions(transactions);
             result.setTotalAmount(totalAmount);
+            // Add more statistics calculation as needed
+
             return result;
         } catch (SQLException e) {
             throw new SQLException("Could not execute query", e);
         }
     }
+
+    private static UUID getFamilyIdForUser(Connection conn, UUID userId) throws SQLException {
+        String query = "SELECT family_id FROM users WHERE user_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setObject(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return UUID.fromString(rs.getString("family_id"));
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+
+    private static boolean userHasAccessToCategory(Connection conn, UUID userId, UUID categoryId, UUID familyId) throws SQLException {
+        String query = "SELECT COUNT(*) FROM categories WHERE category_id = ? AND family_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setObject(1, categoryId);
+            ps.setObject(2, familyId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+
+    private static List<UUID> getFamilyCategoryIds(Connection conn, UUID familyId) throws SQLException {
+        String query = "SELECT category_id FROM categories WHERE family_id = ?";
+        List<UUID> categoryIds = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setObject(1, familyId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    categoryIds.add(UUID.fromString(rs.getString("category_id")));
+                }
+            }
+        }
+        return categoryIds;
+    }
+
 }

@@ -6,17 +6,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Optional;
-
-import java.util.UUID;
+import java.util.*;
 
 public class AccountService {
 
-    private AccountService() {
-    }
-
     // Flag to disable user check (for debugging)
     private static final boolean DISABLE_USER_CHECK = false;
+
+    private AccountService() {
+    }
 
     public static void transferFunds(UUID userId, UUID fromAccountId, UUID toAccountId, long amount)
             throws SQLException {
@@ -34,8 +32,8 @@ public class AccountService {
 
         try (PreparedStatement ps1 = conn
                 .prepareStatement("UPDATE accounts SET balance = balance - ? WHERE account_id = ?");
-                PreparedStatement ps2 = conn
-                        .prepareStatement("UPDATE accounts SET balance = balance + ? WHERE account_id = ?")) {
+             PreparedStatement ps2 = conn
+                     .prepareStatement("UPDATE accounts SET balance = balance + ? WHERE account_id = ?")) {
             ps1.setLong(1, amount);
             ps1.setObject(2, fromAccountId, java.sql.Types.OTHER);
             int rowsUpdated = ps1.executeUpdate();
@@ -58,6 +56,12 @@ public class AccountService {
 
     public static void mergeAccounts(UUID userId, String[] accountIds, String newAccountName, String accountType)
             throws SQLException {
+        // Check for duplicate account IDs
+        Set<String> accountIdSet = new HashSet<>(Arrays.asList(accountIds));
+        if (accountIdSet.size() != accountIds.length) {
+            throw new SQLException("Duplicate account IDs detected");
+        }
+
         for (String accountIdStr : accountIds) {
             UUID accountId = UUID.fromString(accountIdStr);
             if (!DISABLE_USER_CHECK && !isUserAuthorized(userId, accountId)) {
@@ -92,11 +96,12 @@ public class AccountService {
             }
 
             try (PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO accounts (account_id, account_name, balance, account_type) VALUES (?, ?, ?, ?)")) {
+                    "INSERT INTO accounts (account_id, account_name, balance, account_type, user_id) VALUES (?, ?, ?, ?, ?)")) {
                 ps.setObject(1, newAccountId, java.sql.Types.OTHER);
                 ps.setString(2, newAccountName);
                 ps.setLong(3, totalBalance);
                 ps.setString(4, accountType);
+                ps.setObject(5, userId, java.sql.Types.OTHER);
                 ps.executeUpdate();
             }
 
@@ -122,6 +127,7 @@ public class AccountService {
         }
     }
 
+
     private static boolean isUserAuthorized(UUID userId, UUID accountId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -137,98 +143,6 @@ public class AccountService {
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
-        }
-    }
-
-    public static void transferFunds(UUID fromAccountId, UUID toAccountId, long amount) throws SQLException {
-        Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
-        if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
-        }
-
-        Connection conn = optConn.get();
-        conn.setAutoCommit(false);
-
-        try (PreparedStatement ps1 = conn
-                .prepareStatement("UPDATE accounts SET balance = balance - ? WHERE account_id = ?");
-                PreparedStatement ps2 = conn
-                        .prepareStatement("UPDATE accounts SET balance = balance + ? WHERE account_id = ?")) {
-            ps1.setLong(1, amount);
-            ps1.setObject(2, fromAccountId, java.sql.Types.OTHER);
-            int rowsUpdated = ps1.executeUpdate();
-            if (rowsUpdated == 0) {
-                throw new SQLException("Source account not found or insufficient funds");
-            }
-
-            ps2.setLong(1, amount);
-            ps2.setObject(2, toAccountId, java.sql.Types.OTHER);
-            rowsUpdated = ps2.executeUpdate();
-            if (rowsUpdated == 0) {
-                throw new SQLException("Destination account not found");
-            }
-            conn.commit();
-        } catch (SQLException e) {
-            conn.rollback();
-            throw e;
-        }
-    }
-
-    public static void mergeAccounts(UUID[] accountIds, String newAccountName, String accountType)
-            throws SQLException {
-        Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
-        if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection");
-        }
-
-        Connection conn = optConn.get();
-        conn.setAutoCommit(false);
-        long totalBalance = 0;
-        UUID newAccountId = UUID.randomUUID();
-
-        try {
-            for (UUID accountUUID : accountIds) {
-                UUID accountId = accountUUID;
-                try (PreparedStatement ps = conn
-                        .prepareStatement("SELECT balance FROM accounts WHERE account_id = ?")) {
-                    ps.setObject(1, accountId, java.sql.Types.OTHER);
-                    try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) {
-                            totalBalance += rs.getLong("balance");
-                        } else {
-                            throw new SQLException("Account with ID " + accountId + " not found");
-                        }
-                    }
-                }
-            }
-
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO accounts (account_id, account_name, balance, account_type) VALUES (?, ?, ?, ?)")) {
-                ps.setObject(1, newAccountId, java.sql.Types.OTHER);
-                ps.setString(2, newAccountName);
-                ps.setLong(3, totalBalance);
-                ps.setString(4, accountType);
-                ps.executeUpdate();
-            }
-
-            try (PreparedStatement psDel = conn.prepareStatement("DELETE FROM accounts WHERE account_id = ?")) {
-                for (UUID accountIdStr : accountIds) {
-                    UUID accountId = (accountIdStr);
-                    psDel.setObject(1, accountId, java.sql.Types.OTHER);
-                    psDel.addBatch();
-                }
-                psDel.executeBatch();
-            }
-
-            conn.commit();
-        } catch (SQLException e) {
-            try {
-                conn.rollback();
-            } catch (SQLException ex) {
-                throw new SQLException("Could not rollback transaction", ex);
-            }
-            throw e;
-        } finally {
-            conn.setAutoCommit(true);
         }
     }
 

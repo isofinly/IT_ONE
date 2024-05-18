@@ -1,11 +1,11 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
-import java.util.UUID;
-
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.services.AccountService;
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.UUID;
 
 @Slf4j
 public class AccountController {
@@ -27,6 +27,7 @@ public class AccountController {
 
             long amount = Long.parseLong(amountStr);
             AccountService.transferFunds(userId, UUID.fromString(fromAccountId), UUID.fromString(toAccountId), amount);
+            // TODO: Handle error from line 30
             ctx.status(200).result("Funds transferred successfully");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -45,7 +46,7 @@ public class AccountController {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
-            
+
             AccountService.mergeAccounts(userId, accountIds, newAccountName, accountType);
             ctx.status(200).result("Accounts merged successfully");
         } catch (Exception e) {

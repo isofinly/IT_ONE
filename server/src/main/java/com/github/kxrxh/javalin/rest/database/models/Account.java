@@ -1,12 +1,16 @@
 package com.github.kxrxh.javalin.rest.database.models;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+enum AccountStatus {
+    OK, SYNCING, ERROR
+}
 
 @Data
 @NoArgsConstructor
@@ -30,8 +34,4 @@ public class Account {
     private String syncWarnings;
     private String syncErrors;
     private LocalDateTime lastSyncedAt;
-}
-
-enum AccountStatus {
-    OK, SYNCING, ERROR
 }

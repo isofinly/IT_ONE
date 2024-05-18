@@ -1,10 +1,9 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
-import java.util.UUID;
-
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
-
 import io.javalin.http.Context;
+
+import java.util.UUID;
 
 // TODO implement data visualization logic
 public class VisualizationController {

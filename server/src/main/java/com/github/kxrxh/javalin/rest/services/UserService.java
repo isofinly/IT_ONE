@@ -1,15 +1,15 @@
 package com.github.kxrxh.javalin.rest.services;
 
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.GettingConnectionException;
+import com.github.kxrxh.javalin.rest.database.models.User;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.GettingConnectionException;
-import com.github.kxrxh.javalin.rest.database.models.User;
 
 public class UserService {
     private static final String USER_ID = "user_id";
@@ -22,7 +22,7 @@ public class UserService {
     private UserService() {
     }
 
-        public static Optional<User> createUser(UUID userId, String email, String password) throws SQLException {
+    public static Optional<User> createUser(UUID userId, String email, String password) throws SQLException {
         String userSql;
         if (userId == null) {
             userSql = "INSERT INTO users (email, password_digest, family_id) VALUES (?,?,?)";

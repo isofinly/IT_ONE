@@ -1,9 +1,9 @@
 package com.github.kxrxh.javalin.rest.api.jwt;
 
-import java.util.UUID;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.UUID;
 
 @Getter
 @AllArgsConstructor

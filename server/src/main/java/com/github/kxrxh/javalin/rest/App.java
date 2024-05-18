@@ -3,7 +3,6 @@ package com.github.kxrxh.javalin.rest;
 import com.github.kxrxh.javalin.rest.api.RestServer;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.util.NATSSubscriber;
-
 import io.javalin.util.JavalinBindException;
 import lombok.extern.slf4j.Slf4j;
 
