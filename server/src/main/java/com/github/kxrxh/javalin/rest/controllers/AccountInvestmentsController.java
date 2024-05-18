@@ -1,14 +1,15 @@
 package com.github.kxrxh.javalin.rest.controllers;
+
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
-import com.github.kxrxh.javalin.rest.database.models.AccountBalance;
 import com.github.kxrxh.javalin.rest.database.models.AccountInvestment;
-import com.github.kxrxh.javalin.rest.services.AccountBalancesService;
 import com.github.kxrxh.javalin.rest.services.AccountInvestmentsService;
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.util.UUID;
+
+import org.json.JSONObject;
 
 @Slf4j
 public class AccountInvestmentsController {
@@ -19,15 +20,18 @@ public class AccountInvestmentsController {
     public static void createInvestment(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String accountIdStr = ctx.formParam("account_id");
-            String investmentType = ctx.formParam("investment_type");
-            String marketValueStr = ctx.formParam("market_value");
-            String purchasePriceStr = ctx.formParam("purchase_price");
-            String purchaseDateStr = ctx.formParam("purchase_date");
-            String dividendsStr = ctx.formParam("dividends");
-            String interestRateStr = ctx.formParam("interest_rate");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (accountIdStr == null || marketValueStr == null || purchasePriceStr == null || purchaseDateStr == null || dividendsStr == null || interestRateStr == null) {
+            String accountIdStr = requestBody.optString("account_id");
+            String investmentType = requestBody.optString("investment_type");
+            String marketValueStr = requestBody.optString("market_value");
+            String purchasePriceStr = requestBody.optString("purchase_price");
+            String purchaseDateStr = requestBody.optString("purchase_date");
+            String dividendsStr = requestBody.optString("dividends");
+            String interestRateStr = requestBody.optString("interest_rate");
+
+            if (accountIdStr.isEmpty() || marketValueStr.isEmpty() || purchasePriceStr.isEmpty()
+                    || purchaseDateStr.isEmpty() || dividendsStr.isEmpty() || interestRateStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -39,7 +43,8 @@ public class AccountInvestmentsController {
             long dividends = Long.parseLong(dividendsStr);
             double interestRate = Double.parseDouble(interestRateStr);
 
-            AccountInvestmentsService.createInvestment(userId, accountId, investmentType, marketValue, purchasePrice, purchaseDate, dividends, interestRate);
+            AccountInvestmentsService.createInvestment(userId, accountId, investmentType, marketValue, purchasePrice,
+                    purchaseDate, dividends, interestRate);
             ctx.status(200).result("Investment created successfully");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -50,9 +55,10 @@ public class AccountInvestmentsController {
     public static void readInvestment(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String investmentIdStr = ctx.pathParam("investment_id");
 
-            if (investmentIdStr == null) {
+            String investmentIdStr = ctx.queryParam("investment_id");
+
+            if (investmentIdStr == null || investmentIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -69,16 +75,20 @@ public class AccountInvestmentsController {
     public static void updateInvestment(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String investmentIdStr = ctx.pathParam("investment_id");
-            String accountIdStr = ctx.formParam("account_id");
-            String investmentType = ctx.formParam("investment_type");
-            String marketValueStr = ctx.formParam("market_value");
-            String purchasePriceStr = ctx.formParam("purchase_price");
-            String purchaseDateStr = ctx.formParam("purchase_date");
-            String dividendsStr = ctx.formParam("dividends");
-            String interestRateStr = ctx.formParam("interest_rate");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (investmentIdStr == null || accountIdStr == null || marketValueStr == null || purchasePriceStr == null || purchaseDateStr == null || dividendsStr == null || interestRateStr == null) {
+            String investmentIdStr = requestBody.optString("investment_id");
+            String accountIdStr = requestBody.optString("account_id");
+            String investmentType = requestBody.optString("investment_type");
+            String marketValueStr = requestBody.optString("market_value");
+            String purchasePriceStr = requestBody.optString("purchase_price");
+            String purchaseDateStr = requestBody.optString("purchase_date");
+            String dividendsStr = requestBody.optString("dividends");
+            String interestRateStr = requestBody.optString("interest_rate");
+
+            if (investmentIdStr.isEmpty() || accountIdStr.isEmpty() || marketValueStr.isEmpty()
+                    || purchasePriceStr.isEmpty() || purchaseDateStr.isEmpty() || dividendsStr.isEmpty()
+                    || interestRateStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -91,7 +101,8 @@ public class AccountInvestmentsController {
             long dividends = Long.parseLong(dividendsStr);
             double interestRate = Double.parseDouble(interestRateStr);
 
-            AccountInvestmentsService.updateInvestment(userId, investmentId, accountId, investmentType, marketValue, purchasePrice, purchaseDate, dividends, interestRate);
+            AccountInvestmentsService.updateInvestment(userId, investmentId, accountId, investmentType, marketValue,
+                    purchasePrice, purchaseDate, dividends, interestRate);
             ctx.status(200).result("Investment updated successfully");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -102,9 +113,11 @@ public class AccountInvestmentsController {
     public static void deleteInvestment(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String investmentIdStr = ctx.pathParam("investment_id");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (investmentIdStr == null) {
+            String investmentIdStr = requestBody.optString("investment_id");
+
+            if (investmentIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -121,9 +134,11 @@ public class AccountInvestmentsController {
     public static void calculateDividends(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String investmentIdStr = ctx.pathParam("investment_id");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (investmentIdStr == null) {
+            String investmentIdStr = requestBody.optString("investment_id");
+
+            if (investmentIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }

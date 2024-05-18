@@ -1,12 +1,12 @@
 package com.github.kxrxh.javalin.rest.database.models;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -26,7 +26,6 @@ public class Transaction {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastSyncedAt;
-
 
     public enum TransactionType {
         INFLOW, OUTFLOW

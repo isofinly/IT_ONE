@@ -1,4 +1,6 @@
 package com.github.kxrxh.javalin.rest.controllers;
+import org.json.JSONObject;
+
 
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.database.models.RecurringTransaction;
@@ -17,10 +19,12 @@ public class RecurringTransactionController {
     public static void createRecurringTransaction(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String amountStr = ctx.formParam("amount");
-            String categoryIdStr = ctx.formParam("category_id");
-            String description = ctx.formParam("description");
-            String frequencyStr = ctx.formParam("frequency");
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            String amountStr = requestBody.optString("amount");
+            String categoryIdStr = requestBody.optString("category_id");
+            String description = requestBody.optString("description");
+            String frequencyStr = requestBody.optString("frequency");
 
             if (amountStr == null || frequencyStr == null) {
                 ctx.status(400).result("Missing required parameters");
@@ -42,9 +46,10 @@ public class RecurringTransactionController {
     public static void readRecurringTransaction(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String recurringTransactionIdStr = ctx.pathParam("recurring_transaction_id");
 
-            if (recurringTransactionIdStr == null) {
+            String recurringTransactionIdStr = ctx.queryParam("recurring_transaction_id");
+
+            if (recurringTransactionIdStr == null || recurringTransactionIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -62,11 +67,13 @@ public class RecurringTransactionController {
     public static void updateRecurringTransaction(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String recurringTransactionIdStr = ctx.pathParam("recurring_transaction_id");
-            String amountStr = ctx.formParam("amount");
-            String categoryIdStr = ctx.formParam("category_id");
-            String description = ctx.formParam("description");
-            String frequencyStr = ctx.formParam("frequency");
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            String recurringTransactionIdStr = requestBody.optString("recurring_transaction_id");
+            String amountStr = requestBody.optString("amount");
+            String categoryIdStr = requestBody.optString("category_id");
+            String description = requestBody.optString("description");
+            String frequencyStr = requestBody.optString("frequency");
 
             if (recurringTransactionIdStr == null || amountStr == null || frequencyStr == null) {
                 ctx.status(400).result("Missing required parameters");
@@ -90,7 +97,9 @@ public class RecurringTransactionController {
     public static void deleteRecurringTransaction(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String recurringTransactionIdStr = ctx.pathParam("recurring_transaction_id");
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            String recurringTransactionIdStr = requestBody.optString("recurring_transaction_id");
 
             if (recurringTransactionIdStr == null) {
                 ctx.status(400).result("Missing required parameters");

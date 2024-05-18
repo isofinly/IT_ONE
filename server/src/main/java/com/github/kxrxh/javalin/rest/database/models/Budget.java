@@ -1,17 +1,17 @@
 package com.github.kxrxh.javalin.rest.database.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter
-@Setter
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Budget {
     private UUID budgetId;
     private UUID userId;

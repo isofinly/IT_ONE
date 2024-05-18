@@ -18,6 +18,7 @@ public class AccountController {
     public static void transferFunds(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
+
             // Parse JSON data from request body
             JSONObject requestBody = new JSONObject(ctx.body());
 
@@ -26,7 +27,7 @@ public class AccountController {
             String toAccountId = requestBody.optString("to_account_id");
             String amountStr = requestBody.optString("amount");
 
-            if (fromAccountId == null || toAccountId == null || amountStr == null) {
+            if (fromAccountId.isEmpty() || toAccountId.isEmpty() || amountStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }

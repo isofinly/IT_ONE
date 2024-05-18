@@ -1,14 +1,14 @@
 package com.github.kxrxh.javalin.rest.database.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -26,18 +26,4 @@ public class AccountOtherAsset {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastSyncedAt;
-
-    public AccountOtherAsset(UUID id, UUID accountId, UUID userId, String assetType, long purchasePrice, long currentValue, LocalDate purchaseDate, BigDecimal depreciationRate, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.accountId = accountId;
-        this.userId = userId;
-        this.assetType = assetType;
-        this.purchasePrice = purchasePrice;
-        this.currentValue = currentValue;
-        this.purchaseDate = purchaseDate;
-        this.depreciationRate = depreciationRate;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
 }

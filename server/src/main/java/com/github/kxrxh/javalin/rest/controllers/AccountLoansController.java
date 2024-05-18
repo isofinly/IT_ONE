@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import org.json.JSONObject;
+
 @Slf4j
 public class AccountLoansController {
 
@@ -18,14 +20,16 @@ public class AccountLoansController {
     public static void createLoan(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String accountIdStr = ctx.formParam("account_id");
-            String loanAmountStr = ctx.formParam("loan_amount");
-            String outstandingBalanceStr = ctx.formParam("outstanding_balance");
-            String interestRateStr = ctx.formParam("interest_rate");
-            String loanTerm = ctx.formParam("loan_term");
-            String dueDateStr = ctx.formParam("due_date");
-            String paymentFrequency = ctx.formParam("payment_frequency");
-            String collateral = ctx.formParam("collateral");
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            String accountIdStr = requestBody.optString("account_id");
+            String loanAmountStr = requestBody.optString("loan_amount");
+            String outstandingBalanceStr = requestBody.optString("outstanding_balance");
+            String interestRateStr = requestBody.optString("interest_rate");
+            String loanTerm = requestBody.optString("loan_term");
+            String dueDateStr = requestBody.optString("due_date");
+            String paymentFrequency = requestBody.optString("payment_frequency");
+            String collateral = requestBody.optString("collateral");
 
             if (accountIdStr == null || loanAmountStr == null || outstandingBalanceStr == null || interestRateStr == null || loanTerm == null || dueDateStr == null || paymentFrequency == null) {
                 ctx.status(400).result("Missing required parameters");
@@ -49,9 +53,10 @@ public class AccountLoansController {
     public static void readLoan(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String loanIdStr = ctx.pathParam("loan_id");
 
-            if (loanIdStr == null) {
+            String loanIdStr = ctx.queryParam("loan_id");
+
+            if (loanIdStr == null || loanIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -68,15 +73,17 @@ public class AccountLoansController {
     public static void updateLoan(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String loanIdStr = ctx.pathParam("loan_id");
-            String accountIdStr = ctx.formParam("account_id");
-            String loanAmountStr = ctx.formParam("loan_amount");
-            String outstandingBalanceStr = ctx.formParam("outstanding_balance");
-            String interestRateStr = ctx.formParam("interest_rate");
-            String loanTerm = ctx.formParam("loan_term");
-            String dueDateStr = ctx.formParam("due_date");
-            String paymentFrequency = ctx.formParam("payment_frequency");
-            String collateral = ctx.formParam("collateral");
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            String loanIdStr = requestBody.optString("loan_id");
+            String accountIdStr = requestBody.optString("account_id");
+            String loanAmountStr = requestBody.optString("loan_amount");
+            String outstandingBalanceStr = requestBody.optString("outstanding_balance");
+            String interestRateStr = requestBody.optString("interest_rate");
+            String loanTerm = requestBody.optString("loan_term");
+            String dueDateStr = requestBody.optString("due_date");
+            String paymentFrequency = requestBody.optString("payment_frequency");
+            String collateral = requestBody.optString("collateral");
 
             if (loanIdStr == null || accountIdStr == null || loanAmountStr == null || outstandingBalanceStr == null || interestRateStr == null || loanTerm == null || dueDateStr == null || paymentFrequency == null) {
                 ctx.status(400).result("Missing required parameters");
@@ -101,7 +108,9 @@ public class AccountLoansController {
     public static void deleteLoan(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String loanIdStr = ctx.pathParam("loan_id");
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            String loanIdStr = requestBody.optString("loan_id");
 
             if (loanIdStr == null) {
                 ctx.status(400).result("Missing required parameters");
@@ -120,7 +129,9 @@ public class AccountLoansController {
     public static void calculateInterest(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String loanIdStr = ctx.pathParam("loan_id");
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            String loanIdStr = requestBody.optString("loan_id");
 
             if (loanIdStr == null) {
                 ctx.status(400).result("Missing required parameters");

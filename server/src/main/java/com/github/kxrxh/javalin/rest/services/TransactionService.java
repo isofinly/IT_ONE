@@ -1,26 +1,31 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.GettingConnectionException;
-import com.github.kxrxh.javalin.rest.database.models.Transaction;
-import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.Transaction;
+import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
+
 public class TransactionService {
 
     private TransactionService() {
     }
 
-    public static List<Transaction> searchTransactions(UUID userId, String amountRange, String dateRange, UUID categoryId, String description) throws SQLException {
+    public static List<Transaction> searchTransactions(UUID userId, String amountRange, String dateRange,
+            UUID categoryId, String description) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();
@@ -70,13 +75,16 @@ public class TransactionService {
                         .amount(rs.getLong("amount"))
                         .currency(rs.getString("currency"))
                         .accountId(UUID.fromString(rs.getString("account_id")))
-                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id")) : null)
+                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id"))
+                                : null)
                         .excluded(rs.getBoolean("excluded"))
                         .notes(rs.getString("notes"))
                         .transactionType(TransactionType.valueOf(rs.getString("transaction_type").toUpperCase()))
                         .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                         .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
-                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null ? rs.getTimestamp("last_synced_at").toLocalDateTime() : null)
+                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null
+                                ? rs.getTimestamp("last_synced_at").toLocalDateTime()
+                                : null)
                         .build();
                 transactions.add(transaction);
             }
@@ -84,10 +92,11 @@ public class TransactionService {
         return transactions;
     }
 
-    public static void createTransaction(UUID userId, UUID accountId, UUID categoryId, long amount, String name, LocalDateTime date, String currency, String notes, TransactionType transactionType) throws SQLException {
+    public static void createTransaction(UUID userId, UUID accountId, UUID categoryId, long amount, String name,
+            LocalDateTime date, String currency, String notes, TransactionType transactionType) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();
@@ -107,10 +116,12 @@ public class TransactionService {
         }
     }
 
-    public static void updateTransaction(UUID userId, UUID transactionId, UUID accountId, UUID categoryId, long amount, String name, LocalDateTime date, String currency, String notes, TransactionType transactionType) throws SQLException {
+    public static void updateTransaction(UUID userId, UUID transactionId, UUID accountId, UUID categoryId, long amount,
+            String name, LocalDateTime date, String currency, String notes, TransactionType transactionType)
+            throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();
@@ -135,7 +146,7 @@ public class TransactionService {
     public static void deleteTransaction(UUID userId, UUID transactionId) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();
@@ -149,10 +160,11 @@ public class TransactionService {
         }
     }
 
-    public static void createRecurringTransaction(UUID userId, long amount, UUID categoryId, String description, long frequency) throws SQLException {
+    public static void createRecurringTransaction(UUID userId, long amount, UUID categoryId, String description,
+            long frequency) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();

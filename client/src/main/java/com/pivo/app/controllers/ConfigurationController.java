@@ -1,15 +1,17 @@
 package com.pivo.app.controllers;
 
+import static com.pivo.app.App.showAlert;
+
+import org.json.JSONObject;
+
 import com.pivo.app.util.AutoCommitTextFieldTableCell;
 import com.pivo.app.util.ConfigManager;
 import com.pivo.app.util.Pair;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import org.json.JSONObject;
-
-import static com.pivo.app.Application.showAlert;
 
 public class ConfigurationController {
 
@@ -37,16 +39,12 @@ public class ConfigurationController {
 
     private void loadConfigurations() {
         JSONObject config = ConfigManager.config;
-        config.keySet().forEach(key ->
-                configTable.getItems().add(new Pair<>(key, config.getString(key)))
-        );
+        config.keySet().forEach(key -> configTable.getItems().add(new Pair<>(key, config.getString(key))));
     }
 
     @FXML
     private void saveConfig() {
-        configTable.getItems().forEach(pair ->
-                ConfigManager.setConfig(pair.getKey(), pair.getValue())
-        );
+        configTable.getItems().forEach(pair -> ConfigManager.setConfig(pair.getKey(), pair.getValue()));
         showAlert("Success", "Configuration saved successfully", Alert.AlertType.INFORMATION);
     }
 }

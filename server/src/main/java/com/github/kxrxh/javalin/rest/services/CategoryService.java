@@ -1,16 +1,21 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.GettingConnectionException;
-import com.github.kxrxh.javalin.rest.database.models.Transaction;
-import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
-import com.github.kxrxh.javalin.rest.entities.CategoryAnalysisResult;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.Category;
+import com.github.kxrxh.javalin.rest.database.models.Transaction;
+import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
+import com.github.kxrxh.javalin.rest.entities.CategoryAnalysisResult;
 
 public class CategoryService {
 
@@ -18,13 +23,14 @@ public class CategoryService {
     }
 
     // TODO: Add family if any and more info.
-    public static CategoryAnalysisResult analyzeCategory(UUID userId, UUID categoryId, String dateRange) throws SQLException {
+    public static CategoryAnalysisResult analyzeCategory(UUID userId, UUID categoryId, String dateRange)
+            throws SQLException {
         CategoryAnalysisResult result = new CategoryAnalysisResult();
         List<Transaction> transactions = new ArrayList<>();
 
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();
@@ -43,7 +49,8 @@ public class CategoryService {
         // Retrieve all categories for the family
         List<UUID> familyCategoryIds = getFamilyCategoryIds(conn, familyId);
 
-        // Find transactions that belong to the family's categories within the given time interval
+        // Find transactions that belong to the family's categories within the given
+        // time interval
         StringBuilder query = new StringBuilder("SELECT * FROM transactions WHERE category_id IN (");
         for (int i = 0; i < familyCategoryIds.size(); i++) {
             query.append("?");
@@ -116,7 +123,8 @@ public class CategoryService {
         }
     }
 
-    private static boolean userHasAccessToCategory(Connection conn, UUID userId, UUID categoryId, UUID familyId) throws SQLException {
+    private static boolean userHasAccessToCategory(Connection conn, UUID userId, UUID categoryId, UUID familyId)
+            throws SQLException {
         String query = "SELECT COUNT(*) FROM categories WHERE category_id = ? AND family_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setObject(1, categoryId);
@@ -145,4 +153,105 @@ public class CategoryService {
         return categoryIds;
     }
 
+    public static Category createCategory(UUID userId, String name) throws SQLException {
+        Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
+        if (optConn.isEmpty()) {
+            throw new SQLException("Could not get connection from pool");
+        }
+
+        Connection conn = optConn.get();
+
+        UUID familyId = getFamilyIdForUser(conn, userId);
+        if (familyId == null) {
+            throw new SQLException("No family found for the given user.");
+        }
+
+        try (PreparedStatement ps = conn.prepareStatement(
+                "INSERT INTO categories (category_id, name, family_id, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+            ps.setObject(1, UUID.randomUUID(), java.sql.Types.OTHER);
+            ps.setString(2, name);
+            ps.setObject(3, familyId, java.sql.Types.OTHER);
+            ps.executeUpdate();
+        }
+
+        return readCategory(userId, userId);
+    }
+
+    public static Category readCategory(UUID userId, UUID categoryId) throws SQLException {
+        Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
+        if (optConn.isEmpty()) {
+            throw new SQLException("Could not get connection from pool");
+        }
+
+        Connection conn = optConn.get();
+
+        UUID familyId = getFamilyIdForUser(conn, userId);
+        if (familyId == null) {
+            throw new SQLException("No family found for the given user.");
+        }
+
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT * FROM categories WHERE category_id = ? AND family_id = ?")) {
+            ps.setObject(1, categoryId, java.sql.Types.OTHER);
+            ps.setObject(2, familyId, java.sql.Types.OTHER);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Category.builder()
+                            .categoryId(UUID.fromString(rs.getString("category_id")))
+                            .name(rs.getString("name"))
+                            .familyId(UUID.fromString(rs.getString("family_id")))
+                            .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                            .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime()).build();
+
+                } else {
+                    throw new SQLException("Category not found");
+                }
+            }
+        }
+    }
+
+    public static Category updateCategory(UUID userId, UUID categoryId, String name) throws SQLException {
+        Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
+        if (optConn.isEmpty()) {
+            throw new SQLException("Could not get connection from pool");
+        }
+
+        Connection conn = optConn.get();
+
+        UUID familyId = getFamilyIdForUser(conn, userId);
+        if (familyId == null) {
+            throw new SQLException("No family found for the given user.");
+        }
+
+        try (PreparedStatement ps = conn.prepareStatement(
+                "UPDATE categories SET name = ?, updated_at = CURRENT_TIMESTAMP WHERE category_id = ? AND family_id = ?")) {
+            ps.setString(1, name);
+            ps.setObject(2, categoryId, java.sql.Types.OTHER);
+            ps.setObject(3, familyId, java.sql.Types.OTHER);
+            ps.executeUpdate();
+        }
+
+        return readCategory(userId, categoryId);
+    }
+
+    public static void deleteCategory(UUID userId, UUID categoryId) throws SQLException {
+        Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
+        if (optConn.isEmpty()) {
+            throw new SQLException("Could not get connection from pool");
+        }
+
+        Connection conn = optConn.get();
+
+        UUID familyId = getFamilyIdForUser(conn, userId);
+        if (familyId == null) {
+            throw new SQLException("No family found for the given user.");
+        }
+
+        try (PreparedStatement ps = conn.prepareStatement(
+                "DELETE FROM categories WHERE category_id = ? AND family_id = ?")) {
+            ps.setObject(1, categoryId, java.sql.Types.OTHER);
+            ps.setObject(2, familyId, java.sql.Types.OTHER);
+            ps.executeUpdate();
+        }
+    }
 }

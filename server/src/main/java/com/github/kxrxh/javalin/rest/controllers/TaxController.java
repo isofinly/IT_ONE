@@ -1,5 +1,7 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
+import org.json.JSONObject;
+
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.database.models.Tax;
 import com.github.kxrxh.javalin.rest.services.TaxService;
@@ -17,12 +19,14 @@ public class TaxController {
     public static void createTax(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String name = ctx.formParam("name");
-            String description = ctx.formParam("description");
-            String rateStr = ctx.formParam("rate");
-            String currency = ctx.formParam("currency");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (name == null || rateStr == null || currency == null) {
+            String name = requestBody.optString("name");
+            String description = requestBody.optString("description");
+            String rateStr = requestBody.optString("rate");
+            String currency = requestBody.optString("currency");
+
+            if (name.isEmpty() || rateStr.isEmpty() || currency.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -40,9 +44,10 @@ public class TaxController {
     public static void readTax(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String taxIdStr = ctx.pathParam("tax_id");
 
-            if (taxIdStr == null) {
+            String taxIdStr = ctx.queryParam("tax_id");
+
+            if (taxIdStr == null || taxIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -59,11 +64,13 @@ public class TaxController {
     public static void updateTax(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String taxIdStr = ctx.pathParam("tax_id");
-            String name = ctx.formParam("name");
-            String description = ctx.formParam("description");
-            String rateStr = ctx.formParam("rate");
-            String currency = ctx.formParam("currency");
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            String taxIdStr = requestBody.optString("tax_id");
+            String name = requestBody.optString("name");
+            String description = requestBody.optString("description");
+            String rateStr = requestBody.optString("rate");
+            String currency = requestBody.optString("currency");
 
             if (taxIdStr == null || name == null || rateStr == null || currency == null) {
                 ctx.status(400).result("Missing required parameters");
@@ -84,9 +91,11 @@ public class TaxController {
     public static void deleteTax(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String taxIdStr = ctx.pathParam("tax_id");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (taxIdStr == null) {
+            String taxIdStr = requestBody.optString("tax_id");
+
+            if (taxIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -103,6 +112,7 @@ public class TaxController {
     public static void calculateTaxes(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
+
             double totalTaxes = TaxService.calculateTaxes(userId);
             ctx.status(200).result("Total taxes: " + totalTaxes);
         } catch (Exception e) {

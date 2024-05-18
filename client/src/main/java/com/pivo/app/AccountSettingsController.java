@@ -1,17 +1,17 @@
 package com.pivo.app;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
+import static com.pivo.app.App.showAlert;
+import static com.pivo.app.ConfigManager.getConfig;
+import static com.pivo.app.ConfigManager.setConfig;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static com.pivo.app.Application.showAlert;
-import static com.pivo.app.ConfigManager.getConfig;
-import static com.pivo.app.ConfigManager.setConfig;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
 
 public class AccountSettingsController {
 
@@ -32,19 +32,21 @@ public class AccountSettingsController {
     private void onUserChange() {
         String selectedUser = userSelector.getValue();
         setConfig("selectedUser", selectedUser);
-        Application.showAlert("Success", "User changed successfully" + "\n" + "Please restart the app", Alert.AlertType.INFORMATION);
+        App.showAlert("Success", "User changed successfully" + "\n" + "Please restart the app",
+                Alert.AlertType.INFORMATION);
     }
 
     @FXML
     private void onViewpointChange() {
         String selectedViewpoint = viewpointSelector.getValue();
         setConfig("viewPoint", selectedViewpoint);
-        Application.showAlert("Success", "This is not implemented yet", Alert.AlertType.WARNING);
+        App.showAlert("Success", "This is not implemented yet", Alert.AlertType.WARNING);
     }
 
     private void populateUsers() {
-        try (Connection conn = DatabaseController.connect(); Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT username FROM users")) {
+        try (Connection conn = DatabaseController.connect();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery("SELECT username FROM users")) {
             while (rs.next()) {
                 userSelector.getItems().add(rs.getString("username"));
             }

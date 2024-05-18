@@ -1,5 +1,7 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
+import org.json.JSONObject;
+
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.database.models.Valuation;
 import com.github.kxrxh.javalin.rest.services.ValuationService;
@@ -8,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.util.UUID;
-
 
 @Slf4j
 public class ValuationController {
@@ -19,12 +20,14 @@ public class ValuationController {
     public static void createValuation(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String accountIdStr = ctx.formParam("account_id");
-            String dateStr = ctx.formParam("date");
-            String valueStr = ctx.formParam("value");
-            String currency = ctx.formParam("currency");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (accountIdStr == null || dateStr == null || valueStr == null || currency == null) {
+            String accountIdStr = requestBody.optString("account_id");
+            String dateStr = requestBody.optString("date");
+            String valueStr = requestBody.optString("value");
+            String currency = requestBody.optString("currency");
+
+            if (accountIdStr.isEmpty() || dateStr.isEmpty() || valueStr.isEmpty() || currency.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -44,7 +47,8 @@ public class ValuationController {
     public static void readValuation(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String valuationIdStr = ctx.pathParam("valuation_id");
+
+            String valuationIdStr = ctx.queryParam("valuation_id");
             String targetCurrency = ctx.queryParam("target_currency");
 
             if (valuationIdStr == null || targetCurrency == null) {
@@ -64,13 +68,16 @@ public class ValuationController {
     public static void updateValuation(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String valuationIdStr = ctx.pathParam("valuation_id");
-            String accountIdStr = ctx.formParam("account_id");
-            String dateStr = ctx.formParam("date");
-            String valueStr = ctx.formParam("value");
-            String currency = ctx.formParam("currency");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (valuationIdStr == null || accountIdStr == null || dateStr == null || valueStr == null || currency == null) {
+            String valuationIdStr = requestBody.optString("valuation_id");
+            String accountIdStr = requestBody.optString("account_id");
+            String dateStr = requestBody.optString("date");
+            String valueStr = requestBody.optString("value");
+            String currency = requestBody.optString("currency");
+
+            if (valuationIdStr.isEmpty() || accountIdStr.isEmpty() || dateStr.isEmpty() || valueStr.isEmpty()
+                    || currency.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -91,9 +98,11 @@ public class ValuationController {
     public static void deleteValuation(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String valuationIdStr = ctx.pathParam("valuation_id");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (valuationIdStr == null) {
+            String valuationIdStr = requestBody.optString("valuation_id");
+
+            if (valuationIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }

@@ -1,18 +1,24 @@
 package com.pivo.app.controllers;
 
-import com.pivo.app.Application;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Objects;
+
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import com.pivo.app.App;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DatabaseManager {
@@ -60,7 +66,10 @@ public class DatabaseManager {
     }
 
     private static void createDatabase(String databaseFilePath) {
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + databaseFilePath); Statement stmt = conn.createStatement(); BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(Application.class.getResourceAsStream("schema.sql"))))) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + databaseFilePath);
+                Statement stmt = conn.createStatement();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(
+                        Objects.requireNonNull(App.class.getResourceAsStream("schema.sql"))))) {
             String line;
             StringBuilder sql = new StringBuilder();
             while ((line = reader.readLine()) != null) {

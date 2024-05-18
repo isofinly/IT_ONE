@@ -1,5 +1,7 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
+import org.json.JSONObject;
+
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.entities.BudgetAnalysisResult;
 import com.github.kxrxh.javalin.rest.services.BudgetService;
@@ -15,10 +17,11 @@ public class BudgetController {
 
     public static void setBudgetAlert(Context ctx) {
         try {
-            String budgetIdStr = ctx.pathParam("budget_id");
-            String alertThresholdStr = ctx.formParam("alert_threshold");
+            JSONObject requestBody = new JSONObject(ctx.body());
+            String budgetIdStr = requestBody.optString("budget_id");
+            String alertThresholdStr = requestBody.optString("alert_threshold");
 
-            if (alertThresholdStr == null) {
+            if (budgetIdStr.isEmpty() || alertThresholdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -36,14 +39,20 @@ public class BudgetController {
 
     public static void analyzeBudget(Context ctx) {
         try {
-            UUID budgetId = UUID.fromString(ctx.pathParam("budget_id"));
-            String dateRange = ctx.queryParam("date_range");
             UUID userId = Utils.getUUIDFromContext(ctx);
 
-            if (dateRange == null) {
+            String budgetIdStr = ctx.queryParam("budget_id");
+            if (budgetIdStr == null || budgetIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
+
+            String dateRange = ctx.queryParam("date_range");
+            if (dateRange == null || dateRange.isEmpty()) {
+                ctx.status(400).result("Missing required parameters");
+                return;
+            }
+            UUID budgetId = UUID.fromString(budgetIdStr);
 
             BudgetAnalysisResult analysisResult = BudgetService.analyzeBudget(userId, budgetId, dateRange);
             ctx.json(analysisResult);

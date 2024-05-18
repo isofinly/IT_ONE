@@ -1,5 +1,12 @@
 package com.pivo.app;
 
+import static com.pivo.app.App.showAlert;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,13 +17,6 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import static com.pivo.app.Application.showAlert;
 
 public class ProfileInformationController {
     private static final String ERROR = "Error";

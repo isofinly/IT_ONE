@@ -1,17 +1,21 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.GettingConnectionException;
-import com.github.kxrxh.javalin.rest.database.models.Transaction;
-import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
-import com.github.kxrxh.javalin.rest.entities.FinancialAdvice;
-import com.github.kxrxh.javalin.rest.entities.FinancialForecast;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.Transaction;
+import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
+import com.github.kxrxh.javalin.rest.entities.FinancialAdvice;
+import com.github.kxrxh.javalin.rest.entities.FinancialForecast;
 
 public class AdviceService {
 
@@ -24,7 +28,7 @@ public class AdviceService {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
 
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();
@@ -73,15 +77,17 @@ public class AdviceService {
 
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();
 
         // Implement your logic to generate financial forecast here
         // For example, projecting future transactions based on past data
-        // Caused by: org.postgresql.util.PSQLException: ERROR: operator does not exist: uuid = character varying
-        // Hint: No operator matches the given name and argument types. You might need to add explicit type casts. 
+        // Caused by: org.postgresql.util.PSQLException: ERROR: operator does not exist:
+        // uuid = character varying
+        // Hint: No operator matches the given name and argument types. You might need
+        // to add explicit type casts.
         // Position: 45
         String query = "SELECT * FROM transactions WHERE account_id = ? AND transaction_date BETWEEN ? AND ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {

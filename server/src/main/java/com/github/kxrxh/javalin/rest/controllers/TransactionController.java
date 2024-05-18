@@ -1,4 +1,6 @@
 package com.github.kxrxh.javalin.rest.controllers;
+import org.json.JSONObject;
+
 
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.database.models.Transaction;
@@ -20,6 +22,7 @@ public class TransactionController {
     public static void searchTransactions(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
+
             String amountRange = ctx.queryParam("amount_range");
             String dateRange = ctx.queryParam("date_range");
             String categoryIdStr = ctx.queryParam("category_id");
@@ -38,14 +41,16 @@ public class TransactionController {
     public static void createTransaction(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String amountStr = ctx.formParam("amount");
-            String categoryIdStr = ctx.formParam("category_id");
-            String accountIdStr = ctx.formParam("account_id");
-            String name = ctx.formParam("name");
-            String dateStr = ctx.formParam("date");
-            String currency = ctx.formParam("currency");
-            String notes = ctx.formParam("notes");
-            String transactionTypeStr = ctx.formParam("transaction_type");
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            String amountStr = requestBody.optString("amount");
+            String categoryIdStr = requestBody.optString("category_id");
+            String accountIdStr = requestBody.optString("account_id");
+            String name = requestBody.optString("name");
+            String dateStr = requestBody.optString("date");
+            String currency = requestBody.optString("currency");
+            String notes = requestBody.optString("notes");
+            String transactionTypeStr = requestBody.optString("transaction_type");
 
             UUID categoryId = UUID.fromString(categoryIdStr);
             UUID accountId = UUID.fromString(accountIdStr);
@@ -64,17 +69,19 @@ public class TransactionController {
     public static void updateTransaction(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String transactionIdStr = ctx.pathParam("transaction_id");
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            String transactionIdStr = requestBody.optString("transaction_id");
             UUID transactionId = UUID.fromString(transactionIdStr);
 
-            String amountStr = ctx.formParam("amount");
-            String categoryIdStr = ctx.formParam("category_id");
-            String accountIdStr = ctx.formParam("account_id");
-            String name = ctx.formParam("name");
-            String dateStr = ctx.formParam("date");
-            String currency = ctx.formParam("currency");
-            String notes = ctx.formParam("notes");
-            String transactionTypeStr = ctx.formParam("transaction_type");
+            String amountStr = requestBody.optString("amount");
+            String categoryIdStr = requestBody.optString("category_id");
+            String accountIdStr = requestBody.optString("account_id");
+            String name = requestBody.optString("name");
+            String dateStr = requestBody.optString("date");
+            String currency = requestBody.optString("currency");
+            String notes = requestBody.optString("notes");
+            String transactionTypeStr = requestBody.optString("transaction_type");
 
             UUID categoryId = UUID.fromString(categoryIdStr);
             UUID accountId = UUID.fromString(accountIdStr);
@@ -93,7 +100,9 @@ public class TransactionController {
     public static void deleteTransaction(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String transactionIdStr = ctx.pathParam("transaction_id");
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            String transactionIdStr = requestBody.optString("transaction_id");
             UUID transactionId = UUID.fromString(transactionIdStr);
 
             TransactionService.deleteTransaction(userId, transactionId);
@@ -107,10 +116,12 @@ public class TransactionController {
     public static void createRecurringTransaction(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String amountStr = ctx.formParam("amount");
-            String categoryIdStr = ctx.formParam("category_id");
-            String description = ctx.formParam("description");
-            long frequency = Long.valueOf(Objects.requireNonNull(ctx.formParam("frequency")));
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            String amountStr = requestBody.optString("amount");
+            String categoryIdStr = requestBody.optString("category_id");
+            String description = requestBody.optString("description");
+            long frequency = Long.parseLong(Objects.requireNonNull(requestBody.optString("frequency")));
 
             UUID categoryId = UUID.fromString(categoryIdStr);
             long amount = Long.parseLong(amountStr);

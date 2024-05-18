@@ -1,9 +1,5 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.Valuation;
-import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,19 +8,25 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.Valuation;
+import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
+
 public class ValuationService {
 
     private ValuationService() {
     }
 
-    public static void createValuation(UUID userId, UUID accountId, LocalDate date, long value, String currency) throws SQLException {
+    public static void createValuation(UUID userId, UUID accountId, LocalDate date, long value, String currency)
+            throws SQLException {
         if (!isUserAuthorized(userId, accountId)) {
             throw new SQLException("User not authorized to create valuation for this account");
         }
 
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -43,7 +45,7 @@ public class ValuationService {
     public static Valuation readValuation(UUID userId, UUID valuationId, String targetCurrency) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -66,8 +68,7 @@ public class ValuationService {
                             UUID.fromString(rs.getString("account_id")),
                             rs.getDate("date").toLocalDate(),
                             Math.round(convertedValue),
-                            targetCurrency
-                    );
+                            targetCurrency);
                 } else {
                     throw new SQLException("Valuation not found");
                 }
@@ -75,14 +76,15 @@ public class ValuationService {
         }
     }
 
-    public static void updateValuation(UUID userId, UUID valuationId, UUID accountId, LocalDate date, long value, String currency) throws SQLException {
+    public static void updateValuation(UUID userId, UUID valuationId, UUID accountId, LocalDate date, long value,
+            String currency) throws SQLException {
         if (!isUserAuthorized(userId, accountId)) {
             throw new SQLException("User not authorized to update valuation for this account");
         }
 
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -101,7 +103,7 @@ public class ValuationService {
     public static void deleteValuation(UUID userId, UUID valuationId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -129,7 +131,7 @@ public class ValuationService {
     private static boolean isUserAuthorized(UUID userId, UUID accountId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();

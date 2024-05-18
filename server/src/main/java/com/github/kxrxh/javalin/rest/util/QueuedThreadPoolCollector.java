@@ -1,12 +1,13 @@
 package com.github.kxrxh.javalin.rest.util;
 
-import io.prometheus.client.Collector;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+
+import io.prometheus.client.Collector;
 
 public class QueuedThreadPoolCollector extends Collector {
 
@@ -26,17 +27,18 @@ public class QueuedThreadPoolCollector extends Collector {
                 name,
                 Type.GAUGE,
                 help,
-                Collections.singletonList(new MetricFamilySamples.Sample(name, EMPTY_LIST, EMPTY_LIST, value))
-        );
+                Collections.singletonList(new MetricFamilySamples.Sample(name, EMPTY_LIST, EMPTY_LIST, value)));
     }
 
     @Override
     public List<MetricFamilySamples> collect() {
         return Arrays.asList(
-                buildGauge("jetty_queued_thread_pool_threads", "Number of total threads", queuedThreadPool.getThreads()),
-                buildGauge("jetty_queued_thread_pool_utilization", "Percentage of threads in use", (double) queuedThreadPool.getThreads() / queuedThreadPool.getMaxThreads()),
-                buildGauge("jetty_queued_thread_pool_threads_idle", "Number of idle threads", queuedThreadPool.getIdleThreads()),
-                buildGauge("jetty_queued_thread_pool_jobs", "Number of total jobs", queuedThreadPool.getQueueSize())
-        );
+                buildGauge("jetty_queued_thread_pool_threads", "Number of total threads",
+                        queuedThreadPool.getThreads()),
+                buildGauge("jetty_queued_thread_pool_utilization", "Percentage of threads in use",
+                        (double) queuedThreadPool.getThreads() / queuedThreadPool.getMaxThreads()),
+                buildGauge("jetty_queued_thread_pool_threads_idle", "Number of idle threads",
+                        queuedThreadPool.getIdleThreads()),
+                buildGauge("jetty_queued_thread_pool_jobs", "Number of total jobs", queuedThreadPool.getQueueSize()));
     }
 }

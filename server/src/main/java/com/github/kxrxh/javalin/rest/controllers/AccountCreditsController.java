@@ -1,4 +1,4 @@
-package com.github.kxrx.accountcredits;
+package com.github.kxrxh.javalin.rest.controllers;
 
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.database.models.AccountCredit;
@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import org.json.JSONObject;
+
 @Slf4j
 public class AccountCreditsController {
 
@@ -18,23 +20,27 @@ public class AccountCreditsController {
     public static void createCredit(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String accountIdStr = ctx.formParam("account_id");
-            String creditLimitStr = ctx.formParam("credit_limit");
-            String interestRateStr = ctx.formParam("interest_rate");
-            String dueDateStr = ctx.formParam("due_date");
-            String minimumPaymentStr = ctx.formParam("minimum_payment");
-
-            if (accountIdStr == null || creditLimitStr == null || interestRateStr == null || dueDateStr == null || minimumPaymentStr == null) {
+            // Parse JSON data from request body
+            JSONObject requestBody = new JSONObject(ctx.body());
+   
+            // Extract data from JSON
+            String accountIdStr = requestBody.optString("account_id");
+            String creditLimitStr = requestBody.optString("credit_limit");
+            String interestRateStr = requestBody.optString("interest_rate");
+            String dueDateStr = requestBody.optString("due_date");
+            String minimumPaymentStr = requestBody.optString("minimum_payment");
+    
+            if (accountIdStr.isEmpty() || creditLimitStr.isEmpty() || interestRateStr.isEmpty() || dueDateStr.isEmpty() || minimumPaymentStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
-
+    
             UUID accountId = UUID.fromString(accountIdStr);
             long creditLimit = Long.parseLong(creditLimitStr);
             double interestRate = Double.parseDouble(interestRateStr);
             LocalDate dueDate = LocalDate.parse(dueDateStr);
             long minimumPayment = Long.parseLong(minimumPaymentStr);
-
+    
             AccountCreditsService.createCredit(userId, accountId, creditLimit, interestRate, dueDate, minimumPayment);
             ctx.status(200).result("Credit created successfully");
         } catch (Exception e) {
@@ -46,9 +52,11 @@ public class AccountCreditsController {
     public static void readCredit(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String creditIdStr = ctx.pathParam("credit_id");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (creditIdStr == null) {
+            String creditIdStr = requestBody.optString("credit_id");
+
+            if (creditIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -65,14 +73,16 @@ public class AccountCreditsController {
     public static void updateCredit(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String creditIdStr = ctx.pathParam("credit_id");
-            String accountIdStr = ctx.formParam("account_id");
-            String creditLimitStr = ctx.formParam("credit_limit");
-            String interestRateStr = ctx.formParam("interest_rate");
-            String dueDateStr = ctx.formParam("due_date");
-            String minimumPaymentStr = ctx.formParam("minimum_payment");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (creditIdStr == null || accountIdStr == null || creditLimitStr == null || interestRateStr == null || dueDateStr == null || minimumPaymentStr == null) {
+            String creditIdStr = requestBody.optString("credit_id");
+            String accountIdStr = requestBody.optString("account_id");
+            String creditLimitStr = requestBody.optString("credit_limit");
+            String interestRateStr = requestBody.optString("interest_rate");
+            String dueDateStr = requestBody.optString("due_date");
+            String minimumPaymentStr = requestBody.optString("minimum_payment");
+
+            if (accountIdStr.isEmpty() || creditLimitStr.isEmpty() || interestRateStr.isEmpty() || dueDateStr.isEmpty() || minimumPaymentStr.isEmpty() || creditIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -95,9 +105,11 @@ public class AccountCreditsController {
     public static void deleteCredit(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String creditIdStr = ctx.pathParam("credit_id");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (creditIdStr == null) {
+            String creditIdStr = requestBody.optString("credit_id");
+
+            if (creditIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -114,9 +126,10 @@ public class AccountCreditsController {
     public static void calculateInterest(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String creditIdStr = ctx.pathParam("credit_id");
 
-            if (creditIdStr == null) {
+            String creditIdStr = ctx.queryParam("credit_id");
+
+            if (creditIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }

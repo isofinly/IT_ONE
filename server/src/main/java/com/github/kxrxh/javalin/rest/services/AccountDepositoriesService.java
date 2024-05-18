@@ -1,33 +1,34 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.AccountDepository;
-import com.github.kxrxh.javalin.rest.database.models.Valuation;
-import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
-
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.AccountDepository;
 
 public class AccountDepositoriesService {
 
     private AccountDepositoriesService() {
     }
 
-    public static void createDepository(UUID userId, UUID accountId, String bankName, String accountNumber, String routingNumber, double interestRate, long overdraftLimit) throws SQLException {
+    public static void createDepository(UUID userId, UUID accountId, String bankName, String accountNumber,
+            String routingNumber, double interestRate, long overdraftLimit) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "INSERT INTO account_depositories (id, account_id, user_id, bank_name, account_number, routing_number, interest_rate, overdraft_limit, created_at, updated_at) " +
+                "INSERT INTO account_depositories (id, account_id, user_id, bank_name, account_number, routing_number, interest_rate, overdraft_limit, created_at, updated_at) "
+                        +
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             ps.setObject(1, UUID.randomUUID(), java.sql.Types.OTHER);
             ps.setObject(2, accountId, java.sql.Types.OTHER);
@@ -44,7 +45,7 @@ public class AccountDepositoriesService {
     public static AccountDepository readDepository(UUID userId, UUID depositoryId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -55,18 +56,18 @@ public class AccountDepositoriesService {
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new AccountDepository(
-                            UUID.fromString(rs.getString("id")),
-                            UUID.fromString(rs.getString("account_id")),
-                            UUID.fromString(rs.getString("user_id")),
-                            rs.getString("bank_name"),
-                            rs.getString("account_number"),
-                            rs.getString("routing_number"),
-                            rs.getBigDecimal("interest_rate"),
-                            rs.getLong("overdraft_limit"),
-                            rs.getTimestamp("created_at").toLocalDateTime(),
-                            rs.getTimestamp("updated_at").toLocalDateTime()
-                    );
+                    return AccountDepository.builder()
+                            .id(UUID.fromString(rs.getString("id")))
+                            .accountId(UUID.fromString(rs.getString("account_id")))
+                            .userId(UUID.fromString(rs.getString("user_id")))
+                            .bankName(rs.getString("bank_name"))
+                            .accountNumber(rs.getString("account_number"))
+                            .routingNumber(rs.getString("routing_number"))
+                            .interestRate(BigDecimal.valueOf(rs.getDouble("interest_rate")))
+                            .overdraftLimit(rs.getLong("overdraft_limit"))
+                            .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                            .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
+                            .build();
                 } else {
                     throw new SQLException("Depository not found");
                 }
@@ -74,16 +75,18 @@ public class AccountDepositoriesService {
         }
     }
 
-    public static void updateDepository(UUID userId, UUID depositoryId, UUID accountId, String bankName, String accountNumber, String routingNumber, double interestRate, long overdraftLimit) throws SQLException {
+    public static void updateDepository(UUID userId, UUID depositoryId, UUID accountId, String bankName,
+            String accountNumber, String routingNumber, double interestRate, long overdraftLimit) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "UPDATE account_depositories SET account_id = ?, bank_name = ?, account_number = ?, routing_number = ?, interest_rate = ?, overdraft_limit = ?, updated_at = CURRENT_TIMESTAMP " +
+                "UPDATE account_depositories SET account_id = ?, bank_name = ?, account_number = ?, routing_number = ?, interest_rate = ?, overdraft_limit = ?, updated_at = CURRENT_TIMESTAMP "
+                        +
                         "WHERE id = ? AND user_id = ?")) {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setString(2, bankName);
@@ -100,7 +103,7 @@ public class AccountDepositoriesService {
     public static void deleteDepository(UUID userId, UUID depositoryId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -116,7 +119,7 @@ public class AccountDepositoriesService {
     public static void calculateInterest(UUID userId, UUID depositoryId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();

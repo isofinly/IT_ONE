@@ -1,14 +1,35 @@
 package com.github.kxrxh.javalin.rest.api;
 
-import com.github.kxrxh.javalin.rest.controllers.*;
-import io.javalin.Javalin;
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jetty.server.handler.StatisticsHandler;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import static com.github.kxrxh.javalin.rest.util.Prometheus.initializePrometheus;
 
 import java.io.IOException;
 
-import static com.github.kxrxh.javalin.rest.util.Prometheus.initializePrometheus;
+import org.eclipse.jetty.server.handler.StatisticsHandler;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+
+import com.github.kxrxh.javalin.rest.controllers.AccountBalancesController;
+import com.github.kxrxh.javalin.rest.controllers.AccountController;
+import com.github.kxrxh.javalin.rest.controllers.AccountCreditsController;
+import com.github.kxrxh.javalin.rest.controllers.AccountDepositoriesController;
+import com.github.kxrxh.javalin.rest.controllers.AccountInvestmentsController;
+import com.github.kxrxh.javalin.rest.controllers.AccountLoansController;
+import com.github.kxrxh.javalin.rest.controllers.AccountOtherAssetsController;
+import com.github.kxrxh.javalin.rest.controllers.AdviceController;
+import com.github.kxrxh.javalin.rest.controllers.AuthController;
+import com.github.kxrxh.javalin.rest.controllers.BudgetController;
+import com.github.kxrxh.javalin.rest.controllers.CategoryController;
+import com.github.kxrxh.javalin.rest.controllers.ExchangeRateController;
+import com.github.kxrxh.javalin.rest.controllers.IntegrationController;
+import com.github.kxrxh.javalin.rest.controllers.RecurringTransactionController;
+import com.github.kxrxh.javalin.rest.controllers.ReportController;
+import com.github.kxrxh.javalin.rest.controllers.TaxController;
+import com.github.kxrxh.javalin.rest.controllers.TransactionController;
+import com.github.kxrxh.javalin.rest.controllers.ValuationController;
+import com.github.kxrxh.javalin.rest.controllers.VisualizationController;
+import com.github.kxrxh.javalin.rest.util.PrometheusInitializationException;
+
+import io.javalin.Javalin;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Represents a RESTful server built with Javalin framework.
@@ -17,11 +38,7 @@ import static com.github.kxrxh.javalin.rest.util.Prometheus.initializePrometheus
 public class RestServer {
     private final Javalin app;
 
-    /**
-     * Constructs a new RestServer.
-     */
     public RestServer(boolean dev) {
-        // https://javalin.io/tutorials/prometheus-example
         StatisticsHandler statisticsHandler = new StatisticsHandler();
         QueuedThreadPool queuedThreadPool = new QueuedThreadPool(200, 8, 60_000);
         this.app = Javalin.create(config -> {
@@ -36,7 +53,7 @@ public class RestServer {
             initializePrometheus(statisticsHandler, queuedThreadPool);
         } catch (IOException e) {
             log.error("Unable to initialize Prometheus: {}", e.getMessage());
-            throw new RuntimeException(e);
+            throw new PrometheusInitializationException(e);
         }
         app.after(ctx -> log.info(ctx.req().getMethod() + " " + ctx.req().getPathInfo() + " " + ctx.statusCode()));
     }
@@ -52,143 +69,108 @@ public class RestServer {
         app.get("/", ctx -> ctx.result("Hello World!"));
 
         // Account routes
-        /*
-         * Перевод средств между счетами (Transfer Funds)
-         * POST /api/v1/accounts/transfer
-         * Описание: Перевод средств между счетами пользователя.
-         * Параметры: from_account_id, to_account_id, amount.
-         */
         app.post("/api/v1/accounts/transfer", AccountController::transferFunds);
-
-        /*
-         * Объединение нескольких счетов (Merge Accounts)
-         * POST /api/v1/accounts/merge
-         * Описание: Объединение нескольких счетов в один.
-         * Параметры: account_ids[], new_account_name.
-         * Расширенные возможности транзакций (Transactions)
-         */
         app.post("/api/v1/accounts/merge", AccountController::mergeAccounts);
 
-        // Transaction routes
-        /*
-         * Поиск транзакций (Search Transactions)
-         * GET /api/v1/transactions/search
-         * Описание: Поиск транзакций по различным параметрам.
-         * Параметры: user_id, amount_range, date_range, category_id, description.
-         */
-        app.get("/api/v1/transactions/search", TransactionController::searchTransactions);
+        // new
+        app.post("/api/v1/accounts/create_balance", AccountBalancesController::createBalance);
+        app.get("/api/v1/accounts/read_balance", AccountBalancesController::readBalance);
+        app.put("/api/v1/accounts/update_balance", AccountBalancesController::updateBalance);
+        app.delete("/api/v1/accounts/delete_balance", AccountBalancesController::deleteBalance);
+        app.get("/api/v1/accounts/calculate_total_balance", AccountBalancesController::calculateTotalBalance);
 
-        // TODO: @kxrxh test these methods
-        app.post("/api/v1/transactions/create", TransactionController::createTransaction);
-        app.put("/api/v1/transactions/update", TransactionController::updateTransaction);
-        app.delete("/api/v1/transactions/delete", TransactionController::deleteTransaction);
+        app.post("/api/v1/accounts/create_credit", AccountCreditsController::createCredit);
+        app.get("/api/v1/accounts/read_credit", AccountCreditsController::readCredit);
+        app.put("/api/v1/accounts/update_credit", AccountCreditsController::updateCredit);
+        app.delete("/api/v1/accounts/delete_credit", AccountCreditsController::deleteCredit);
+        app.get("/api/v1/accounts/calculate_credit_interest", AccountCreditsController::calculateInterest);
 
-        /*
-         * Периодические транзакции (Recurring Transactions)
-         * POST /api/v1/transactions/recurring
-         * Описание: Создание повторяющихся транзакций.
-         * Параметры: user_id, amount, category_id, description, frequency.
-         * Расширенные возможности категорий (Categories)
-         */
-        app.post("/api/v1/transactions/recurring", TransactionController::createRecurringTransaction);
+        app.post("/api/v1/accounts/create_depository", AccountDepositoriesController::createDepository);
+        app.get("/api/v1/accounts/read_depository", AccountDepositoriesController::readDepository);
+        app.put("/api/v1/accounts/update_depository", AccountDepositoriesController::updateDepository);
+        app.delete("/api/v1/accounts/delete_depository", AccountDepositoriesController::deleteDepository);
+        app.get("/api/v1/accounts/calculate_depository_interest", AccountDepositoriesController::calculateInterest);
 
-        // Category routes
-        /*
-         * Анализ категории (Category Analysis)
-         * GET /api/v1/categories/{category_id}/analysis
-         * Описание: Получение анализа расходов по категории.
-         * Параметры: category_id, date_range.
-         * Расширенные возможности бюджетов (Budgets)
-         */
-        app.get("/api/v1/categories/{category_id}/analysis", CategoryController::analyzeCategory);
+        app.post("/api/v1/accounts/create_investment", AccountInvestmentsController::createInvestment);
+        app.get("/api/v1/accounts/read_investment", AccountInvestmentsController::readInvestment);
+        app.put("/api/v1/accounts/update_investment", AccountInvestmentsController::updateInvestment);
+        app.delete("/api/v1/accounts/delete_investment", AccountInvestmentsController::deleteInvestment);
+        app.get("/api/v1/accounts/calculate_dividends", AccountInvestmentsController::calculateDividends);
 
-        // Budget routes
-        /*
-         * Предупреждения по бюджету (Budget Alerts)
-         * POST /api/v1/budgets/{budget_id}/alerts
-         * Описание: Настройка предупреждений при достижении определенных лимитов.
-         * Параметры: budget_id, alert_threshold.
-         */
-        app.post("/api/v1/budgets/{budget_id}/alerts", BudgetController::setBudgetAlert);
+        app.get("/api/v1/accounts/create_loan", AccountLoansController::createLoan);
+        app.post("/api/v1/accounts/read_loan", AccountLoansController::readLoan);
+        app.put("/api/v1/accounts/update_loan", AccountLoansController::updateLoan);
+        app.delete("/api/v1/accounts/delete_loan", AccountLoansController::deleteLoan);
+        app.get("/api/v1/accounts/calculate_loan_interest", AccountLoansController::calculateInterest);
+        app.get("/api/v1/accounts/check_due_date_notifications", AccountLoansController::checkDueDateNotifications);
 
-        /*
-         * Анализ бюджета (Budget Analysis)
-         * GET /api/v1/budgets/{budget_id}/analysis
-         * Описание: Получение анализа эффективности бюджета.
-         * Параметры: budget_id.
-         * Отчеты и визуализация (Reports and Visualization)
-         */
-        app.get("/api/v1/budgets/{budget_id}/analysis", BudgetController::analyzeBudget);
-
-        // Report routes
-        /*
-         * Создание отчетов (Generate Reports)
-         * POST /api/v1/monthly_report
-         * Описание: Создание финансовых отчетов за выбранный период.
-         * Параметры: year, month.
-         * curl -X POST -d '{year: 2022, month: 1}'
-         * http://localhost:8080/api/v1/monthly_report
-         */
-        app.get("/api/v1/monthly_report", ReportController::generateMonthlyReport);
-
-        // Visualization routes
-        /*
-         * TODO complete
-         * Визуализация данных (Data Visualization)
-         * GET /api/v1/visualizations
-         * Описание: Получение визуализации финансовых данных пользователя.
-         * Параметры: user_id, visualization_type, date_range.
-         * Финансовые советы и прогнозы (Financial Advice and Forecasting)
-         */
-        app.get("/api/v1/visualizations", VisualizationController::getVisualization);
+        app.get("/api/v1/accounts/create_asset", AccountOtherAssetsController::createAsset);
+        app.post("/api/v1/accounts/read_asset", AccountOtherAssetsController::readAsset);
+        app.put("/api/v1/accounts/update_asset", AccountOtherAssetsController::updateAsset);
+        app.delete("/api/v1/accounts/delete_asset", AccountOtherAssetsController::deleteAsset);
+        app.delete("/api/v1/accounts/apply_depreciation", AccountOtherAssetsController::applyDepreciation);
 
         // Advice routes
-        /*
-         * Финансовые советы (Financial Advice)
-         * GET /api/v1/advice
-         * Описание: Получение персонализированных финансовых советов.
-         * Параметры: user_id.
-         */
         app.get("/api/v1/advice", AdviceController::getFinancialAdvice);
 
-        /*
-         * Прогнозирование финансов (Financial Forecasting)
-         * GET /api/v1/forecast
-         * Описание: Прогнозирование финансового состояния пользователя на основе
-         * текущих данных.
-         * Параметры: user_id, date_range.
-         * Интеграции и автоматизация (Integrations and Automation)
-         */
-        app.get("/api/v1/forecast", AdviceController::getFinancialForecast);
+        // new
+        app.get("/api/v1/financial_forecast", AdviceController::getFinancialForecast);
+
+        // Budget routes
+        app.post("/api/v1/budget/set_budget_alert", BudgetController::setBudgetAlert);
+        app.get("/api/v1/budget/analyze_budget", BudgetController::analyzeBudget);
+
+        // Category routes
+        app.get("/api/v1/category/analysis", CategoryController::analyzeCategory);
+        // new
+        app.post("/api/v1/category/create", CategoryController::createCategory);
+        app.get("/api/v1/category/read", CategoryController::readCategory);
+        app.put("/api/v1/category/update", CategoryController::updateCategory);
+        app.delete("/api/v1/category/delete", CategoryController::deleteCategory);
+
+        // new
+        app.get("/api/v1/exchange_rate/create", ExchangeRateController::createExchangeRate);
+        app.get("/api/v1/exchange_rate/read", ExchangeRateController::readExchangeRate);
+        app.put("/api/v1/exchange_rate/update", ExchangeRateController::updateExchangeRate);
+        app.delete("/api/v1/exchange_rate/delete", ExchangeRateController::deleteExchangeRate);
 
         // Integration routes
-        /*
-         * TODO Интеграция с банками (Bank Integrations)
-         * POST /api/v1/integrations/banks
-         * Описание: Интеграция с банковскими аккаунтами для автоматического получения
-         * транзакций.
-         * Параметры: user_id, bank_credentials.
-         */
-        app.post("/api/v1/integrations/banks", IntegrationController::integrateWithBank);
-        /*
-         * Автоматическое категорирование транзакций (Automatic Transaction
-         * Categorization)
-         * POST /api/v1/transactions/auto-categorize
-         * Описание: Автоматическое категорирование транзакций на основе правил и
-         * истории.
-         * Параметры: user_id.
-         */
-        app.post("/api/v1/transactions/auto-categorize", IntegrationController::autoCategorizeTransactions);
+        app.post("/api/v1/integration/bank", IntegrationController::integrateWithBank);
+        app.post("/api/v1/integration/auto-categorize", IntegrationController::autoCategorizeTransactions);
 
-        // Notification routes
-        /*
-         * Уведомления (Notifications)
-         * POST /api/v1/notifications
-         * Описание: Настройка уведомлений для различных событий (например, достижение
-         * бюджетного лимита, поступление зарплаты).
-         * Параметры: user_id, notification_type, threshold.
-         */
-        app.post("/api/v1/notifications", NotificationController::setNotification);
+        // Report routes
+        app.get("/api/v1/monthly_report", ReportController::generateMonthlyReport);
+
+        // Tax routes
+        // new
+        app.post("/api/v1/tax/create", TaxController::createTax);
+        app.get("/api/v1/tax/read", TaxController::readTax);
+        app.put("/api/v1/tax/update", TaxController::updateTax);
+        app.delete("/api/v1/tax/delete", TaxController::deleteTax);
+        app.get("/api/v1/tax/calculate", TaxController::calculateTaxes);
+
+        // Transaction routes
+        // new
+        app.post("/api/v1/transaction/recurring/create", RecurringTransactionController::createRecurringTransaction);
+        app.get("/api/v1/transaction/recurring/read", RecurringTransactionController::createRecurringTransaction);
+        app.put("/api/v1/transaction/recurring/update", RecurringTransactionController::createRecurringTransaction);
+        app.delete("/api/v1/transaction/recurring/delete", RecurringTransactionController::createRecurringTransaction);
+        app.post("/api/v1/transaction/recurring", TransactionController::createRecurringTransaction);
+        app.get("/api/v1/transaction/search", TransactionController::searchTransactions);
+
+        app.post("/api/v1/transaction/create", TransactionController::createTransaction);
+        app.put("/api/v1/transaction/update", TransactionController::updateTransaction);
+        app.delete("/api/v1/transaction/delete", TransactionController::deleteTransaction);
+
+        // Valuation routes
+        // new
+        app.post("/api/v1/valuation/create", ValuationController::createValuation);
+        app.get("/api/v1/valuation/read", ValuationController::readValuation);
+        app.put("/api/v1/valuation/update", ValuationController::updateValuation);
+        app.delete("/api/v1/valuation/delete", ValuationController::deleteValuation);
+
+        // TODO: Visualization routes
+        app.get("/api/v1/visualizations", VisualizationController::getVisualization);
     }
 
     /**

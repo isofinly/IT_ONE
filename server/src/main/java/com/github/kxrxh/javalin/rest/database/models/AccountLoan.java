@@ -1,14 +1,14 @@
 package com.github.kxrxh.javalin.rest.database.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -28,21 +28,4 @@ public class AccountLoan {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastSyncedAt;
-
-    public AccountLoan(UUID id, UUID accountId, UUID userId, long loanAmount, long outstandingBalance, BigDecimal interestRate, String loanTerm, LocalDate dueDate, String paymentFrequency, String collateral, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.accountId = accountId;
-        this.userId = userId;
-        this.loanAmount = loanAmount;
-        this.outstandingBalance = outstandingBalance;
-        this.interestRate = interestRate;
-        this.loanTerm = loanTerm;
-        this.dueDate = dueDate;
-        this.paymentFrequency = paymentFrequency;
-        this.collateral = collateral;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-
 }

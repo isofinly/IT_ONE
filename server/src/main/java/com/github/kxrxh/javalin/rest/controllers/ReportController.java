@@ -17,11 +17,12 @@ public class ReportController {
 
     public static void generateMonthlyReport(Context ctx) {
         try {
-            String yearStr = ctx.queryParam("year");
-            String monthStr = ctx.queryParam("month");
             UUID userId = Utils.getUUIDFromContext(ctx);
 
-            if (yearStr == null || monthStr == null) {
+            String yearStr = ctx.queryParam("year");
+            String monthStr = ctx.queryParam("month");
+
+            if (yearStr == null || monthStr == null || yearStr.isEmpty() || monthStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }

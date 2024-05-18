@@ -1,31 +1,41 @@
 package com.github.kxrxh.javalin.rest.services;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.AccountLoan;
-import com.github.kxrxh.javalin.rest.database.models.Valuation;
-import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
 
-import java.sql.*;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.AccountLoan;
 
 public class AccountLoansService {
 
     private AccountLoansService() {
     }
 
-    public static void createLoan(UUID userId, UUID accountId, long loanAmount, long outstandingBalance, double interestRate, String loanTerm, LocalDate dueDate, String paymentFrequency, String collateral) throws SQLException {
+    public static void createLoan(UUID userId, UUID accountId, long loanAmount,
+            long outstandingBalance, double interestRate,
+            String loanTerm, LocalDate dueDate,
+            String paymentFrequency, String collateral)
+            throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
 
-        try (PreparedStatement ps = conn.prepareStatement(
-                "INSERT INTO account_loans (id, account_id, user_id, loan_amount, outstanding_balance, interest_rate, loan_term, due_date, payment_frequency, collateral, created_at, updated_at) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+        try (
+                PreparedStatement ps = conn.prepareStatement(
+                        "INSERT INTO account_loans (id, account_id, user_id, loan_amount, outstanding_balance, interest_rate, loan_term, due_date, payment_frequency, collateral, created_at, updated_at) "
+                                +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             ps.setObject(1, UUID.randomUUID(), java.sql.Types.OTHER);
             ps.setObject(2, accountId, java.sql.Types.OTHER);
             ps.setObject(3, userId, java.sql.Types.OTHER);
@@ -40,10 +50,11 @@ public class AccountLoansService {
         }
     }
 
-    public static AccountLoan readLoan(UUID userId, UUID loanId) throws SQLException {
+    public static AccountLoan readLoan(UUID userId, UUID loanId)
+            throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -54,20 +65,19 @@ public class AccountLoansService {
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new AccountLoan(
-                            UUID.fromString(rs.getString("id")),
-                            UUID.fromString(rs.getString("account_id")),
-                            UUID.fromString(rs.getString("user_id")),
-                            rs.getLong("loan_amount"),
-                            rs.getLong("outstanding_balance"),
-                            rs.getBigDecimal("interest_rate"),
-                            rs.getString("loan_term"),
-                            rs.getDate("due_date").toLocalDate(),
-                            rs.getString("payment_frequency"),
-                            rs.getString("collateral"),
-                            rs.getTimestamp("created_at").toLocalDateTime(),
-                            rs.getTimestamp("updated_at").toLocalDateTime()
-                    );
+                    return AccountLoan.builder()
+                            .id(UUID.fromString(rs.getString("id")))
+                            .accountId(UUID.fromString(rs.getString("account_id")))
+                            .userId(UUID.fromString(rs.getString("user_id")))
+                            .loanAmount(rs.getLong("loan_amount"))
+                            .outstandingBalance(rs.getLong("outstanding_balance"))
+                            .interestRate(BigDecimal.valueOf(rs.getDouble("interest_rate")))
+                            .loanTerm(rs.getString("loan_term"))
+                            .dueDate(rs.getDate("due_date").toLocalDate())
+                            .paymentFrequency(rs.getString("payment_frequency"))
+                            .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                            .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
+                            .build();
                 } else {
                     throw new SQLException("Loan not found");
                 }
@@ -75,17 +85,22 @@ public class AccountLoansService {
         }
     }
 
-    public static void updateLoan(UUID userId, UUID loanId, UUID accountId, long loanAmount, long outstandingBalance, double interestRate, String loanTerm, LocalDate dueDate, String paymentFrequency, String collateral) throws SQLException {
+    public static void updateLoan(UUID userId, UUID loanId, UUID accountId,
+            long loanAmount, long outstandingBalance,
+            double interestRate, String loanTerm,
+            LocalDate dueDate, String paymentFrequency,
+            String collateral) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
 
-        try (PreparedStatement ps = conn.prepareStatement(
-                "UPDATE account_loans SET account_id = ?, loan_amount = ?, outstanding_balance = ?, interest_rate = ?, loan_term = ?, due_date = ?, payment_frequency = ?, collateral = ?, updated_at = CURRENT_TIMESTAMP " +
-                        "WHERE id = ? AND user_id = ?")) {
+        try (
+                PreparedStatement ps = conn.prepareStatement(
+                        "UPDATE account_loans SET account_id = ?, loan_amount = ?, outstanding_balance = ?, interest_rate = ?, loan_term = ?, due_date = ?, payment_frequency = ?, collateral = ?, updated_at = CURRENT_TIMESTAMP "
+                                + "WHERE id = ? AND user_id = ?")) {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setLong(2, loanAmount);
             ps.setLong(3, outstandingBalance);
@@ -103,7 +118,7 @@ public class AccountLoansService {
     public static void deleteLoan(UUID userId, UUID loanId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -116,16 +131,18 @@ public class AccountLoansService {
         }
     }
 
-    public static void calculateInterest(UUID userId, UUID loanId) throws SQLException {
+    public static void calculateInterest(UUID userId, UUID loanId)
+            throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
 
-        try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT outstanding_balance, interest_rate FROM account_loans WHERE id = ? AND user_id = ?")) {
+        try (
+                PreparedStatement ps = conn.prepareStatement(
+                        "SELECT outstanding_balance, interest_rate FROM account_loans WHERE id = ? AND user_id = ?")) {
             ps.setObject(1, loanId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
@@ -137,8 +154,9 @@ public class AccountLoansService {
                     // Update the outstanding balance with the calculated interest
                     long newOutstandingBalance = outstandingBalance + (long) interest;
 
-                    try (PreparedStatement psUpdate = conn.prepareStatement(
-                            "UPDATE account_loans SET outstanding_balance = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?")) {
+                    try (
+                            PreparedStatement psUpdate = conn.prepareStatement(
+                                    "UPDATE account_loans SET outstanding_balance = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?")) {
                         psUpdate.setLong(1, newOutstandingBalance);
                         psUpdate.setObject(2, loanId, java.sql.Types.OTHER);
                         psUpdate.setObject(3, userId, java.sql.Types.OTHER);

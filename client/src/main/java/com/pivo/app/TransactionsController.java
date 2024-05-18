@@ -1,9 +1,7 @@
 package com.pivo.app;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import static com.pivo.app.App.selectedUser;
+import static com.pivo.app.App.showAlert;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,8 +13,15 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-import static com.pivo.app.Application.selectedUser;
-import static com.pivo.app.Application.showAlert;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 
 public class TransactionsController {
     private static final String USER_ID_QUERY = "(SELECT user_id FROM users WHERE username = ?)";
@@ -132,7 +137,7 @@ public class TransactionsController {
         String dateTimeFormatted = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         String sql = "INSERT INTO transactions (user_id, amount, transaction_date, category_id, description) VALUES (?, ?, ?, (SELECT category_id FROM categories WHERE name = ?), ?)";
         try (Connection conn = DatabaseController.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, Application.fetchUserId());  // Set user_id
+            pstmt.setInt(1, App.fetchUserId());  // Set user_id
             pstmt.setDouble(2, amount);
             pstmt.setString(3, dateTimeFormatted);
             pstmt.setString(4, category);

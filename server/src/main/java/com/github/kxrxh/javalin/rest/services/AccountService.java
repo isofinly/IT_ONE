@@ -1,28 +1,33 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
 
 public class AccountService {
-
 
     private AccountService() {
     }
 
-    public static void transferFunds(UUID userId, UUID fromAccountId, UUID toAccountId, long amount) throws SQLException {
+    public static void transferFunds(UUID userId, UUID fromAccountId, UUID toAccountId, long amount)
+            throws SQLException {
         if (!isUserAuthorized(userId, fromAccountId)) {
             throw new SQLException("User not authorized to transfer from this account");
         }
 
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -30,8 +35,8 @@ public class AccountService {
 
         try (PreparedStatement ps1 = conn.prepareStatement(
                 "UPDATE accounts SET balance = balance - ? WHERE account_id = ?");
-             PreparedStatement ps2 = conn.prepareStatement(
-                     "UPDATE accounts SET balance = balance + ? WHERE account_id = ?")) {
+                PreparedStatement ps2 = conn.prepareStatement(
+                        "UPDATE accounts SET balance = balance + ? WHERE account_id = ?")) {
             ps1.setLong(1, amount);
             ps1.setObject(2, fromAccountId, java.sql.Types.OTHER);
             int rowsUpdated = ps1.executeUpdate();
@@ -52,7 +57,8 @@ public class AccountService {
         }
     }
 
-    public static void mergeAccounts(UUID userId, String[] accountIds, String newAccountName, String accountType) throws SQLException {
+    public static void mergeAccounts(UUID userId, String[] accountIds, String newAccountName, String accountType)
+            throws SQLException {
         // Check for duplicate account IDs
         Set<String> accountIdSet = new HashSet<>(Arrays.asList(accountIds));
         if (accountIdSet.size() != accountIds.length) {
@@ -86,7 +92,10 @@ public class AccountService {
                         if (rs.next()) {
                             long balance = rs.getLong("balance");
                             String currency = rs.getString("currency");
-                            double convertedBalance = CurrencyConversion.convert(balance, currency, "RUB"); // Convert all balances to RUB
+                            double convertedBalance = CurrencyConversion.convert(balance, currency, "RUB"); // Convert
+                                                                                                            // all
+                                                                                                            // balances
+                                                                                                            // to RUB
                             totalBalance += convertedBalance;
                         } else {
                             throw new SQLException("Account with ID " + accountId + " not found");
@@ -130,7 +139,7 @@ public class AccountService {
     private static boolean isUserAuthorized(UUID userId, UUID accountId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -144,6 +153,5 @@ public class AccountService {
             }
         }
     }
-
 
 }

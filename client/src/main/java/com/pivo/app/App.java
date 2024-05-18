@@ -1,8 +1,19 @@
 package com.pivo.app;
 
+import static com.pivo.app.util.ConfigManager.getConfig;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Objects;
+
 import com.pivo.app.controllers.DatabaseManager;
 import com.pivo.app.util.NATSPublisher;
 import com.pivo.app.util.ThemeUtil;
+
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,17 +23,8 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Objects;
-
-import static com.pivo.app.util.ConfigManager.getConfig;
-
 @Slf4j
-public class Application extends javafx.application.Application {
+public class App extends Application {
     public static final String selectedUser = getConfig("selectedUser");
     public static final NATSPublisher publisher;
 
@@ -65,10 +67,11 @@ public class Application extends javafx.application.Application {
     public void start(Stage primaryStage) throws Exception {
         String theme = getConfig("appearance");
         ThemeUtil.changeTheme(Objects.requireNonNullElse(theme, "PrimerDark"));
-        Parent root = FXMLLoader.load(Objects.requireNonNull(Application.class.getResource("pages/Application.fxml")));
+        Parent root = FXMLLoader.load(Objects.requireNonNull(App.class.getResource("pages/Application.fxml")));
         Scene scene = new Scene(root);
         try {
-            primaryStage.getIcons().add(new Image(Objects.requireNonNull(Application.class.getResourceAsStream("logo.png"))));
+            primaryStage.getIcons()
+                    .add(new Image(Objects.requireNonNull(App.class.getResourceAsStream("logo.png"))));
         } catch (NullPointerException e) {
             log.error("No logo found", e);
         }

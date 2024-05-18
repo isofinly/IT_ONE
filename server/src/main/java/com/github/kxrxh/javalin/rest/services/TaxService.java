@@ -1,8 +1,5 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.Tax;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,15 +7,20 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.Tax;
+
 public class TaxService {
 
     private TaxService() {
     }
 
-    public static void createTax(UUID userId, String name, String description, long rate, String currency) throws SQLException {
+    public static void createTax(UUID userId, String name, String description, long rate, String currency)
+            throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -37,7 +39,7 @@ public class TaxService {
     public static Tax readTax(UUID userId, UUID taxId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -46,13 +48,13 @@ public class TaxService {
             ps.setObject(1, taxId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new Tax(
-                            UUID.fromString(rs.getString("id")),
-                            rs.getString("name"),
-                            rs.getString("description"),
-                            rs.getLong("rate"),
-                            rs.getString("currency")
-                    );
+                    return Tax.builder()
+                            .id(UUID.fromString(rs.getString("id")))
+                            .name(rs.getString("name"))
+                            .description(rs.getString("description"))
+                            .rate(rs.getLong("rate"))
+                            .currency(rs.getString("currency"))
+                            .build();
                 } else {
                     throw new SQLException("Tax not found");
                 }
@@ -60,10 +62,11 @@ public class TaxService {
         }
     }
 
-    public static void updateTax(UUID userId, UUID taxId, String name, String description, long rate, String currency) throws SQLException {
+    public static void updateTax(UUID userId, UUID taxId, String name, String description, long rate, String currency)
+            throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -82,7 +85,7 @@ public class TaxService {
     public static void deleteTax(UUID userId, UUID taxId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -98,7 +101,7 @@ public class TaxService {
 
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();

@@ -1,5 +1,7 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
+import org.json.JSONObject;
+
 import com.github.kxrxh.javalin.rest.database.models.ExchangeRate;
 import com.github.kxrxh.javalin.rest.services.ExchangeRateService;
 import io.javalin.http.Context;
@@ -16,12 +18,14 @@ public class ExchangeRateController {
 
     public static void createExchangeRate(Context ctx) {
         try {
-            String baseCurrency = ctx.formParam("base_currency");
-            String convertedCurrency = ctx.formParam("converted_currency");
-            String rateStr = ctx.formParam("rate");
-            String dateStr = ctx.formParam("date");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (baseCurrency == null || convertedCurrency == null || rateStr == null || dateStr == null) {
+            String baseCurrency = requestBody.optString("base_currency");
+            String convertedCurrency = requestBody.optString("converted_currency");
+            String rateStr = requestBody.optString("rate");
+            String dateStr = requestBody.optString("date");
+
+            if (baseCurrency.isEmpty() || convertedCurrency.isEmpty() || rateStr.isEmpty() || dateStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -43,7 +47,8 @@ public class ExchangeRateController {
             String convertedCurrency = ctx.queryParam("converted_currency");
             String dateStr = ctx.queryParam("date");
 
-            if (baseCurrency == null || convertedCurrency == null || dateStr == null) {
+            if (baseCurrency == null || convertedCurrency == null || dateStr == null || baseCurrency.isEmpty()
+                    || dateStr.isEmpty() || convertedCurrency.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -59,13 +64,17 @@ public class ExchangeRateController {
 
     public static void updateExchangeRate(Context ctx) {
         try {
-            String idStr = ctx.pathParam("id");
-            String baseCurrency = ctx.formParam("base_currency");
-            String convertedCurrency = ctx.formParam("converted_currency");
-            String rateStr = ctx.formParam("rate");
-            String dateStr = ctx.formParam("date");
 
-            if (idStr == null || baseCurrency == null || convertedCurrency == null || rateStr == null || dateStr == null) {
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            String idStr = requestBody.optString("id");
+            String baseCurrency = requestBody.optString("base_currency");
+            String convertedCurrency = requestBody.optString("converted_currency");
+            String rateStr = requestBody.optString("rate");
+            String dateStr = requestBody.optString("date");
+
+            if (idStr.isEmpty() || baseCurrency.isEmpty() || convertedCurrency.isEmpty() || rateStr.isEmpty()
+                    || dateStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -84,9 +93,11 @@ public class ExchangeRateController {
 
     public static void deleteExchangeRate(Context ctx) {
         try {
-            String idStr = ctx.pathParam("id");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (idStr == null) {
+            String idStr = requestBody.optString("id");
+
+            if (idStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }

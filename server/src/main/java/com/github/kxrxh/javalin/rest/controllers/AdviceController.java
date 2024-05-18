@@ -18,9 +18,8 @@ public class AdviceController {
     public static void getFinancialAdvice(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-
-
             FinancialAdvice advice = AdviceService.getFinancialAdvice(userId);
+
             ctx.status(200).json(advice);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -32,7 +31,10 @@ public class AdviceController {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
             String dateRange = ctx.queryParam("date_range");
-
+            if (dateRange == null || dateRange.isEmpty()) {
+                ctx.status(400).result("Bad Request: date_range parameter is required");
+                return;
+            }
             FinancialForecast forecast = AdviceService.getFinancialForecast(userId, dateRange);
             ctx.status(200).json(forecast);
         } catch (Exception e) {

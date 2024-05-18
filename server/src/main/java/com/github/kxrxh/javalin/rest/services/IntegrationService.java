@@ -1,7 +1,7 @@
 package com.github.kxrxh.javalin.rest.services;
 
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.GettingConnectionException;
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,7 +27,7 @@ public class IntegrationService {
 
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();

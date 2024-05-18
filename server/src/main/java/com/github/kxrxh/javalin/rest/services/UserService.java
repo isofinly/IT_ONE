@@ -1,15 +1,15 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.GettingConnectionException;
-import com.github.kxrxh.javalin.rest.database.models.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.User;
 
 public class UserService {
     private static final String USER_ID = "user_id";
@@ -32,7 +32,7 @@ public class UserService {
 
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();
@@ -98,7 +98,6 @@ public class UserService {
         return Optional.empty();
     }
 
-
     public static Optional<User> createUser(String email, String password) throws SQLException {
         return createUser(null, email, password);
     }
@@ -107,7 +106,7 @@ public class UserService {
 
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();
@@ -136,7 +135,7 @@ public class UserService {
     public static Optional<User> getUser(String email) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();
@@ -166,7 +165,7 @@ public class UserService {
     public static Optional<User> getUser(String email, String password) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();
@@ -196,7 +195,7 @@ public class UserService {
     public static boolean deleteUser(UUID userId) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();
@@ -212,7 +211,7 @@ public class UserService {
     public static boolean deleteUser(String email) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
-            throw new GettingConnectionException();
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = opConn.get();

@@ -1,8 +1,9 @@
 package com.github.kxrxh.javalin.rest.controllers;
+
+import org.json.JSONObject;
+
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
-import com.github.kxrxh.javalin.rest.database.models.AccountBalance;
 import com.github.kxrxh.javalin.rest.database.models.AccountOtherAsset;
-import com.github.kxrxh.javalin.rest.services.AccountBalancesService;
 import com.github.kxrxh.javalin.rest.services.AccountOtherAssetsService;
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +20,17 @@ public class AccountOtherAssetsController {
     public static void createAsset(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String accountIdStr = ctx.formParam("account_id");
-            String assetType = ctx.formParam("asset_type");
-            String purchasePriceStr = ctx.formParam("purchase_price");
-            String currentValueStr = ctx.formParam("current_value");
-            String purchaseDateStr = ctx.formParam("purchase_date");
-            String depreciationRateStr = ctx.formParam("depreciation_rate");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (accountIdStr == null || purchasePriceStr == null || currentValueStr == null || purchaseDateStr == null || depreciationRateStr == null) {
+            String accountIdStr = requestBody.optString("account_id");
+            String assetType = requestBody.optString("asset_type");
+            String purchasePriceStr = requestBody.optString("purchase_price");
+            String currentValueStr = requestBody.optString("current_value");
+            String purchaseDateStr = requestBody.optString("purchase_date");
+            String depreciationRateStr = requestBody.optString("depreciation_rate");
+
+            if (accountIdStr == null || purchasePriceStr == null || currentValueStr == null || purchaseDateStr == null
+                    || depreciationRateStr == null) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -37,7 +41,8 @@ public class AccountOtherAssetsController {
             LocalDate purchaseDate = LocalDate.parse(purchaseDateStr);
             double depreciationRate = Double.parseDouble(depreciationRateStr);
 
-            AccountOtherAssetsService.createAsset(userId, accountId, assetType, purchasePrice, currentValue, purchaseDate, depreciationRate);
+            AccountOtherAssetsService.createAsset(userId, accountId, assetType, purchasePrice, currentValue,
+                    purchaseDate, depreciationRate);
             ctx.status(200).result("Asset created successfully");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -48,9 +53,10 @@ public class AccountOtherAssetsController {
     public static void readAsset(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String assetIdStr = ctx.pathParam("asset_id");
 
-            if (assetIdStr == null) {
+            String assetIdStr = ctx.queryParam("asset_id");
+
+            if (assetIdStr == null || assetIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -67,15 +73,18 @@ public class AccountOtherAssetsController {
     public static void updateAsset(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String assetIdStr = ctx.pathParam("asset_id");
-            String accountIdStr = ctx.formParam("account_id");
-            String assetType = ctx.formParam("asset_type");
-            String purchasePriceStr = ctx.formParam("purchase_price");
-            String currentValueStr = ctx.formParam("current_value");
-            String purchaseDateStr = ctx.formParam("purchase_date");
-            String depreciationRateStr = ctx.formParam("depreciation_rate");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (assetIdStr == null || accountIdStr == null || purchasePriceStr == null || currentValueStr == null || purchaseDateStr == null || depreciationRateStr == null) {
+            String assetIdStr = requestBody.optString("asset_id");
+            String accountIdStr = requestBody.optString("account_id");
+            String assetType = requestBody.optString("asset_type");
+            String purchasePriceStr = requestBody.optString("purchase_price");
+            String currentValueStr = requestBody.optString("current_value");
+            String purchaseDateStr = requestBody.optString("purchase_date");
+            String depreciationRateStr = requestBody.optString("depreciation_rate");
+
+            if (assetIdStr.isEmpty() || accountIdStr.isEmpty() || purchasePriceStr.isEmpty()
+                    || currentValueStr.isEmpty() || purchaseDateStr.isEmpty() || depreciationRateStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -87,7 +96,8 @@ public class AccountOtherAssetsController {
             LocalDate purchaseDate = LocalDate.parse(purchaseDateStr);
             double depreciationRate = Double.parseDouble(depreciationRateStr);
 
-            AccountOtherAssetsService.updateAsset(userId, assetId, accountId, assetType, purchasePrice, currentValue, purchaseDate, depreciationRate);
+            AccountOtherAssetsService.updateAsset(userId, assetId, accountId, assetType, purchasePrice, currentValue,
+                    purchaseDate, depreciationRate);
             ctx.status(200).result("Asset updated successfully");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -98,9 +108,11 @@ public class AccountOtherAssetsController {
     public static void deleteAsset(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String assetIdStr = ctx.pathParam("asset_id");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (assetIdStr == null) {
+            String assetIdStr = requestBody.optString("asset_id");
+
+            if (assetIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -117,10 +129,12 @@ public class AccountOtherAssetsController {
     public static void applyDepreciation(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String assetIdStr = ctx.pathParam("asset_id");
-            String yearsStr = ctx.queryParam("years");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (assetIdStr == null || yearsStr == null) {
+            String assetIdStr = requestBody.optString("asset_id");
+            String yearsStr = requestBody.optString("years");
+
+            if (yearsStr == null || assetIdStr.isEmpty() || yearsStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }

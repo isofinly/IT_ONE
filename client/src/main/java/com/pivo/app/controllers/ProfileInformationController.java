@@ -1,8 +1,16 @@
 package com.pivo.app.controllers;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
-import com.pivo.app.Application;
+import static com.pivo.app.App.showAlert;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.pivo.app.App;
 import com.pivo.app.util.ConfigManager;
+
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -12,13 +20,6 @@ import javafx.scene.control.PasswordField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import static com.pivo.app.Application.showAlert;
 
 @Slf4j
 public class ProfileInformationController {
@@ -56,7 +57,8 @@ public class ProfileInformationController {
     public void editProfile() {
         if (verifyPassword()) {
             try {
-                FXMLLoader loader = new FXMLLoader(Application.class.getResource("pages/settings/EditProfileDialog.fxml"));
+                FXMLLoader loader = new FXMLLoader(
+                        App.class.getResource("pages/settings/EditProfileDialog.fxml"));
                 Stage stage = new Stage();
                 stage.initModality(Modality.APPLICATION_MODAL);
                 stage.setScene(new Scene(loader.load()));

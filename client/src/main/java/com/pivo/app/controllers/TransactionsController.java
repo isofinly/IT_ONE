@@ -1,11 +1,8 @@
 package com.pivo.app.controllers;
 
-import com.pivo.app.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import lombok.extern.slf4j.Slf4j;
+import static com.pivo.app.App.publisher;
+import static com.pivo.app.App.selectedUser;
+import static com.pivo.app.App.showAlert;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,7 +16,18 @@ import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.pivo.app.Application.*;
+import com.pivo.app.App;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TransactionsController {
@@ -70,12 +78,14 @@ public class TransactionsController {
 
     private void loadTransactions() throws SQLException {
         ObservableList<String> transactions = FXCollections.observableArrayList();
-        String query = "SELECT t.transaction_date, t.description, t.amount FROM transactions t JOIN users u ON t.user_id = u.user_id WHERE u.user_id = " + USER_ID_QUERY + " ORDER BY t.transaction_date DESC";
+        String query = "SELECT t.transaction_date, t.description, t.amount FROM transactions t JOIN users u ON t.user_id = u.user_id WHERE u.user_id = "
+                + USER_ID_QUERY + " ORDER BY t.transaction_date DESC";
         try (Connection conn = DatabaseManager.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, selectedUser);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    String entry = String.format("%s - %s: %.2f", rs.getString("transaction_date"), rs.getString("description"), rs.getDouble("amount") / 100.0);
+                    String entry = String.format("%s - %s: %.2f", rs.getString("transaction_date"),
+                            rs.getString("description"), rs.getDouble("amount") / 100.0);
                     transactions.add(entry);
                 }
             }
@@ -85,7 +95,8 @@ public class TransactionsController {
 
     private void loadCategories() throws SQLException {
         ObservableList<String> categories = FXCollections.observableArrayList();
-        String query = "SELECT c.name, SUM(t.amount) as total FROM transactions t JOIN categories c ON t.category_id = c.category_id JOIN users u ON t.user_id = u.user_id WHERE u.user_id = " + USER_ID_QUERY + " GROUP BY c.category_id";
+        String query = "SELECT c.name, SUM(t.amount) as total FROM transactions t JOIN categories c ON t.category_id = c.category_id JOIN users u ON t.user_id = u.user_id WHERE u.user_id = "
+                + USER_ID_QUERY + " GROUP BY c.category_id";
         try (Connection conn = DatabaseManager.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, selectedUser);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -109,17 +120,19 @@ public class TransactionsController {
         String description = txtDescription.getText();
 
         if (amountStr.isEmpty() || date == null || timeStr.isEmpty() || category == null) {
-            log.error("Invalid input: amount: {}, date: {}, time: {}, category: {}", amountStr, date, timeStr, category);
+            log.error("Invalid input: amount: {}, date: {}, time: {}, category: {}", amountStr, date, timeStr,
+                    category);
             return;
         }
 
         try {
-            double amount = Double.parseDouble(amountStr) * 100;  // Convert to cents
+            double amount = Double.parseDouble(amountStr) * 100; // Convert to cents
             LocalTime time = LocalTime.parse(timeStr, DateTimeFormatter.ofPattern("HH:mm:ss"));
             LocalDateTime dateTime = LocalDateTime.of(date, time);
             insertTransaction(dateTime, amount, category, description);
         } catch (DateTimeParseException | NumberFormatException e) {
-            log.error("Invalid input: amount: {}, date: {}, time: {}, category: {}", amountStr, date, timeStr, category);
+            log.error("Invalid input: amount: {}, date: {}, time: {}, category: {}", amountStr, date, timeStr,
+                    category);
         }
     }
 
@@ -127,7 +140,7 @@ public class TransactionsController {
         String dateTimeFormatted = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         String sql = "INSERT INTO transactions (user_id, amount, transaction_date, category_id, description) VALUES (?, ?, ?, (SELECT category_id FROM categories WHERE name = ?), ?)";
         try (Connection conn = DatabaseManager.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, Application.fetchUserId());  // Set user_id
+            pstmt.setInt(1, App.fetchUserId()); // Set user_id
             pstmt.setDouble(2, amount);
             pstmt.setString(3, dateTimeFormatted);
             pstmt.setString(4, category);
@@ -136,10 +149,11 @@ public class TransactionsController {
             int affectedRows = pstmt.executeUpdate();
 
             // Publish to NATS
-            publisher.publishToNATS(sql, Arrays.asList(Application.fetchUserId(), amount, dateTimeFormatted, category, description));
+            publisher.publishToNATS(sql,
+                    Arrays.asList(App.fetchUserId(), amount, dateTimeFormatted, category, description));
 
             if (affectedRows > 0) {
-                loadTransactions();  // Assuming there is a method to refresh the transactions view
+                loadTransactions(); // Assuming there is a method to refresh the transactions view
             }
         } catch (SQLException e) {
             showAlert("Error", "Failed to insert transaction: " + e.getMessage(), Alert.AlertType.ERROR);
@@ -150,7 +164,7 @@ public class TransactionsController {
     private void deleteTransaction(int transactionId) {
         String sql = "DELETE FROM transactions WHERE transaction_id = ?";
         try (Connection conn = DatabaseManager.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, transactionId);  // Set the transaction_id to delete
+            pstmt.setInt(1, transactionId); // Set the transaction_id to delete
 
             int affectedRows = pstmt.executeUpdate();
 
@@ -158,7 +172,7 @@ public class TransactionsController {
             publisher.publishToNATS(sql, List.of(transactionId));
 
             if (affectedRows > 0) {
-                loadTransactions();  // Assuming there is a method to refresh the transactions view
+                loadTransactions(); // Assuming there is a method to refresh the transactions view
             } else {
                 showAlert("Information", "No transaction found with ID: " + transactionId, Alert.AlertType.INFORMATION);
             }
@@ -176,7 +190,7 @@ public class TransactionsController {
         }
 
         String transactionEntry = transactionsList.getSelectionModel().getSelectedItem();
-        String[] details = transactionEntry.split(" - ");  // Assuming the format "date - description: amount"
+        String[] details = transactionEntry.split(" - "); // Assuming the format "date - description: amount"
         String dateStr = details[0];
         String description = details[1].split(":")[0];
 
@@ -191,14 +205,14 @@ public class TransactionsController {
     private void deleteTransaction(String dateStr, String description) throws SQLException {
         String sql = "DELETE FROM transactions WHERE transaction_id IN ( SELECT transaction_id FROM transactions WHERE user_id = ? AND transaction_date = ? AND description = ? LIMIT 1 )";
         try (Connection conn = DatabaseManager.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, Application.fetchUserId()); // Set user_id
+            pstmt.setInt(1, App.fetchUserId()); // Set user_id
             pstmt.setString(2, dateStr);
             pstmt.setString(3, description);
 
             int affectedRows = pstmt.executeUpdate();
 
             // Publish to NATS
-            publisher.publishToNATS(sql, Arrays.asList(Application.fetchUserId(), dateStr, description));
+            publisher.publishToNATS(sql, Arrays.asList(App.fetchUserId(), dateStr, description));
 
             if (affectedRows > 0) {
                 loadTransactions(); // Refresh the transactions view
@@ -209,4 +223,3 @@ public class TransactionsController {
     }
 
 }
-

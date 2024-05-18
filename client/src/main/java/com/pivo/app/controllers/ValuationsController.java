@@ -1,10 +1,7 @@
 package com.pivo.app.controllers;
 
-import com.pivo.app.entities.Account;
-import com.pivo.app.util.ConfigManager;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import lombok.extern.slf4j.Slf4j;
+import static com.pivo.app.App.publisher;
+import static com.pivo.app.App.showAlert;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,8 +10,17 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static com.pivo.app.Application.publisher;
-import static com.pivo.app.Application.showAlert;
+import com.pivo.app.entities.Account;
+import com.pivo.app.util.ConfigManager;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ValuationsController {
@@ -51,7 +57,8 @@ public class ValuationsController {
             pstmt.setInt(1, userId);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                assetsTable.getItems().add(new Account(rs.getString("account_name"), rs.getString("account_type"), rs.getDouble("balance")));
+                assetsTable.getItems().add(new Account(rs.getString("account_name"), rs.getString("account_type"),
+                        rs.getDouble("balance")));
             }
         } catch (SQLException e) {
             log.error("Failed to fetch assets", e);

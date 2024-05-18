@@ -1,12 +1,13 @@
 package com.github.kxrxh.javalin.rest;
 
+import java.io.IOException;
+
 import com.github.kxrxh.javalin.rest.api.RestServer;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.util.NATSSubscriber;
+
 import io.javalin.util.JavalinBindException;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.IOException;
 
 @Slf4j(topic = "App")
 public class App {
@@ -16,7 +17,6 @@ public class App {
             log.warn("NATS_URL environment variable not set");
             natsUrl = "nats://localhost:4222";
         }
-
 
         try {
             NATSSubscriber.connect(natsUrl, "client_updates");

@@ -4,10 +4,16 @@ import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.database.models.AccountBalance;
 import com.github.kxrxh.javalin.rest.services.AccountBalancesService;
 import io.javalin.http.Context;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.util.UUID;
+
+import org.json.JSONObject;
 
 @Slf4j
 public class AccountBalancesController {
@@ -18,12 +24,14 @@ public class AccountBalancesController {
     public static void createBalance(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String accountIdStr = ctx.formParam("account_id");
-            String dateStr = ctx.formParam("date");
-            String balanceStr = ctx.formParam("balance");
-            String currency = ctx.formParam("currency");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (accountIdStr == null || dateStr == null || balanceStr == null || currency == null) {
+            String accountIdStr = requestBody.optString("account_id");
+            String dateStr = requestBody.optString("date");
+            String balanceStr = requestBody.optString("balance");
+            String currency = requestBody.optString("currency");
+
+            if (accountIdStr.isEmpty() || dateStr.isEmpty() || balanceStr.isEmpty() || currency.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -43,9 +51,10 @@ public class AccountBalancesController {
     public static void readBalance(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String balanceIdStr = ctx.pathParam("balance_id");
 
-            if (balanceIdStr == null) {
+            String balanceIdStr = ctx.queryParam("balance_id");
+
+            if (balanceIdStr == null || balanceIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -62,13 +71,16 @@ public class AccountBalancesController {
     public static void updateBalance(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String balanceIdStr = ctx.pathParam("balance_id");
-            String accountIdStr = ctx.formParam("account_id");
-            String dateStr = ctx.formParam("date");
-            String balanceStr = ctx.formParam("balance");
-            String currency = ctx.formParam("currency");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (balanceIdStr == null || accountIdStr == null || dateStr == null || balanceStr == null || currency == null) {
+            String balanceIdStr = requestBody.optString("balance_id");
+            String accountIdStr = requestBody.optString("account_id");
+            String dateStr = requestBody.optString("date");
+            String balanceStr = requestBody.optString("balance");
+            String currency = requestBody.optString("currency");
+
+            if (balanceIdStr.isEmpty() || accountIdStr.isEmpty() || dateStr.isEmpty() || balanceStr.isEmpty()
+                    || currency.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -89,9 +101,11 @@ public class AccountBalancesController {
     public static void deleteBalance(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String balanceIdStr = ctx.pathParam("balance_id");
+            JSONObject requestBody = new JSONObject(ctx.body());
 
-            if (balanceIdStr == null) {
+            String balanceIdStr = requestBody.optString("balance_id");
+
+            if (balanceIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -108,9 +122,10 @@ public class AccountBalancesController {
     public static void calculateTotalBalance(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
+
             String accountIdStr = ctx.queryParam("account_id");
 
-            if (accountIdStr == null) {
+            if (accountIdStr == null || accountIdStr.isEmpty()) {
                 ctx.status(400).result("Missing required parameters");
                 return;
             }
@@ -124,11 +139,11 @@ public class AccountBalancesController {
         }
     }
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     static class TotalBalanceResponse {
-        public long totalBalance;
-
-        public TotalBalanceResponse(long totalBalance) {
-            this.totalBalance = totalBalance;
-        }
+        private long totalBalance;
     }
 }

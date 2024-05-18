@@ -1,7 +1,6 @@
 package com.pivo.app;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import static com.pivo.app.App.showAlert;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,7 +8,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import static com.pivo.app.Application.showAlert;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 
 public class ValuationsController {
     private static final String ERROR = "Error";

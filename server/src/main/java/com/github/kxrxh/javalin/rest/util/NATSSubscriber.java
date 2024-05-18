@@ -1,7 +1,7 @@
 package com.github.kxrxh.javalin.rest.util;
 
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.GettingConnectionException;
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import io.nats.client.Dispatcher;
 import io.nats.client.Nats;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +49,7 @@ public class NATSSubscriber {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
 
         if (opConn.isEmpty()) {
-            log.error("Could not get connection from database manager", new GettingConnectionException());
+            log.error("Could not get connection from database manager", new ConnectionRetrievingException());
             return;
         }
 

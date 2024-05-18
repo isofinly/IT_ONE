@@ -1,16 +1,16 @@
 package com.pivo.app;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
-import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import static com.pivo.app.App.selectedUser;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static com.pivo.app.Application.selectedUser;
+import at.favre.lib.crypto.bcrypt.BCrypt;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 
 public class EditProfileDialogController {
     @FXML
@@ -30,7 +30,8 @@ public class EditProfileDialogController {
     private void handleUpdate() {
         String sql = "UPDATE users SET username = ?, email = ?, password_hash = ? WHERE username = ?";
         try (
-                Connection conn = DatabaseController.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                Connection conn = DatabaseController.connect();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, newUsername.getText());
             pstmt.setString(2, newEmail.getText());
             pstmt.setString(3, hashPassword(newPassword.getText()));

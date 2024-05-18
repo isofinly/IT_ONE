@@ -1,19 +1,18 @@
 package com.github.kxrxh.javalin.rest.database.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter
-@Setter
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class RecurringTransaction {
-
     private UUID recurringTransactionId;
     private UUID userId;
     private long amount;
@@ -26,17 +25,4 @@ public class RecurringTransaction {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastSyncedAt;
-    public RecurringTransaction(UUID recurringTransactionId, UUID userId, long amount, UUID categoryId, String categoryName, String description, long frequency, UUID familyId, String familyName, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.recurringTransactionId = recurringTransactionId;
-        this.userId = userId;
-        this.amount = amount;
-        this.categoryId = categoryId;
-        this.categoryName = categoryName;
-        this.description = description;
-        this.frequency = frequency;
-        this.familyId = familyId;
-        this.familyName = familyName;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
 }

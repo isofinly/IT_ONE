@@ -1,4 +1,6 @@
 package com.github.kxrxh.javalin.rest.controllers;
+import org.json.JSONObject;
+
 
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.services.NotificationService;
@@ -16,8 +18,10 @@ public class NotificationController {
     public static void setNotification(Context ctx) {
         try {
             UUID userId = Utils.getUUIDFromContext(ctx);
-            String notificationType = ctx.formParam("notification_type");
-            String thresholdStr = ctx.formParam("threshold");
+            JSONObject requestBody = new JSONObject(ctx.body());
+
+            String notificationType = requestBody.optString("notification_type");
+            String thresholdStr = requestBody.optString("threshold");
 
             Long threshold = Long.parseLong(thresholdStr);
 

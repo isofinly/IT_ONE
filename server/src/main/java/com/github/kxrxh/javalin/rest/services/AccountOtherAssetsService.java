@@ -1,29 +1,36 @@
 package com.github.kxrxh.javalin.rest.services;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.AccountOtherAsset;
-import com.github.kxrxh.javalin.rest.database.models.Valuation;
-import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
 
-import java.sql.*;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.AccountOtherAsset;
 
 public class AccountOtherAssetsService {
 
     private AccountOtherAssetsService() {
     }
 
-    public static void createAsset(UUID userId, UUID accountId, String assetType, long purchasePrice, long currentValue, LocalDate purchaseDate, double depreciationRate) throws SQLException {
+    public static void createAsset(UUID userId, UUID accountId, String assetType, long purchasePrice, long currentValue,
+            LocalDate purchaseDate, double depreciationRate) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "INSERT INTO account_other_assets (id, account_id, user_id, asset_type, purchase_price, current_value, purchase_date, depreciation_rate, created_at, updated_at) " +
+                "INSERT INTO account_other_assets (id, account_id, user_id, asset_type, purchase_price, current_value, purchase_date, depreciation_rate, created_at, updated_at) "
+                        +
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             ps.setObject(1, UUID.randomUUID(), java.sql.Types.OTHER);
             ps.setObject(2, accountId, java.sql.Types.OTHER);
@@ -40,7 +47,7 @@ public class AccountOtherAssetsService {
     public static AccountOtherAsset readAsset(UUID userId, UUID assetId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -51,18 +58,18 @@ public class AccountOtherAssetsService {
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new AccountOtherAsset(
-                            UUID.fromString(rs.getString("id")),
-                            UUID.fromString(rs.getString("account_id")),
-                            UUID.fromString(rs.getString("user_id")),
-                            rs.getString("asset_type"),
-                            rs.getLong("purchase_price"),
-                            rs.getLong("current_value"),
-                            rs.getDate("purchase_date").toLocalDate(),
-                            rs.getBigDecimal("depreciation_rate"),
-                            rs.getTimestamp("created_at").toLocalDateTime(),
-                            rs.getTimestamp("updated_at").toLocalDateTime()
-                    );
+                    return AccountOtherAsset.builder()
+                            .id(UUID.fromString(rs.getString("id")))
+                            .accountId(UUID.fromString(rs.getString("account_id")))
+                            .userId(UUID.fromString(rs.getString("user_id")))
+                            .assetType(rs.getString("asset_type"))
+                            .purchasePrice(rs.getLong("purchase_price"))
+                            .currentValue(rs.getLong("current_value"))
+                            .purchaseDate(rs.getDate("purchase_date").toLocalDate())
+                            .depreciationRate(BigDecimal.valueOf(rs.getDouble("depreciation_rate")))
+                            .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                            .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
+                            .build();
                 } else {
                     throw new SQLException("Asset not found");
                 }
@@ -70,16 +77,18 @@ public class AccountOtherAssetsService {
         }
     }
 
-    public static void updateAsset(UUID userId, UUID assetId, UUID accountId, String assetType, long purchasePrice, long currentValue, LocalDate purchaseDate, double depreciationRate) throws SQLException {
+    public static void updateAsset(UUID userId, UUID assetId, UUID accountId, String assetType, long purchasePrice,
+            long currentValue, LocalDate purchaseDate, double depreciationRate) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "UPDATE account_other_assets SET account_id = ?, asset_type = ?, purchase_price = ?, current_value = ?, purchase_date = ?, depreciation_rate = ?, updated_at = CURRENT_TIMESTAMP " +
+                "UPDATE account_other_assets SET account_id = ?, asset_type = ?, purchase_price = ?, current_value = ?, purchase_date = ?, depreciation_rate = ?, updated_at = CURRENT_TIMESTAMP "
+                        +
                         "WHERE id = ? AND user_id = ?")) {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setString(2, assetType);
@@ -96,7 +105,7 @@ public class AccountOtherAssetsService {
     public static void deleteAsset(UUID userId, UUID assetId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -112,7 +121,7 @@ public class AccountOtherAssetsService {
     public static void applyDepreciation(UUID userId, UUID assetId, int years) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();

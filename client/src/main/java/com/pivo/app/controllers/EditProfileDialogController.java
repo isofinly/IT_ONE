@@ -1,17 +1,17 @@
 package com.pivo.app.controllers;
 
+import static com.pivo.app.App.selectedUser;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import lombok.extern.slf4j.Slf4j;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-import static com.pivo.app.Application.selectedUser;
 
 @Slf4j
 public class EditProfileDialogController {
@@ -34,7 +34,8 @@ public class EditProfileDialogController {
             throw new IllegalArgumentException("All fields are required.");
         }
         try (
-                Connection conn = DatabaseManager.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                Connection conn = DatabaseManager.connect();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, newUsername.getText());
             pstmt.setString(2, newEmail.getText());
             pstmt.setString(3, hashPassword(newPassword.getText()));

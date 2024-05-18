@@ -1,30 +1,35 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.AccountInvestment;
-import com.github.kxrxh.javalin.rest.database.models.Valuation;
-import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.AccountInvestment;
 
 public class AccountInvestmentsService {
 
     private AccountInvestmentsService() {
     }
 
-    public static void createInvestment(UUID userId, UUID accountId, String investmentType, long marketValue, long purchasePrice, LocalDate purchaseDate, long dividends, double interestRate) throws SQLException {
+    public static void createInvestment(UUID userId, UUID accountId, String investmentType, long marketValue,
+            long purchasePrice, LocalDate purchaseDate, long dividends, double interestRate) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "INSERT INTO account_investments (id, account_id, user_id, investment_type, market_value, purchase_price, purchase_date, dividends, interest_rate, created_at, updated_at) " +
+                "INSERT INTO account_investments (id, account_id, user_id, investment_type, market_value, purchase_price, purchase_date, dividends, interest_rate, created_at, updated_at) "
+                        +
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             ps.setObject(1, UUID.randomUUID(), java.sql.Types.OTHER);
             ps.setObject(2, accountId, java.sql.Types.OTHER);
@@ -42,7 +47,7 @@ public class AccountInvestmentsService {
     public static AccountInvestment readInvestment(UUID userId, UUID investmentId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -53,19 +58,19 @@ public class AccountInvestmentsService {
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new AccountInvestment(
-                            UUID.fromString(rs.getString("id")),
-                            UUID.fromString(rs.getString("account_id")),
-                            UUID.fromString(rs.getString("user_id")),
-                            rs.getString("investment_type"),
-                            rs.getLong("market_value"),
-                            rs.getLong("purchase_price"),
-                            rs.getDate("purchase_date").toLocalDate(),
-                            rs.getLong("dividends"),
-                            rs.getBigDecimal("interest_rate"),
-                            rs.getTimestamp("created_at").toLocalDateTime(),
-                            rs.getTimestamp("updated_at").toLocalDateTime()
-                    );
+                    return AccountInvestment.builder()
+                            .id(UUID.fromString(rs.getString("id")))
+                            .accountId(UUID.fromString(rs.getString("account_id")))
+                            .userId(UUID.fromString(rs.getString("user_id")))
+                            .investmentType(rs.getString("investment_type"))
+                            .marketValue(rs.getLong("market_value"))
+                            .purchasePrice(rs.getLong("purchase_price"))
+                            .purchaseDate(rs.getDate("purchase_date").toLocalDate())
+                            .dividends(rs.getLong("dividends"))
+                            .interestRate(rs.getBigDecimal("interest_rate"))
+                            .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                            .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
+                            .build();
                 } else {
                     throw new SQLException("Investment not found");
                 }
@@ -73,16 +78,19 @@ public class AccountInvestmentsService {
         }
     }
 
-    public static void updateInvestment(UUID userId, UUID investmentId, UUID accountId, String investmentType, long marketValue, long purchasePrice, LocalDate purchaseDate, long dividends, double interestRate) throws SQLException {
+    public static void updateInvestment(UUID userId, UUID investmentId, UUID accountId, String investmentType,
+            long marketValue, long purchasePrice, LocalDate purchaseDate, long dividends, double interestRate)
+            throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "UPDATE account_investments SET account_id = ?, investment_type = ?, market_value = ?, purchase_price = ?, purchase_date = ?, dividends = ?, interest_rate = ?, updated_at = CURRENT_TIMESTAMP " +
+                "UPDATE account_investments SET account_id = ?, investment_type = ?, market_value = ?, purchase_price = ?, purchase_date = ?, dividends = ?, interest_rate = ?, updated_at = CURRENT_TIMESTAMP "
+                        +
                         "WHERE id = ? AND user_id = ?")) {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setString(2, investmentType);
@@ -100,7 +108,7 @@ public class AccountInvestmentsService {
     public static void deleteInvestment(UUID userId, UUID investmentId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -116,7 +124,7 @@ public class AccountInvestmentsService {
     public static void calculateDividends(UUID userId, UUID investmentId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();

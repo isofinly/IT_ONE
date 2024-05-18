@@ -1,6 +1,10 @@
 package com.pivo.app.controllers;
 
-import com.pivo.app.Application;
+import java.io.IOException;
+import java.util.Objects;
+
+import com.pivo.app.App;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -8,9 +12,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.IOException;
-import java.util.Objects;
 
 @Slf4j
 public class ApplicationController {
@@ -28,7 +29,7 @@ public class ApplicationController {
 
     private void loadTab(String resource, String title) {
         try {
-            FXMLLoader loader = new FXMLLoader(Application.class.getResource(resource));
+            FXMLLoader loader = new FXMLLoader(App.class.getResource(resource));
             Tab tab = new Tab(title);
             tab.setContent(loader.load());
             mainTabPane.getTabs().add(tab);
@@ -41,7 +42,7 @@ public class ApplicationController {
         log.error("Failed to load tab '{}': {}", title, e.getMessage());
 
         try {
-            Node errorContent = FXMLLoader.load(Objects.requireNonNull(Application.class.getResource("pages/ErrorPage.fxml")));
+            Node errorContent = FXMLLoader.load(Objects.requireNonNull(App.class.getResource("pages/ErrorPage.fxml")));
             Tab errorTab = new Tab(title, errorContent);
             mainTabPane.getTabs().add(errorTab);
         } catch (IOException ex) {

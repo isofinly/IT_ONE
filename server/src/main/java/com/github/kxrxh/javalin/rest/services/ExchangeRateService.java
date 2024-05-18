@@ -1,21 +1,27 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.ExchangeRate;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.ExchangeRate;
 
 public class ExchangeRateService {
 
     private ExchangeRateService() {
     }
 
-    public static void createExchangeRate(String baseCurrency, String convertedCurrency, double rate, Date date) throws SQLException {
+    public static void createExchangeRate(String baseCurrency, String convertedCurrency, double rate, Date date)
+            throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -31,10 +37,11 @@ public class ExchangeRateService {
         }
     }
 
-    public static ExchangeRate readExchangeRate(String baseCurrency, String convertedCurrency, Date date) throws SQLException {
+    public static ExchangeRate readExchangeRate(String baseCurrency, String convertedCurrency, Date date)
+            throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -53,8 +60,7 @@ public class ExchangeRateService {
                             rs.getLong("rate"),
                             rs.getDate("date").toLocalDate(),
                             rs.getTimestamp("created_at").toLocalDateTime(),
-                            rs.getTimestamp("updated_at").toLocalDateTime()
-                    );
+                            rs.getTimestamp("updated_at").toLocalDateTime());
                 } else {
                     throw new SQLException("Exchange rate not found");
                 }
@@ -62,10 +68,11 @@ public class ExchangeRateService {
         }
     }
 
-    public static void updateExchangeRate(UUID id, String baseCurrency, String convertedCurrency, double rate, Date date) throws SQLException {
+    public static void updateExchangeRate(UUID id, String baseCurrency, String convertedCurrency, double rate,
+            Date date) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -84,7 +91,7 @@ public class ExchangeRateService {
     public static void deleteExchangeRate(UUID id) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();

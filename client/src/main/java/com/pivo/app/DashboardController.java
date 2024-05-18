@@ -1,5 +1,19 @@
 package com.pivo.app;
 
+import static com.pivo.app.App.selectedUser;
+import static com.pivo.app.App.showAlert;
+import static com.pivo.app.ConfigManager.getConfig;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -12,17 +26,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
 import javafx.util.StringConverter;
-
-import java.sql.*;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-
-import static com.pivo.app.Application.selectedUser;
-import static com.pivo.app.Application.showAlert;
-import static com.pivo.app.ConfigManager.getConfig;
-
 
 public class DashboardController {
     private static final String USER_ID_QUERY = "(SELECT user_id FROM users WHERE username = ?)";
@@ -81,7 +84,8 @@ public class DashboardController {
 
     private void configureXAxis(NumberAxis xAxis) {
         xAxis.setTickLabelFormatter(new StringConverter<>() {
-            private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT).withZone(ZoneId.systemDefault());
+            private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
+                    .withZone(ZoneId.systemDefault());
 
             @Override
             public String toString(Number object) {
@@ -99,7 +103,8 @@ public class DashboardController {
         double assets = 0;
         double debts = 0;
         String selectedUser = getConfig(SELECTED_USER);
-        String query = "SELECT account_type, SUM(balance) as total FROM accounts WHERE user_id = " + USER_ID_QUERY + " GROUP BY account_type";
+        String query = "SELECT account_type, SUM(balance) as total FROM accounts WHERE user_id = " + USER_ID_QUERY
+                + " GROUP BY account_type";
         try (Connection conn = DatabaseController.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, selectedUser);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -125,7 +130,9 @@ public class DashboardController {
         String rangeQuery = "SELECT MIN(transaction_date) AS minDate, MAX(transaction_date) AS maxDate FROM transactions";
         LocalDateTime minDate = LocalDateTime.now();
         LocalDateTime maxDate = LocalDateTime.now();
-        try (Connection conn = DatabaseController.connect(); Statement rangeStmt = conn.createStatement(); ResultSet rsRange = rangeStmt.executeQuery(rangeQuery)) {
+        try (Connection conn = DatabaseController.connect();
+                Statement rangeStmt = conn.createStatement();
+                ResultSet rsRange = rangeStmt.executeQuery(rangeQuery)) {
             if (rsRange.next()) {
                 minDate = LocalDateTime.parse(rsRange.getString("minDate"), DateTimeFormatter.ofPattern(DATE_FORMAT));
                 maxDate = LocalDateTime.parse(rsRange.getString("maxDate"), DateTimeFormatter.ofPattern(DATE_FORMAT));
@@ -143,12 +150,14 @@ public class DashboardController {
         xAxis.setTickUnit((double) (maxEpochMilli - minEpochMilli) / 10);
 
         String selectedUser = getConfig(SELECTED_USER);
-        String query = "SELECT transaction_date, SUM(amount) OVER (ORDER BY transaction_date) as cumulative_sum, u.user_id FROM transactions t JOIN users u ON t.user_id = u.user_id WHERE u.user_id = " + USER_ID_QUERY + " ORDER BY transaction_date";
+        String query = "SELECT transaction_date, SUM(amount) OVER (ORDER BY transaction_date) as cumulative_sum, u.user_id FROM transactions t JOIN users u ON t.user_id = u.user_id WHERE u.user_id = "
+                + USER_ID_QUERY + " ORDER BY transaction_date";
         try (Connection conn = DatabaseController.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, selectedUser);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    LocalDateTime dateTime = LocalDateTime.parse(rs.getString("transaction_date"), DateTimeFormatter.ofPattern(DATE_FORMAT));
+                    LocalDateTime dateTime = LocalDateTime.parse(rs.getString("transaction_date"),
+                            DateTimeFormatter.ofPattern(DATE_FORMAT));
                     long epochMilli = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
                     double cumulativeSum = rs.getDouble("cumulative_sum");
                     XYChart.Data<Number, Number> dataPoint = new XYChart.Data<>(epochMilli, cumulativeSum / 100.0);
@@ -163,9 +172,12 @@ public class DashboardController {
         netWorthChart.setCreateSymbols(true);
     }
 
-    private void updateChartForCategory(LineChart<String, Number> chart, Label valueLabel, int categoryId) throws SQLException {
+    private void updateChartForCategory(LineChart<String, Number> chart, Label valueLabel, int categoryId)
+            throws SQLException {
         String selectedUser = getConfig(SELECTED_USER);
-        String query = "SELECT strftime('" + MONTH_FORMAT + "', t.transaction_date) AS month, SUM(t.amount) AS total FROM transactions t JOIN users u ON t.user_id = u.user_id WHERE t.category_id = ? AND u.user_id = " + USER_ID_QUERY + " GROUP BY month ORDER BY month";
+        String query = "SELECT strftime('" + MONTH_FORMAT
+                + "', t.transaction_date) AS month, SUM(t.amount) AS total FROM transactions t JOIN users u ON t.user_id = u.user_id WHERE t.category_id = ? AND u.user_id = "
+                + USER_ID_QUERY + " GROUP BY month ORDER BY month";
         try (Connection conn = DatabaseController.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, categoryId);
             stmt.setString(2, selectedUser);
@@ -189,7 +201,8 @@ public class DashboardController {
 
     private String fetchCategoryName(int categoryId) throws SQLException {
         String selectedUser = getConfig(SELECTED_USER);
-        String query = "SELECT c.name FROM categories c JOIN transactions t ON c.category_id = t.category_id JOIN users u ON t.user_id = u.user_id WHERE c.category_id = ? AND u.user_id = " + USER_ID_QUERY + " LIMIT 1";
+        String query = "SELECT c.name FROM categories c JOIN transactions t ON c.category_id = t.category_id JOIN users u ON t.user_id = u.user_id WHERE c.category_id = ? AND u.user_id = "
+                + USER_ID_QUERY + " LIMIT 1";
         try (Connection conn = DatabaseController.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, categoryId);
             stmt.setString(2, selectedUser);
@@ -205,7 +218,8 @@ public class DashboardController {
 
     private void loadTransactions() throws SQLException {
         ObservableList<String> transactions = FXCollections.observableArrayList();
-        String query = "SELECT t.transaction_date, t.description, t.amount FROM transactions t JOIN users u ON t.user_id = u.user_id WHERE u.user_id = " + USER_ID_QUERY + " ORDER BY t.transaction_date DESC LIMIT " + MAX_TRANSACTIONS;
+        String query = "SELECT t.transaction_date, t.description, t.amount FROM transactions t JOIN users u ON t.user_id = u.user_id WHERE u.user_id = "
+                + USER_ID_QUERY + " ORDER BY t.transaction_date DESC LIMIT " + MAX_TRANSACTIONS;
         try (Connection conn = DatabaseController.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, selectedUser);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -224,7 +238,8 @@ public class DashboardController {
     private void loadCategories() throws SQLException {
         String selectedUser = getConfig(SELECTED_USER);
         ObservableList<String> categories = FXCollections.observableArrayList();
-        String query = "SELECT c.name, SUM(t.amount) as total FROM transactions t JOIN categories c ON t.category_id = c.category_id JOIN users u ON t.user_id = u.user_id WHERE u.user_id = " + USER_ID_QUERY + " GROUP BY c.category_id";
+        String query = "SELECT c.name, SUM(t.amount) as total FROM transactions t JOIN categories c ON t.category_id = c.category_id JOIN users u ON t.user_id = u.user_id WHERE u.user_id = "
+                + USER_ID_QUERY + " GROUP BY c.category_id";
         try (Connection conn = DatabaseController.connect(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, selectedUser);
             try (ResultSet rs = stmt.executeQuery()) {
