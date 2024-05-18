@@ -118,7 +118,7 @@ public class CategoryController extends AbstractController {
 
         try {
             CategoryService.deleteCategory(userId, categoryId);
-            ctx.status(204).result("Category deleted successfully");
+            ctx.result("Deleted");
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
             ctx.status(500).result(INTERNAL_ERROR + e.getMessage());
