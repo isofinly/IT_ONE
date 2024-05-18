@@ -1,12 +1,5 @@
 package com.github.kxrxh.javalin.rest.util;
 
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import io.nats.client.Dispatcher;
-import lombok.extern.slf4j.Slf4j;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -15,12 +8,30 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Optional;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+
+import io.nats.client.Dispatcher;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Utility class for subscribing to NATS messages and executing SQL prepared
+ * statements.
+ */
 @Slf4j
 public class NATSSubscriber {
 
     private NATSSubscriber() {
     }
 
+    /**
+     * Executes a prepared statement based on the provided message.
+     *
+     * @param message The message containing SQL and parameters.
+     */
     public static void executePreparedStatement(String message) {
         JSONObject json = new JSONObject(message);
         String sql = json.getString("sql");
@@ -63,6 +74,14 @@ public class NATSSubscriber {
         }
     }
 
+    /**
+     * Subscribes to NATS messages on the specified subject and executes prepared
+     * statements.
+     *
+     * @param subject The subject to subscribe to.
+     * @throws IOException          If an I/O error occurs.
+     * @throws InterruptedException If the subscription process is interrupted.
+     */
     public static void subscribe(String subject) throws IOException, InterruptedException {
         if (NATSUtil.getNatsConnection() != null) {
             Dispatcher dispatcher = NATSUtil.getNatsConnection().createDispatcher(msg -> {

@@ -26,6 +26,13 @@ public class BudgetService extends AbstractService {
     private BudgetService() {
     }
 
+    /**
+     * Sets the alert threshold for a specific budget.
+     *
+     * @param budgetId       The ID of the budget to set the alert for.
+     * @param alertThreshold The threshold value for the alert.
+     * @throws SQLException If an SQL error occurs during the operation.
+     */
     public static void setBudgetAlert(UUID budgetId, long alertThreshold) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
 
@@ -45,6 +52,16 @@ public class BudgetService extends AbstractService {
         }
     }
 
+    /**
+     * Analyzes a budget for a specific user within a given date range.
+     *
+     * @param userId    The ID of the user whose budget is being analyzed.
+     * @param budgetId  The ID of the budget to analyze.
+     * @param dateRange The date range for the analysis.
+     * @return The analysis result containing budget details, transactions,
+     *         comparisons, and suggestions.
+     * @throws SQLException If an SQL error occurs during the analysis.
+     */
     public static BudgetAnalysisResult analyzeBudget(UUID userId, UUID budgetId, String dateRange) throws SQLException {
         BudgetAnalysisResult result = new BudgetAnalysisResult();
         List<Transaction> transactions = new ArrayList<>();
@@ -61,7 +78,7 @@ public class BudgetService extends AbstractService {
             throw new SQLException("No family found for the given user.");
         }
 
-        String budgetQuery = "SELECT * FROM budgets WHERE budget_id = ? AND (user_id = ? OR user_id IS NULL)";
+        String budgetQuery = "SELECT budget_id, user_id, category_id, limit_amount, start_date, end_date, alert_threshold FROM budgets WHERE budget_id = ? AND (user_id = ? OR user_id IS NULL)";
         try (PreparedStatement ps = conn.prepareStatement(budgetQuery)) {
             ps.setObject(1, budgetId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
@@ -81,7 +98,7 @@ public class BudgetService extends AbstractService {
             result.setAlertThreshold(rs.getLong("alert_threshold"));
         }
 
-        String transactionQuery = "SELECT * FROM transactions WHERE category_id = ? AND date BETWEEN ? AND ?";
+        String transactionQuery = "SELECT transaction_id, name, date, amount, currency, account_id, category_id, excluded, notes, transaction_type, created_at, updated_at, last_synced_at FROM transactions WHERE category_id = ? AND date BETWEEN ? AND ?";
         List<Object> params = new ArrayList<>();
         params.add(result.getCategoryId());
         String[] dates = dateRange.split("to");
@@ -135,6 +152,14 @@ public class BudgetService extends AbstractService {
         return result;
     }
 
+    /**
+     * Retrieves the family ID associated with the specified user.
+     *
+     * @param conn   The database connection.
+     * @param userId The ID of the user.
+     * @return The family ID associated with the user, or null if not found.
+     * @throws SQLException If an SQL error occurs during the retrieval process.
+     */
     private static UUID getFamilyIdForUser(Connection conn, UUID userId) throws SQLException {
         String query = "SELECT family_id FROM users WHERE user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
@@ -149,11 +174,21 @@ public class BudgetService extends AbstractService {
         }
     }
 
+    /**
+     * Compares transactions of a specific category with transactions from past
+     * periods.
+     *
+     * @param conn       The database connection.
+     * @param categoryId The ID of the category.
+     * @param dateRange  The date range for the analysis.
+     * @return A list of comparison results between current and past transactions.
+     * @throws SQLException If an SQL error occurs during the comparison.
+     */
     private static List<BudgetComparisonResult> compareWithPastPeriods(Connection conn, UUID categoryId,
-                                                                       String dateRange) throws SQLException {
+            String dateRange) throws SQLException {
         List<BudgetComparisonResult> comparisons = new ArrayList<>();
 
-        String pastPeriodsQuery = "SELECT * FROM transactions WHERE category_id = ? AND date < ?";
+        String pastPeriodsQuery = "SELECT transaction_id, name, date, amount, currency, account_id, category_id, excluded, notes, transaction_type, created_at, updated_at, last_synced_at FROM transactions WHERE category_id = ? AND date < ?";
         String[] dates = dateRange.split("to");
         String endDate = dates[1].trim();
 
@@ -188,6 +223,13 @@ public class BudgetService extends AbstractService {
         return comparisons;
     }
 
+    /**
+     * Suggests new budget limits based on total spent amount and current limit.
+     *
+     * @param totalSpent  The total amount spent within the budget.
+     * @param limitAmount The current budget limit.
+     * @return Budget suggestions including a suggested limit and interval.
+     */
     private static BudgetSuggestions suggestNewBudgetLimits(long totalSpent, long limitAmount) {
         BudgetSuggestions suggestions = new BudgetSuggestions();
         suggestions.setCurrentLimit(limitAmount);
@@ -203,6 +245,12 @@ public class BudgetService extends AbstractService {
         return suggestions;
     }
 
+    /**
+     * Checks budget notifications based on total spent amount and budget limit.
+     *
+     * @param userId The ID of the user.
+     * @param result The budget analysis result containing budget details.
+     */
     private static void checkBudgetNotifications(UUID userId, BudgetAnalysisResult result) {
         long totalSpent = result.getTotalSpent();
         long limitAmount = result.getLimitAmount();

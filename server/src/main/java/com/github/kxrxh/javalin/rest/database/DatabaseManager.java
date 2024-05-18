@@ -1,11 +1,12 @@
 package com.github.kxrxh.javalin.rest.database;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import lombok.extern.slf4j.Slf4j;
-
 import java.sql.Connection;
 import java.util.Optional;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DatabaseManager {
@@ -24,6 +25,10 @@ public class DatabaseManager {
         config.addDataSourceProperty("cachePrepStmts", "false");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.setValidationTimeout(3000);
+        config.setMaxLifetime(1800000);
+        config.setIdleTimeout(60000);
+        config.setMaximumPoolSize(500);
         config.setAutoCommit(true);
 
 

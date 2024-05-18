@@ -1,18 +1,31 @@
 package com.github.kxrxh.javalin.rest.services;
 
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Optional;
+import java.util.UUID;
+
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.ExchangeRate;
-
-import java.sql.*;
-import java.util.Optional;
-import java.util.UUID;
 
 public class ExchangeRateService extends AbstractService {
 
     private ExchangeRateService() {
     }
 
+    /**
+     * Creates a new exchange rate record in the database.
+     *
+     * @param baseCurrency      The base currency code.
+     * @param convertedCurrency The converted currency code.
+     * @param rate              The exchange rate value.
+     * @param date              The date for which the exchange rate is applicable.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void createExchangeRate(String baseCurrency, String convertedCurrency, double rate, Date date)
             throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
@@ -35,6 +48,17 @@ public class ExchangeRateService extends AbstractService {
         }
     }
 
+    /**
+     * Retrieves an exchange rate record from the database based on the provided
+     * currencies and date.
+     *
+     * @param baseCurrency      The base currency code.
+     * @param convertedCurrency The converted currency code.
+     * @param date              The date for which the exchange rate is applicable.
+     * @return An ExchangeRate object representing the exchange rate record.
+     * @throws SQLException If an SQL error occurs or if the exchange rate record is
+     *                      not found.
+     */
     public static ExchangeRate readExchangeRate(String baseCurrency, String convertedCurrency, Date date)
             throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
@@ -68,8 +92,19 @@ public class ExchangeRateService extends AbstractService {
         }
     }
 
+    /**
+     * Updates an existing exchange rate record in the database.
+     *
+     * @param id                The ID of the exchange rate record to update.
+     * @param baseCurrency      The base currency code.
+     * @param convertedCurrency The converted currency code.
+     * @param rate              The updated exchange rate value.
+     * @param date              The updated date for which the exchange rate is
+     *                          applicable.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void updateExchangeRate(UUID id, String baseCurrency, String convertedCurrency, double rate,
-                                          Date date) throws SQLException {
+            Date date) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -90,6 +125,12 @@ public class ExchangeRateService extends AbstractService {
         }
     }
 
+    /**
+     * Deletes an exchange rate record from the database.
+     *
+     * @param id The ID of the exchange rate record to delete.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void deleteExchangeRate(UUID id) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {

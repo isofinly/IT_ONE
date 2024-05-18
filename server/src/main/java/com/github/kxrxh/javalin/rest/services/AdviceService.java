@@ -1,5 +1,15 @@
 package com.github.kxrxh.javalin.rest.services;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.Transaction;
@@ -7,17 +17,20 @@ import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType
 import com.github.kxrxh.javalin.rest.entities.FinancialAdvice;
 import com.github.kxrxh.javalin.rest.entities.FinancialForecast;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 public class AdviceService extends AbstractService {
 
     private AdviceService() {
     }
 
+    /**
+     * Retrieves financial advice for a given user based on recent transactions.
+     *
+     * @param userId The UUID of the user for whom the financial advice is
+     *               requested.
+     * @return FinancialAdvice object containing the generated financial advice.
+     * @throws SQLException If an SQL exception occurs while fetching recent
+     *                      transactions.
+     */
     public static FinancialAdvice getFinancialAdvice(UUID userId) throws SQLException {
         FinancialAdvice advice = new FinancialAdvice();
 
@@ -70,6 +83,17 @@ public class AdviceService extends AbstractService {
         return advice;
     }
 
+    /**
+     * Retrieves a financial forecast for a given user within a specified date
+     * range.
+     *
+     * @param userId    The UUID of the user for whom the financial forecast is
+     *                  requested.
+     * @param dateRange The date range in the format "start_date to end_date".
+     * @return FinancialForecast object containing the generated financial forecast.
+     * @throws SQLException If an SQL exception occurs while fetching recent
+     *                      transactions.
+     */
     public static FinancialForecast getFinancialForecast(UUID userId, String dateRange) throws SQLException {
         FinancialForecast forecast = new FinancialForecast();
 
@@ -98,13 +122,16 @@ public class AdviceService extends AbstractService {
                         .amount(rs.getLong("amount"))
                         .currency(rs.getString("currency"))
                         .accountId(UUID.fromString(rs.getString("account_id")))
-                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id")) : null)
+                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id"))
+                                : null)
                         .excluded(rs.getBoolean("excluded"))
                         .notes(rs.getString("notes"))
                         .transactionType(TransactionType.valueOf(rs.getString("transaction_type").toUpperCase()))
                         .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                         .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
-                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null ? rs.getTimestamp("last_synced_at").toLocalDateTime() : null)
+                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null
+                                ? rs.getTimestamp("last_synced_at").toLocalDateTime()
+                                : null)
                         .build();
                 transactions.add(transaction);
             }

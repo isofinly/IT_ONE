@@ -1,15 +1,15 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.User;
 
 public class UserService extends AbstractService {
     private static final String USER_ID = "user_id";
@@ -19,6 +19,17 @@ public class UserService extends AbstractService {
     private static final String LAST_NAME = "last_name";
     private static final String FAMILY_ID = "family_id";
 
+    /**
+     * Creates a new user with the given email and password.
+     *
+     * @param userId   The ID of the user to create. If null, a new ID will be
+     *                 generated.
+     * @param email    The email of the user.
+     * @param password The hashed password of the user.
+     * @return An optional containing the created user if successful, empty
+     *         otherwise.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static Optional<User> createUser(UUID userId, String email, String password) throws SQLException {
         String userSql;
         if (userId == null) {
@@ -97,10 +108,26 @@ public class UserService extends AbstractService {
         return Optional.empty();
     }
 
+    /**
+     * Creates a new user with the given email and password.
+     *
+     * @param email    The email of the user.
+     * @param password The hashed password of the user.
+     * @return An optional containing the created user if successful, empty
+     *         otherwise.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static Optional<User> createUser(String email, String password) throws SQLException {
         return createUser(null, email, password);
     }
 
+    /**
+     * Retrieves a user by their ID.
+     *
+     * @param userId The ID of the user to retrieve.
+     * @return An optional containing the user if found, empty otherwise.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static Optional<User> getUser(UUID userId) throws SQLException {
 
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
@@ -131,6 +158,13 @@ public class UserService extends AbstractService {
         return Optional.empty();
     }
 
+    /**
+     * Retrieves a user by their email
+     *
+     * @param email The email of the user to retrieve.
+     * @return An optional containing the user if found, empty otherwise.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static Optional<User> getUser(String email) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
@@ -162,6 +196,14 @@ public class UserService extends AbstractService {
         return Optional.empty();
     }
 
+    /**
+     * Retrieves a user by their email and password.
+     *
+     * @param email    The email of the user to retrieve.
+     * @param password The hashed password of the user.
+     * @return An optional containing the user if found, empty otherwise.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static Optional<User> getUser(String email, String password) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
@@ -195,6 +237,13 @@ public class UserService extends AbstractService {
         return Optional.empty();
     }
 
+    /**
+     * Deletes a user by their ID.
+     *
+     * @param userId The ID of the user to delete.
+     * @return True if the user was successfully deleted, false otherwise.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static boolean deleteUser(UUID userId) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
@@ -214,6 +263,13 @@ public class UserService extends AbstractService {
         }
     }
 
+    /**
+     * Deletes a user by their email.
+     *
+     * @param email The email of the user to delete.
+     * @return True if the user was successfully deleted, false otherwise.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static boolean deleteUser(String email) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {

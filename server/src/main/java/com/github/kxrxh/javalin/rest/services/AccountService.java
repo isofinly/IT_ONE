@@ -1,17 +1,32 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
 
 public class AccountService extends AbstractService {
 
+    /**
+     * Transfers funds from one account to another.
+     *
+     * @param userId        The UUID of the user initiating the transfer.
+     * @param fromAccountId The UUID of the account from which funds will be
+     *                      transferred.
+     * @param toAccountId   The UUID of the account to which funds will be
+     *                      transferred.
+     * @param amount        The amount of funds to transfer.
+     * @throws SQLException If an SQL exception occurs during the transfer process.
+     */
     public static void transferFunds(UUID userId, UUID fromAccountId, UUID toAccountId, long amount)
             throws SQLException {
         if (!isUserAuthorized(userId, fromAccountId)) {
@@ -28,8 +43,8 @@ public class AccountService extends AbstractService {
 
         try (PreparedStatement ps1 = conn.prepareStatement(
                 "UPDATE accounts SET balance = balance - ? WHERE account_id = ?");
-             PreparedStatement ps2 = conn.prepareStatement(
-                     "UPDATE accounts SET balance = balance + ? WHERE account_id = ?")) {
+                PreparedStatement ps2 = conn.prepareStatement(
+                        "UPDATE accounts SET balance = balance + ? WHERE account_id = ?")) {
             ps1.setLong(1, amount);
             ps1.setObject(2, fromAccountId, java.sql.Types.OTHER);
             int rowsUpdated = ps1.executeUpdate();
@@ -52,6 +67,15 @@ public class AccountService extends AbstractService {
         }
     }
 
+    /**
+     * Merges multiple accounts into a single account.
+     *
+     * @param userId         The UUID of the user initiating the merge operation.
+     * @param accountIds     An array of account IDs to be merged.
+     * @param newAccountName The name of the new merged account.
+     * @param accountType    The type of the new merged account.
+     * @throws SQLException If an SQL exception occurs during the merge process.
+     */
     public static void mergeAccounts(UUID userId, String[] accountIds, String newAccountName, String accountType)
             throws SQLException {
         // Check for duplicate account IDs
@@ -87,7 +111,8 @@ public class AccountService extends AbstractService {
                         if (rs.next()) {
                             long balance = rs.getLong("balance");
                             String currency = rs.getString("currency");
-                            double convertedBalance = CurrencyConversion.convert(balance, currency, "RUB"); // Convert
+                            double convertedBalance = CurrencyConversion.getInstance().convert(balance, currency,
+                                    "RUB"); // Convert
                             // all
                             // balances
                             // to RUB
@@ -131,6 +156,15 @@ public class AccountService extends AbstractService {
         }
     }
 
+    /**
+     * Checks if a user is authorized to perform operations on a specific account.
+     *
+     * @param userId    The UUID of the user to check authorization for.
+     * @param accountId The UUID of the account to check authorization for.
+     * @return True if the user is authorized to perform operations on the account,
+     *         false otherwise.
+     * @throws SQLException If an SQL exception occurs while checking authorization.
+     */
     private static boolean isUserAuthorized(UUID userId, UUID accountId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -140,7 +174,7 @@ public class AccountService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT * FROM accounts WHERE account_id = ? AND user_id = ?")) {
+                "SELECT account_id FROM accounts WHERE account_id = ? AND user_id = ?")) {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {

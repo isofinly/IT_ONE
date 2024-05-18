@@ -1,9 +1,5 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.RecurringTransaction;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,13 +7,27 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.RecurringTransaction;
+
 public class RecurringTransactionService extends AbstractService {
 
     private RecurringTransactionService() {
     }
 
+    /**
+     * Creates a new recurring transaction.
+     *
+     * @param userId      The ID of the user creating the transaction.
+     * @param amount      The amount of the transaction.
+     * @param categoryId  The ID of the category associated with the transaction.
+     * @param description The description of the transaction.
+     * @param frequency   The frequency of the transaction.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void createRecurringTransaction(UUID userId, long amount, UUID categoryId, String description,
-                                                  long frequency) throws SQLException {
+            long frequency) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -41,6 +51,14 @@ public class RecurringTransactionService extends AbstractService {
         }
     }
 
+    /**
+     * Retrieves a recurring transaction by its ID.
+     *
+     * @param userId                 The ID of the user retrieving the transaction.
+     * @param recurringTransactionId The ID of the recurring transaction.
+     * @return The recurring transaction.
+     * @throws SQLException If an SQL error occurs or the transaction is not found.
+     */
     public static RecurringTransaction readRecurringTransaction(UUID userId, UUID recurringTransactionId)
             throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
@@ -85,8 +103,20 @@ public class RecurringTransactionService extends AbstractService {
         }
     }
 
+    /**
+     * Updates an existing recurring transaction.
+     *
+     * @param userId                 The ID of the user updating the transaction.
+     * @param recurringTransactionId The ID of the recurring transaction to update.
+     * @param amount                 The new amount of the transaction.
+     * @param categoryId             The new category ID associated with the
+     *                               transaction.
+     * @param description            The new description of the transaction.
+     * @param frequency              The new frequency of the transaction.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void updateRecurringTransaction(UUID userId, UUID recurringTransactionId, long amount,
-                                                  UUID categoryId, String description, long frequency) throws SQLException {
+            UUID categoryId, String description, long frequency) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -110,6 +140,13 @@ public class RecurringTransactionService extends AbstractService {
         }
     }
 
+    /**
+     * Deletes a recurring transaction.
+     *
+     * @param userId                 The ID of the user deleting the transaction.
+     * @param recurringTransactionId The ID of the recurring transaction to delete.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void deleteRecurringTransaction(UUID userId, UUID recurringTransactionId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {

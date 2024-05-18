@@ -1,13 +1,17 @@
 package com.github.kxrxh.javalin.rest.util;
 
-import io.prometheus.client.Collector;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+
+import io.prometheus.client.Collector;
+
+/**
+ * Collector for Jetty QueuedThreadPool metrics to be used with Prometheus.
+ */
 public class QueuedThreadPoolCollector extends Collector {
 
     private static final List<String> EMPTY_LIST = new ArrayList<>();
@@ -17,6 +21,13 @@ public class QueuedThreadPoolCollector extends Collector {
         this.queuedThreadPool = queuedThreadPool;
     }
 
+    /**
+     * Initializes the QueuedThreadPoolCollector with the provided QueuedThreadPool
+     * and registers it.
+     *
+     * @param queuedThreadPool The QueuedThreadPool instance to collect metrics
+     *                         from.
+     */
     public static void initialize(QueuedThreadPool queuedThreadPool) {
         new QueuedThreadPoolCollector(queuedThreadPool).register();
     }
@@ -29,6 +40,11 @@ public class QueuedThreadPoolCollector extends Collector {
                 Collections.singletonList(new MetricFamilySamples.Sample(name, EMPTY_LIST, EMPTY_LIST, value)));
     }
 
+    /**
+     * Collects metrics from the QueuedThreadPool.
+     *
+     * @return List of MetricFamilySamples containing metrics.
+     */
     @Override
     public List<MetricFamilySamples> collect() {
         return Arrays.asList(

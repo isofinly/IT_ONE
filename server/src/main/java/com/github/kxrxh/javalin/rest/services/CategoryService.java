@@ -20,6 +20,17 @@ import com.github.kxrxh.javalin.rest.entities.CategoryAnalysisResult;
 public class CategoryService extends AbstractService {
 
     // TODO: Add family if any and more info.
+    /**
+     * Analyzes transactions belonging to the specified category within the given
+     * date range.
+     * 
+     * @param userId     The ID of the user performing the analysis.
+     * @param categoryId The ID of the category to analyze.
+     * @param dateRange  A string representing the date range in the format
+     *                   "start_date to end_date".
+     * @return A CategoryAnalysisResult object containing the analysis result.
+     * @throws SQLException If an SQL error occurs during the analysis process.
+     */
     public static CategoryAnalysisResult analyzeCategory(UUID userId, UUID categoryId, String dateRange)
             throws SQLException {
         CategoryAnalysisResult result = new CategoryAnalysisResult();
@@ -106,6 +117,14 @@ public class CategoryService extends AbstractService {
         }
     }
 
+    /**
+     * Retrieves the family ID associated with the specified user.
+     * 
+     * @param conn   The database connection.
+     * @param userId The ID of the user.
+     * @return The family ID associated with the user, or null if not found.
+     * @throws SQLException If an SQL error occurs during the retrieval process.
+     */
     private static UUID getFamilyIdForUser(Connection conn, UUID userId) throws SQLException {
         String query = "SELECT family_id FROM users WHERE user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
@@ -120,7 +139,18 @@ public class CategoryService extends AbstractService {
         }
     }
 
-    private static boolean userHasAccessToCategory(Connection conn, UUID userId, UUID categoryId, UUID familyId)
+    /**
+     * Checks whether the user has access to the specified category within the given
+     * family.
+     * 
+     * @param conn       The database connection.
+     * @param userId     The ID of the user.
+     * @param categoryId The ID of the category.
+     * @param familyId   The ID of the family.
+     * @return True if the user has access to the category, false otherwise.
+     * @throws SQLException If an SQL error occurs during the access check.
+     */
+    private static boolean userHasAccessToCategory(Connection conn, UUID _userId, UUID categoryId, UUID familyId)
             throws SQLException {
         String query = "SELECT COUNT(*) FROM categories WHERE category_id = ? AND family_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
@@ -136,6 +166,14 @@ public class CategoryService extends AbstractService {
         }
     }
 
+    /**
+     * Retrieves all category IDs associated with the specified family.
+     * 
+     * @param conn     The database connection.
+     * @param familyId The ID of the family.
+     * @return A list of category IDs associated with the family.
+     * @throws SQLException If an SQL error occurs during the retrieval process.
+     */
     private static List<UUID> getFamilyCategoryIds(Connection conn, UUID familyId) throws SQLException {
         String query = "SELECT category_id FROM categories WHERE family_id = ?";
         List<UUID> categoryIds = new ArrayList<>();
@@ -150,6 +188,14 @@ public class CategoryService extends AbstractService {
         return categoryIds;
     }
 
+    /**
+     * Creates a new category in the database for the specified user's family.
+     * 
+     * @param userId The ID of the user creating the category.
+     * @param name   The name of the new category.
+     * @return The created Category object.
+     * @throws SQLException If an SQL error occurs during category creation.
+     */
     public static Category createCategory(UUID userId, String name) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -178,6 +224,16 @@ public class CategoryService extends AbstractService {
         return readCategory(userId, categoryId);
     }
 
+    /**
+     * Retrieves a category from the database based on the provided category ID and
+     * user ID.
+     * 
+     * @param userId     The ID of the user retrieving the category.
+     * @param categoryId The ID of the category to retrieve.
+     * @return The Category object corresponding to the provided IDs.
+     * @throws SQLException If the category is not found or an SQL error occurs
+     *                      during retrieval.
+     */
     public static Category readCategory(UUID userId, UUID categoryId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -213,6 +269,16 @@ public class CategoryService extends AbstractService {
         }
     }
 
+    /**
+     * Updates the name of an existing category in the database.
+     * 
+     * @param userId     The ID of the user updating the category.
+     * @param categoryId The ID of the category to update.
+     * @param name       The new name for the category.
+     * @return The updated Category object.
+     * @throws SQLException If the category is not found, or an SQL error occurs
+     *                      during the update process.
+     */
     public static Category updateCategory(UUID userId, UUID categoryId, String name) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -239,6 +305,14 @@ public class CategoryService extends AbstractService {
         return readCategory(userId, categoryId);
     }
 
+    /**
+     * Deletes a category from the database.
+     * 
+     * @param userId     The ID of the user deleting the category.
+     * @param categoryId The ID of the category to delete.
+     * @throws SQLException If the category is not found, or an SQL error occurs
+     *                      during deletion.
+     */
     public static void deleteCategory(UUID userId, UUID categoryId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {

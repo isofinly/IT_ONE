@@ -18,6 +18,18 @@ import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType
 
 public class TransactionService extends AbstractService {
 
+    /**
+     * Searches for transactions based on various criteria.
+     *
+     * @param userId      The ID of the user performing the search.
+     * @param amountRange The range of transaction amounts (e.g., "0-100").
+     * @param dateRange   The range of transaction dates (e.g., "2024-01-01 to
+     *                    2024-05-01").
+     * @param categoryId  The ID of the category to filter by.
+     * @param description The description of the transaction to search for.
+     * @return A list of transactions matching the search criteria.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static List<Transaction> searchTransactions(UUID userId, String amountRange, String dateRange,
             UUID categoryId, String description) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
@@ -76,7 +88,7 @@ public class TransactionService extends AbstractService {
                                 : null)
                         .excluded(rs.getBoolean("excluded"))
                         .notes(rs.getString("notes"))
-                        .transactionType(TransactionType.valueOf(rs.getString("transaction_type").toLowerCase()))
+                        .transactionType(TransactionType.valueOf(rs.getString("transaction_type").toUpperCase()))
                         .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                         .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
                         .lastSyncedAt(rs.getTimestamp("last_synced_at") != null
@@ -91,6 +103,21 @@ public class TransactionService extends AbstractService {
         return transactions;
     }
 
+    /**
+     * Creates a new transaction.
+     *
+     * @param userId          The ID of the user performing the transaction.
+     * @param accountId       The ID of the account associated with the transaction.
+     * @param categoryId      The ID of the category associated with the
+     *                        transaction.
+     * @param amount          The amount of the transaction.
+     * @param name            The name of the transaction.
+     * @param date            The date of the transaction.
+     * @param currency        The currency of the transaction.
+     * @param notes           Additional notes for the transaction.
+     * @param transactionType The type of the transaction (e.g., income or expense).
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void createTransaction(UUID userId, UUID accountId, UUID categoryId, long amount, String name,
             LocalDateTime date, String currency, String notes, TransactionType transactionType) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
@@ -117,6 +144,22 @@ public class TransactionService extends AbstractService {
         }
     }
 
+    /**
+     * Updates an existing transaction.
+     *
+     * @param userId          The ID of the user performing the update.
+     * @param transactionId   The ID of the transaction to update.
+     * @param accountId       The ID of the account associated with the transaction.
+     * @param categoryId      The ID of the category associated with the
+     *                        transaction.
+     * @param amount          The updated amount of the transaction.
+     * @param name            The updated name of the transaction.
+     * @param date            The updated date of the transaction.
+     * @param currency        The updated currency of the transaction.
+     * @param notes           The updated notes for the transaction.
+     * @param transactionType The updated type of the transaction.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void updateTransaction(UUID userId, UUID transactionId, UUID accountId, UUID categoryId, long amount,
             String name, LocalDateTime date, String currency, String notes, TransactionType transactionType)
             throws SQLException {
@@ -146,6 +189,13 @@ public class TransactionService extends AbstractService {
         }
     }
 
+    /**
+     * Deletes a transaction.
+     *
+     * @param userId        The ID of the user performing the deletion.
+     * @param transactionId The ID of the transaction to delete.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void deleteTransaction(UUID userId, UUID transactionId) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
         if (opConn.isEmpty()) {
@@ -165,6 +215,16 @@ public class TransactionService extends AbstractService {
         }
     }
 
+    /**
+     * Creates a new recurring transaction.
+     *
+     * @param userId      The ID of the user creating the recurring transaction.
+     * @param amount      The amount of the recurring transaction.
+     * @param categoryId  The ID of the category associated with the transaction.
+     * @param description The description of the recurring transaction.
+     * @param frequency   The frequency of the recurring transaction.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void createRecurringTransaction(UUID userId, long amount, UUID categoryId, String description,
             long frequency) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();

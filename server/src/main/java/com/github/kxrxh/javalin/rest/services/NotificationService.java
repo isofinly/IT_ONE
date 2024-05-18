@@ -1,19 +1,28 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+
 public class NotificationService extends AbstractService {
 
     private NotificationService() {
     }
 
+    /**
+     * Sets a notification for a user.
+     *
+     * @param userId           The ID of the user for whom the notification is being
+     *                         set.
+     * @param notificationType The type of notification.
+     * @param threshold        The threshold for the notification.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void setNotification(UUID userId, String notificationType, long threshold) throws SQLException {
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
 

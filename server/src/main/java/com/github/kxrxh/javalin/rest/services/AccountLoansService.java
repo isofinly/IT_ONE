@@ -1,22 +1,42 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.AccountLoan;
-import com.github.kxrxh.javalin.rest.util.NATSUtil;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.AccountLoan;
+import com.github.kxrxh.javalin.rest.util.NATSUtil;
+
 public class AccountLoansService extends AbstractService {
 
+    /**
+     * Creates a new loan associated with a user account.
+     *
+     * @param userId             The UUID of the user who owns the account.
+     * @param accountId          The UUID of the account to which the loan will be
+     *                           associated.
+     * @param loanAmount         The amount of the loan.
+     * @param outstandingBalance The outstanding balance of the loan.
+     * @param interestRate       The interest rate of the loan.
+     * @param loanTerm           The term of the loan.
+     * @param dueDate            The due date of the loan.
+     * @param paymentFrequency   The payment frequency of the loan.
+     * @param collateral         The collateral for the loan.
+     * @throws SQLException If an SQL exception occurs during the loan creation
+     *                      process.
+     */
     public static void createLoan(UUID userId, UUID accountId, long loanAmount,
-                                  long outstandingBalance, double interestRate,
-                                  String loanTerm, LocalDate dueDate,
-                                  String paymentFrequency, String collateral)
+            long outstandingBalance, double interestRate,
+            String loanTerm, LocalDate dueDate,
+            String paymentFrequency, String collateral)
             throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -26,7 +46,8 @@ public class AccountLoansService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "INSERT INTO account_loans (id, account_id, loan_amount, outstanding_balance, interest_rate, loan_term, due_date, payment_frequency, collateral, created_at, updated_at) " +
+                "INSERT INTO account_loans (id, account_id, loan_amount, outstanding_balance, interest_rate, loan_term, due_date, payment_frequency, collateral, created_at, updated_at) "
+                        +
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             ps.setObject(1, UUID.randomUUID(), java.sql.Types.OTHER);
             ps.setObject(2, accountId, java.sql.Types.OTHER);
@@ -43,6 +64,15 @@ public class AccountLoansService extends AbstractService {
         }
     }
 
+    /**
+     * Retrieves information about a specific loan associated with a user account.
+     *
+     * @param userId The UUID of the user who owns the account.
+     * @param loanId The UUID of the loan to retrieve.
+     * @return An AccountLoan object representing the retrieved loan.
+     * @throws SQLException If an SQL exception occurs during the loan retrieval
+     *                      process.
+     */
     public static AccountLoan readLoan(UUID userId, UUID loanId)
             throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
@@ -82,11 +112,28 @@ public class AccountLoansService extends AbstractService {
         }
     }
 
+    /**
+     * Updates information about a specific loan associated with a user account.
+     *
+     * @param userId             The UUID of the user who owns the account.
+     * @param loanId             The UUID of the loan to update.
+     * @param accountId          The UUID of the account to which the loan is
+     *                           associated.
+     * @param loanAmount         The updated amount of the loan.
+     * @param outstandingBalance The updated outstanding balance of the loan.
+     * @param interestRate       The updated interest rate of the loan.
+     * @param loanTerm           The updated term of the loan.
+     * @param dueDate            The updated due date of the loan.
+     * @param paymentFrequency   The updated payment frequency of the loan.
+     * @param collateral         The updated collateral for the loan.
+     * @throws SQLException If an SQL exception occurs during the loan update
+     *                      process.
+     */
     public static void updateLoan(UUID userId, UUID loanId, UUID accountId,
-                                  long loanAmount, long outstandingBalance,
-                                  double interestRate, String loanTerm,
-                                  LocalDate dueDate, String paymentFrequency,
-                                  String collateral) throws SQLException {
+            long loanAmount, long outstandingBalance,
+            double interestRate, String loanTerm,
+            LocalDate dueDate, String paymentFrequency,
+            String collateral) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -95,7 +142,8 @@ public class AccountLoansService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "UPDATE account_loans SET account_id = ?, loan_amount = ?, outstanding_balance = ?, interest_rate = ?, loan_term = ?, due_date = ?, payment_frequency = ?, collateral = ?, updated_at = CURRENT_TIMESTAMP " +
+                "UPDATE account_loans SET account_id = ?, loan_amount = ?, outstanding_balance = ?, interest_rate = ?, loan_term = ?, due_date = ?, payment_frequency = ?, collateral = ?, updated_at = CURRENT_TIMESTAMP "
+                        +
                         "WHERE id = ? AND account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setLong(2, loanAmount);
@@ -113,6 +161,14 @@ public class AccountLoansService extends AbstractService {
         }
     }
 
+    /**
+     * Deletes a specific loan associated with a user account.
+     *
+     * @param userId The UUID of the user who owns the account.
+     * @param loanId The UUID of the loan to delete.
+     * @throws SQLException If an SQL exception occurs during the loan deletion
+     *                      process.
+     */
     public static void deleteLoan(UUID userId, UUID loanId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -131,6 +187,14 @@ public class AccountLoansService extends AbstractService {
         }
     }
 
+    /**
+     * Calculates interest for a specific loan associated with a user account.
+     *
+     * @param userId The UUID of the user who owns the account.
+     * @param loanId The UUID of the loan for which interest will be calculated.
+     * @throws SQLException If an SQL exception occurs during the interest
+     *                      calculation process.
+     */
     public static void calculateInterest(UUID userId, UUID loanId)
             throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
@@ -174,6 +238,13 @@ public class AccountLoansService extends AbstractService {
         }
     }
 
+    /**
+     * Checks loan due date notifications for a user.
+     *
+     * @param userId The UUID of the user to check loan due date notifications for.
+     * @throws SQLException If an SQL exception occurs during the due date
+     *                      notification process.
+     */
     public static void checkDueDateNotifications(UUID userId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -204,6 +275,13 @@ public class AccountLoansService extends AbstractService {
         }
     }
 
+    /**
+     * Checks loan notifications based on outstanding balance for a specific user.
+     *
+     * @param userId             The UUID of the user to check loan notifications
+     *                           for.
+     * @param outstandingBalance The outstanding balance of the loan.
+     */
     private static void checkLoanNotifications(UUID userId, long outstandingBalance) {
         long threshold10 = (long) (outstandingBalance * 0.1);
         long threshold5 = (long) (outstandingBalance * 0.05);

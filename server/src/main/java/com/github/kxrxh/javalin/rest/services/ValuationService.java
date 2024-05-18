@@ -1,10 +1,5 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.Valuation;
-import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,11 +8,26 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.Valuation;
+import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
+
 public class ValuationService extends AbstractService {
 
     private ValuationService() {
     }
 
+    /**
+     * Creates a valuation for a specific account.
+     *
+     * @param userId    The ID of the user creating the valuation.
+     * @param accountId The ID of the account for which the valuation is created.
+     * @param date      The date of the valuation.
+     * @param value     The value of the account.
+     * @param currency  The currency of the valuation.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void createValuation(UUID userId, UUID accountId, LocalDate date, long value, String currency)
             throws SQLException {
         if (!isUserAuthorized(userId, accountId)) {
@@ -44,6 +54,15 @@ public class ValuationService extends AbstractService {
         }
     }
 
+    /**
+     * Reads a valuation for a specific account.
+     *
+     * @param userId         The ID of the user requesting the valuation.
+     * @param valuationId    The ID of the valuation to read.
+     * @param targetCurrency The currency in which to convert the valuation value.
+     * @return The valuation.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static Valuation readValuation(UUID userId, UUID valuationId, String targetCurrency) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -63,7 +82,7 @@ public class ValuationService extends AbstractService {
 
                     long value = rs.getLong("value");
                     String currency = rs.getString("currency");
-                    double convertedValue = CurrencyConversion.convert(value, currency, targetCurrency);
+                    double convertedValue = CurrencyConversion.getInstance().convert(value, currency, targetCurrency);
 
                     return new Valuation(
                             UUID.fromString(rs.getString("id")),
@@ -80,8 +99,19 @@ public class ValuationService extends AbstractService {
         }
     }
 
+    /**
+     * Updates a valuation for a specific account.
+     *
+     * @param userId      The ID of the user updating the valuation.
+     * @param valuationId The ID of the valuation to update.
+     * @param accountId   The ID of the account associated with the valuation.
+     * @param date        The new date of the valuation.
+     * @param value       The new value of the account.
+     * @param currency    The new currency of the valuation.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void updateValuation(UUID userId, UUID valuationId, UUID accountId, LocalDate date, long value,
-                                       String currency) throws SQLException {
+            String currency) throws SQLException {
         if (!isUserAuthorized(userId, accountId)) {
             throw new SQLException("User not authorized to update valuation for this account");
         }
@@ -106,6 +136,13 @@ public class ValuationService extends AbstractService {
         }
     }
 
+    /**
+     * Deletes a valuation.
+     *
+     * @param userId      The ID of the user deleting the valuation.
+     * @param valuationId The ID of the valuation to delete.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void deleteValuation(UUID userId, UUID valuationId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -136,6 +173,15 @@ public class ValuationService extends AbstractService {
         }
     }
 
+    /**
+     * Checks if the user is authorized to read valuations for this account.
+     * 
+     * @param userId
+     * @param accountId
+     * @return True if the user is authorized to read valuations for this account.
+     *         False otherwise.
+     *         Throws an SQLException if an SQL error occurs.
+     */
     private static boolean isUserAuthorized(UUID userId, UUID accountId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {

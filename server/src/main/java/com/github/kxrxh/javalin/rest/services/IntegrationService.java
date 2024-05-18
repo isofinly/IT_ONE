@@ -1,10 +1,5 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.entities.MockBankIntegration;
-import com.github.kxrxh.javalin.rest.interfaces.BankIntegration;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,6 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.entities.MockBankIntegration;
+import com.github.kxrxh.javalin.rest.interfaces.BankIntegration;
 
 public class IntegrationService extends AbstractService {
 
@@ -26,6 +26,14 @@ public class IntegrationService extends AbstractService {
     private IntegrationService() {
     }
 
+    /**
+     * Integrates the user account with a bank.
+     *
+     * @param userId          The ID of the user.
+     * @param bankName        The name of the bank.
+     * @param bankCredentials The credentials for accessing the bank.
+     * @throws Exception If no integration is found for the specified bank.
+     */
     public static void integrateWithBank(UUID userId, String bankName, String bankCredentials) throws Exception {
         BankIntegration integration = integrations.get(bankName.toLowerCase());
         if (integration != null) {
@@ -35,6 +43,13 @@ public class IntegrationService extends AbstractService {
         }
     }
 
+    /**
+     * Automatically categorizes transactions for a user based on predefined
+     * category mappings.
+     *
+     * @param userId The ID of the user.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static void autoCategorizeTransactions(UUID userId) throws SQLException {
 
         Optional<Connection> opConn = DatabaseManager.getInstance().getConnection();
@@ -66,6 +81,15 @@ public class IntegrationService extends AbstractService {
         }
     }
 
+    /**
+     * Loads category mappings for a given user from the database.
+     *
+     * @param userId The ID of the user.
+     * @param conn   The database connection.
+     * @return A map containing category names as keys and their corresponding UUIDs
+     *         as values.
+     * @throws SQLException If an SQL error occurs.
+     */
     private static Map<String, UUID> loadCategoryMappings(UUID userId, Connection conn) throws SQLException {
         Map<String, UUID> categoryMapping = new HashMap<>();
         String query = "SELECT name, category_id FROM categories WHERE family_id = (SELECT family_id FROM users WHERE user_id = ?)";
@@ -84,6 +108,15 @@ public class IntegrationService extends AbstractService {
         return categoryMapping;
     }
 
+    /**
+     * Categorizes a transaction based on its description using the provided
+     * category mapping.
+     *
+     * @param description     The description of the transaction.
+     * @param categoryMapping A map containing category names as keys and their
+     *                        corresponding UUIDs as values.
+     * @return The UUID of the category if a match is found, otherwise null.
+     */
     private static UUID categorizeTransaction(String description, Map<String, UUID> categoryMapping) {
         for (Map.Entry<String, UUID> entry : categoryMapping.entrySet()) {
             if (description.toLowerCase().contains(entry.getKey())) {
@@ -93,6 +126,14 @@ public class IntegrationService extends AbstractService {
         return null;
     }
 
+    /**
+     * Updates the category of a transaction in the database.
+     *
+     * @param transactionId The ID of the transaction.
+     * @param categoryId    The ID of the category to update.
+     * @param conn          The database connection.
+     * @throws SQLException If an SQL error occurs.
+     */
     private static void updateTransactionCategory(UUID transactionId, UUID categoryId, Connection conn)
             throws SQLException {
         String query = "UPDATE transactions SET category_id = ? WHERE transaction_id = ?";
