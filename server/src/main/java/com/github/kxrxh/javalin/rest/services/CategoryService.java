@@ -1,17 +1,21 @@
 package com.github.kxrxh.javalin.rest.services;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.Category;
 import com.github.kxrxh.javalin.rest.database.models.Transaction;
 import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
 import com.github.kxrxh.javalin.rest.entities.CategoryAnalysisResult;
-
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 public class CategoryService extends AbstractService {
 
@@ -98,7 +102,7 @@ public class CategoryService extends AbstractService {
 
             return result;
         } catch (SQLException e) {
-            throw new SQLException("Could not execute query", e);
+            throw new SQLException("Could not execute query: " + e.getMessage());
         }
     }
 
@@ -142,8 +146,6 @@ public class CategoryService extends AbstractService {
                     categoryIds.add(UUID.fromString(rs.getString(CATEGORY_ID)));
                 }
             }
-        } finally {
-            conn.close();
         }
         return categoryIds;
     }
@@ -151,7 +153,7 @@ public class CategoryService extends AbstractService {
     public static Category createCategory(UUID userId, String name) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -177,7 +179,7 @@ public class CategoryService extends AbstractService {
     public static Category readCategory(UUID userId, UUID categoryId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -212,7 +214,7 @@ public class CategoryService extends AbstractService {
     public static Category updateCategory(UUID userId, UUID categoryId, String name) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
@@ -238,7 +240,7 @@ public class CategoryService extends AbstractService {
     public static void deleteCategory(UUID userId, UUID categoryId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
-            throw new SQLException("Could not get connection from pool");
+            throw new ConnectionRetrievingException();
         }
 
         Connection conn = optConn.get();
