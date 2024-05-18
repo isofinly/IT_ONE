@@ -96,7 +96,7 @@ public class RestServer {
         app.get("/api/v1/accounts/read_credit", AccountCreditsController::readCredit);
         app.put("/api/v1/accounts/update_credit", AccountCreditsController::updateCredit);
         app.delete("/api/v1/accounts/delete_credit", AccountCreditsController::deleteCredit);
-        app.get("/api/v1/accounts/calculate_credit_interest", AccountCreditsController::calculateInterest);
+        app.get("/api/v1/accounts/update_credit_limit", AccountCreditsController::calculateInterest);
 
         app.post("/api/v1/accounts/create_depository", AccountDepositoriesController::createDepository);
         app.get("/api/v1/accounts/read_depository", AccountDepositoriesController::readDepository);

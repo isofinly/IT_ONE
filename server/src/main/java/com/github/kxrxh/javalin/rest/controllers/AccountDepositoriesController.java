@@ -49,7 +49,7 @@ public class AccountDepositoriesController extends AbstractController {
         long overdraftLimit = Long.parseLong(overdraftLimitStr);
 
         try {
-            AccountDepositoriesService.createDepository(userId, accountId, bankName, accountNumber, routingNumber,
+            AccountDepositoriesService.createDepository(accountId, bankName, accountNumber, routingNumber,
                     interestRate, overdraftLimit);
             ctx.status(200).result("Depository created successfully");
         } catch (SQLException e) {

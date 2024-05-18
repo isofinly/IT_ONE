@@ -15,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class BudgetController extends AbstractController {
-    private BudgetController() {
-    }
 
     public static void setBudgetAlert(Context ctx) {
         JSONObject requestBody;

@@ -16,7 +16,7 @@ import com.github.kxrxh.javalin.rest.database.models.AccountInvestment;
 public class AccountInvestmentsService extends AbstractService {
 
     public static void createInvestment(UUID userId, UUID accountId, String investmentType, long marketValue,
-            long purchasePrice, LocalDate purchaseDate, long dividends, double interestRate) throws SQLException {
+                                        long purchasePrice, LocalDate purchaseDate, long dividends, double interestRate) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -25,18 +25,16 @@ public class AccountInvestmentsService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "INSERT INTO account_investments (id, account_id, user_id, investment_type, market_value, purchase_price, purchase_date, dividends, interest_rate, created_at, updated_at) "
-                        +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+                "INSERT INTO account_investments (id, account_id, investment_type, market_value, purchase_price, purchase_date, dividends, interest_rate, created_at, updated_at) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             ps.setObject(1, UUID.randomUUID(), java.sql.Types.OTHER);
             ps.setObject(2, accountId, java.sql.Types.OTHER);
-            ps.setObject(3, userId, java.sql.Types.OTHER);
-            ps.setString(4, investmentType);
-            ps.setLong(5, marketValue);
-            ps.setLong(6, purchasePrice);
-            ps.setDate(7, Date.valueOf(purchaseDate));
-            ps.setLong(8, dividends);
-            ps.setDouble(9, interestRate);
+            ps.setString(3, investmentType);
+            ps.setLong(4, marketValue);
+            ps.setLong(5, purchasePrice);
+            ps.setDate(6, Date.valueOf(purchaseDate));
+            ps.setLong(7, dividends);
+            ps.setDouble(8, interestRate);
             ps.executeUpdate();
         } finally {
             conn.close();
@@ -52,7 +50,9 @@ public class AccountInvestmentsService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT * FROM account_investments WHERE id = ? AND user_id = ?")) {
+                "SELECT ai.* FROM account_investments ai " +
+                        "JOIN accounts a ON ai.account_id = a.account_id " +
+                        "WHERE ai.id = ? AND a.user_id = ?")) {
             ps.setObject(1, investmentId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
@@ -60,7 +60,6 @@ public class AccountInvestmentsService extends AbstractService {
                     return AccountInvestment.builder()
                             .id(UUID.fromString(rs.getString("id")))
                             .accountId(UUID.fromString(rs.getString("account_id")))
-                            .userId(UUID.fromString(rs.getString("user_id")))
                             .investmentType(rs.getString("investment_type"))
                             .marketValue(rs.getLong("market_value"))
                             .purchasePrice(rs.getLong("purchase_price"))
@@ -80,7 +79,7 @@ public class AccountInvestmentsService extends AbstractService {
     }
 
     public static void updateInvestment(UUID userId, UUID investmentId, UUID accountId, String investmentType,
-            long marketValue, long purchasePrice, LocalDate purchaseDate, long dividends, double interestRate)
+                                        long marketValue, long purchasePrice, LocalDate purchaseDate, long dividends, double interestRate)
             throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -90,9 +89,8 @@ public class AccountInvestmentsService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "UPDATE account_investments SET account_id = ?, investment_type = ?, market_value = ?, purchase_price = ?, purchase_date = ?, dividends = ?, interest_rate = ?, updated_at = CURRENT_TIMESTAMP "
-                        +
-                        "WHERE id = ? AND user_id = ?")) {
+                "UPDATE account_investments SET account_id = ?, investment_type = ?, market_value = ?, purchase_price = ?, purchase_date = ?, dividends = ?, interest_rate = ?, updated_at = CURRENT_TIMESTAMP " +
+                        "WHERE id = ? AND account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setString(2, investmentType);
             ps.setLong(3, marketValue);
@@ -117,7 +115,7 @@ public class AccountInvestmentsService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "DELETE FROM account_investments WHERE id = ? AND user_id = ?")) {
+                "DELETE FROM account_investments WHERE id = ? AND account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
             ps.setObject(1, investmentId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
@@ -135,7 +133,9 @@ public class AccountInvestmentsService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT dividends, interest_rate FROM account_investments WHERE id = ? AND user_id = ?")) {
+                "SELECT ai.dividends, ai.interest_rate FROM account_investments ai " +
+                        "JOIN accounts a ON ai.account_id = a.account_id " +
+                        "WHERE ai.id = ? AND a.user_id = ?")) {
             ps.setObject(1, investmentId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
@@ -146,7 +146,8 @@ public class AccountInvestmentsService extends AbstractService {
 
                     // Update the dividends with the calculated interest
                     try (PreparedStatement psUpdate = conn.prepareStatement(
-                            "UPDATE account_investments SET dividends = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?")) {
+                            "UPDATE account_investments SET dividends = ?, updated_at = CURRENT_TIMESTAMP " +
+                                    "WHERE id = ? AND account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
                         psUpdate.setLong(1, (long) newDividends);
                         psUpdate.setObject(2, investmentId, java.sql.Types.OTHER);
                         psUpdate.setObject(3, userId, java.sql.Types.OTHER);
@@ -160,4 +161,5 @@ public class AccountInvestmentsService extends AbstractService {
             conn.close();
         }
     }
+
 }

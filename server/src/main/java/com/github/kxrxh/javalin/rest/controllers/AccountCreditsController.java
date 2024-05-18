@@ -28,53 +28,38 @@ public class AccountCreditsController extends AbstractController {
             return;
         }
         // Extract data from JSON
-        String accountIdStr = requestBody.optString("account_id");
+        String accountName = requestBody.optString("account_name");
         String creditLimitStr = requestBody.optString("credit_limit");
         String interestRateStr = requestBody.optString("interest_rate");
         String dueDateStr = requestBody.optString("due_date");
         String minimumPaymentStr = requestBody.optString("minimum_payment");
 
-        if (accountIdStr.isEmpty() || creditLimitStr.isEmpty() || interestRateStr.isEmpty() || dueDateStr.isEmpty()
+        if ( accountName.isEmpty() || creditLimitStr.isEmpty() || interestRateStr.isEmpty() || dueDateStr.isEmpty()
                 || minimumPaymentStr.isEmpty()) {
             ctx.status(400).result(MISSING_REQUIERED_STRING);
             return;
         }
-        UUID accountId = UUID.fromString(accountIdStr);
         long creditLimit = Long.parseLong(creditLimitStr);
         double interestRate = Double.parseDouble(interestRateStr);
         LocalDate dueDate = LocalDate.parse(dueDateStr);
         long minimumPayment = Long.parseLong(minimumPaymentStr);
         try {
-            AccountCreditsService.createCredit(userId, accountId, creditLimit, interestRate,
-                    dueDate, minimumPayment);
+            UUID accountId = AccountCreditsService.createAccount(userId, "Credit", accountName);
+            AccountCreditsService.createCredit(accountId, creditLimit, interestRate, dueDate, minimumPayment);
             ctx.status(200).result("Credit created successfully");
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
             ctx.status(500).result(INTERNAL_ERROR + e.getMessage());
         }
-
     }
+
 
     public static void readCredit(Context ctx) {
         UUID userId = Utils.getUUIDFromContext(ctx);
-        JSONObject requestBody;
-        try {
-            requestBody = new JSONObject(ctx.body());
-        } catch (JSONException e) {
-            ctx.status(400).result(WRONG_BODY_FORMAT + e.getMessage());
-            return;
-        }
-        String creditIdStr = requestBody.optString(CREDIT_ID);
 
-        if (creditIdStr.isEmpty()) {
-            ctx.status(400).result(MISSING_REQUIERED_STRING);
-            return;
-        }
-
-        UUID creditId = UUID.fromString(creditIdStr);
         try {
-            AccountCredit credit = AccountCreditsService.readCredit(userId, creditId);
-            ctx.json(credit);
+            AccountCredit[] credits = AccountCreditsService.readCredit(userId);
+            ctx.json(credits);
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
             ctx.status(500).result(INTERNAL_ERROR + e.getMessage());
@@ -112,8 +97,7 @@ public class AccountCreditsController extends AbstractController {
         long minimumPayment = Long.parseLong(minimumPaymentStr);
 
         try {
-            AccountCreditsService.updateCredit(userId, creditId, accountId, creditLimit, interestRate, dueDate,
-                    minimumPayment);
+            AccountCreditsService.updateCredit(userId, creditId, accountId, creditLimit, interestRate, dueDate, minimumPayment);
             ctx.status(200).result("Credit updated successfully");
         } catch (SQLException e) {
             log.error(e.getMessage(), e);

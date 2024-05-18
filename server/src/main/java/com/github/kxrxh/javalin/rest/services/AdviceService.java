@@ -84,16 +84,9 @@ public class AdviceService extends AbstractService {
 
         Connection conn = opConn.get();
 
-        // Implement your logic to generate financial forecast here
-        // For example, projecting future transactions based on past data
-        // Caused by: org.postgresql.util.PSQLException: ERROR: operator does not exist:
-        // uuid = character varying
-        // Hint: No operator matches the given name and argument types. You might need
-        // to add explicit type casts.
-        // Position: 45
-        String query = "SELECT * FROM transactions WHERE account_id = ? AND transaction_date BETWEEN ? AND ?";
+        String query = "SELECT * FROM transactions WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id = ?) AND date BETWEEN ? AND ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setString(1, userId.toString());
+            ps.setObject(1, userId, java.sql.Types.OTHER);
 
             String[] dates = dateRange.split("to");
             ps.setTimestamp(2, Timestamp.valueOf(dates[0].trim()));
@@ -109,16 +102,13 @@ public class AdviceService extends AbstractService {
                         .amount(rs.getLong("amount"))
                         .currency(rs.getString("currency"))
                         .accountId(UUID.fromString(rs.getString("account_id")))
-                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id"))
-                                : null)
+                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id")) : null)
                         .excluded(rs.getBoolean("excluded"))
                         .notes(rs.getString("notes"))
                         .transactionType(TransactionType.valueOf(rs.getString("transaction_type").toUpperCase()))
                         .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                         .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
-                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null
-                                ? rs.getTimestamp("last_synced_at").toLocalDateTime()
-                                : null)
+                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null ? rs.getTimestamp("last_synced_at").toLocalDateTime() : null)
                         .build();
                 transactions.add(transaction);
             }
@@ -135,4 +125,5 @@ public class AdviceService extends AbstractService {
         }
         return forecast;
     }
+
 }
