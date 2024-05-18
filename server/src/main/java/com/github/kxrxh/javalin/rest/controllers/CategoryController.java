@@ -69,8 +69,7 @@ public class CategoryController extends AbstractController {
 
     public static void updateCategory(Context ctx) {
         UUID userId = Utils.getUUIDFromContext(ctx);
-        String categoryIdStr = ctx.queryParam(CATEGORY_ID);
-        
+
         JSONObject requestBody;
         try {
             requestBody = new JSONObject(ctx.body());
@@ -80,9 +79,9 @@ public class CategoryController extends AbstractController {
         }
 
         String name = requestBody.optString("name");
+        String categoryIdStr = requestBody.optString(CATEGORY_ID);
 
-
-        if (categoryIdStr == null || name.isEmpty()) {
+        if (categoryIdStr.isEmpty() || name.isEmpty()) {
             ctx.status(400).result(MISSING_REQUIERED_STRING);
             return;
         }
@@ -100,9 +99,17 @@ public class CategoryController extends AbstractController {
 
     public static void deleteCategory(Context ctx) {
         UUID userId = Utils.getUUIDFromContext(ctx);
-        String categoryIdStr = ctx.queryParam(CATEGORY_ID);
 
-        if (categoryIdStr == null) {
+        JSONObject requestBody;
+        try {
+            requestBody = new JSONObject(ctx.body());
+        } catch (JSONException e) {
+            ctx.status(400).result(WRONG_BODY_FORMAT + e.getMessage());
+            return;
+        }
+
+        String categoryIdStr = requestBody.optString(CATEGORY_ID);
+        if (categoryIdStr.isEmpty()) {
             ctx.status(400).result(MISSING_REQUIERED_STRING);
             return;
         }
