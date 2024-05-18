@@ -3,6 +3,12 @@ package com.github.kxrxh.javalin.rest.api;
 import com.github.kxrxh.javalin.rest.controllers.*;
 import io.javalin.Javalin;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jetty.server.handler.StatisticsHandler;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+
+import java.io.IOException;
+
+import static com.github.kxrxh.javalin.rest.util.Prometheus.initializePrometheus;
 
 /**
  * Represents a RESTful server built with Javalin framework.
@@ -15,14 +21,26 @@ public class RestServer {
      * Constructs a new RestServer.
      */
     public RestServer(boolean dev) {
+        // https://javalin.io/tutorials/prometheus-example
+        StatisticsHandler statisticsHandler = new StatisticsHandler();
+        QueuedThreadPool queuedThreadPool = new QueuedThreadPool(200, 8, 60_000);
         this.app = Javalin.create(config -> {
             if (dev) {
                 config.bundledPlugins.enableDevLogging();
             }
+            config.jetty.threadPool = queuedThreadPool;
+            config.jetty.modifyServer(server -> server.setHandler(statisticsHandler));
             config.bundledPlugins.enableCors(cors -> cors.addRule(it -> it.allowHost("localhost")));
         });
+        try {
+            initializePrometheus(statisticsHandler, queuedThreadPool);
+        } catch (IOException e) {
+            log.error("Unable to initialize Prometheus: {}", e.getMessage());
+            throw new RuntimeException(e);
+        }
         app.after(ctx -> log.info(ctx.req().getMethod() + " " + ctx.req().getPathInfo() + " " + ctx.statusCode()));
     }
+
 
     public RestServer() {
         this(false);
