@@ -163,9 +163,11 @@ public class CategoryService extends AbstractService {
             throw new SQLException("No family found for the given user.");
         }
 
+        UUID categoryId = UUID.randomUUID();
+
         try (PreparedStatement ps = conn.prepareStatement(
                 "INSERT INTO categories (category_id, name, family_id, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
-            ps.setObject(1, UUID.randomUUID(), java.sql.Types.OTHER);
+            ps.setObject(1, categoryId, java.sql.Types.OTHER);
             ps.setString(2, name);
             ps.setObject(3, familyId, java.sql.Types.OTHER);
             ps.executeUpdate();
@@ -173,7 +175,7 @@ public class CategoryService extends AbstractService {
             conn.close();
         }
 
-        return readCategory(userId, userId);
+        return readCategory(userId, categoryId);
     }
 
     public static Category readCategory(UUID userId, UUID categoryId) throws SQLException {
