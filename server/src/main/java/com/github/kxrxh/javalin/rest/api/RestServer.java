@@ -90,15 +90,15 @@ public class RestServer {
         app.delete("/api/v1/accounts/delete_investment", AccountInvestmentsController::deleteInvestment);
         app.get("/api/v1/accounts/calculate_dividends", AccountInvestmentsController::calculateDividends);
 
-        app.get("/api/v1/accounts/create_loan", AccountLoansController::createLoan);
-        app.post("/api/v1/accounts/read_loan", AccountLoansController::readLoan);
+        app.post("/api/v1/accounts/create_loan", AccountLoansController::createLoan);
+        app.get("/api/v1/accounts/read_loan", AccountLoansController::readLoan);
         app.put("/api/v1/accounts/update_loan", AccountLoansController::updateLoan);
         app.delete("/api/v1/accounts/delete_loan", AccountLoansController::deleteLoan);
         app.get("/api/v1/accounts/calculate_loan_interest", AccountLoansController::calculateInterest);
         app.get("/api/v1/accounts/check_due_date_notifications", AccountLoansController::checkDueDateNotifications);
 
-        app.get("/api/v1/accounts/create_asset", AccountOtherAssetsController::createAsset);
-        app.post("/api/v1/accounts/read_asset", AccountOtherAssetsController::readAsset);
+        app.post("/api/v1/accounts/create_asset", AccountOtherAssetsController::createAsset);
+        app.get("/api/v1/accounts/read_asset", AccountOtherAssetsController::readAsset);
         app.put("/api/v1/accounts/update_asset", AccountOtherAssetsController::updateAsset);
         app.delete("/api/v1/accounts/delete_asset", AccountOtherAssetsController::deleteAsset);
         app.delete("/api/v1/accounts/apply_depreciation", AccountOtherAssetsController::applyDepreciation);
@@ -121,12 +121,6 @@ public class RestServer {
         app.put("/api/v1/category/update", CategoryController::updateCategory);
         app.delete("/api/v1/category/delete", CategoryController::deleteCategory);
 
-        // new
-        app.get("/api/v1/exchange_rate/create", ExchangeRateController::createExchangeRate);
-        app.get("/api/v1/exchange_rate/read", ExchangeRateController::readExchangeRate);
-        app.put("/api/v1/exchange_rate/update", ExchangeRateController::updateExchangeRate);
-        app.delete("/api/v1/exchange_rate/delete", ExchangeRateController::deleteExchangeRate);
-
         // Integration routes
         app.post("/api/v1/integration/bank", IntegrationController::integrateWithBank);
         app.post("/api/v1/integration/auto-categorize", IntegrationController::autoCategorizeTransactions);
@@ -143,14 +137,19 @@ public class RestServer {
         app.get("/api/v1/tax/calculate", TaxController::calculateTaxes);
 
         // Transaction routes
-        // new
+        // new*
         app.post("/api/v1/transaction/recurring/create", RecurringTransactionController::createRecurringTransaction);
         app.get("/api/v1/transaction/recurring/read", RecurringTransactionController::createRecurringTransaction);
         app.put("/api/v1/transaction/recurring/update", RecurringTransactionController::createRecurringTransaction);
         app.delete("/api/v1/transaction/recurring/delete", RecurringTransactionController::createRecurringTransaction);
         app.post("/api/v1/transaction/recurring", TransactionController::createRecurringTransaction);
-        app.get("/api/v1/transaction/search", TransactionController::searchTransactions);
+        // new*
+        app.get("/api/v1/exchange_rate/create", ExchangeRateController::createExchangeRate);
+        app.get("/api/v1/exchange_rate/read", ExchangeRateController::readExchangeRate);
+        app.put("/api/v1/exchange_rate/update", ExchangeRateController::updateExchangeRate);
+        app.delete("/api/v1/exchange_rate/delete", ExchangeRateController::deleteExchangeRate);
 
+        app.get("/api/v1/transaction/search", TransactionController::searchTransactions);
         app.post("/api/v1/transaction/create", TransactionController::createTransaction);
         app.put("/api/v1/transaction/update", TransactionController::updateTransaction);
         app.delete("/api/v1/transaction/delete", TransactionController::deleteTransaction);
@@ -162,11 +161,6 @@ public class RestServer {
         app.put("/api/v1/valuation/update", ValuationController::updateValuation);
         app.delete("/api/v1/valuation/delete", ValuationController::deleteValuation);
 
-        // new
-        app.post("/api/v1/bank/integration", IntegrationController::integrateWithBank);
-
-        // TODO: Visualization routes
-        app.get("/api/v1/visualizations", VisualizationController::getVisualization);
     }
 
     /**

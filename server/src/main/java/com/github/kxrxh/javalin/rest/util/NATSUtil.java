@@ -54,7 +54,7 @@ public class NATSUtil {
                 Options options = new Options.Builder()
                         .server(natsServerURL)
                         .sslContext(sslContext)
-                        .connectionTimeout(Duration.ofSeconds(10))
+//                        .connectionTimeout(Duration.ofSeconds(10))
                         .build();
 
                 natsConnection = Nats.connect(options);

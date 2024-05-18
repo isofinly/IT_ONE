@@ -86,7 +86,7 @@ public class AccountDepositoriesService extends AbstractService {
         try (PreparedStatement ps = conn.prepareStatement(
                 "UPDATE account_depositories SET account_id = ?, bank_name = ?, account_number = ?, routing_number = ?, interest_rate = ?, overdraft_limit = ?, updated_at = CURRENT_TIMESTAMP "
                         +
-                        "WHERE id = ? AND user_id = ?")) {
+                        "WHERE id = ? AND account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setString(2, bankName);
             ps.setString(3, accountNumber);
@@ -110,7 +110,7 @@ public class AccountDepositoriesService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "DELETE FROM account_depositories WHERE id = ? AND user_id = ?")) {
+                "DELETE FROM account_depositories WHERE id = ? AND account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
             ps.setObject(1, depositoryId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
@@ -128,7 +128,7 @@ public class AccountDepositoriesService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT interest_rate, overdraft_limit FROM account_depositories WHERE id = ? AND user_id = ?")) {
+                "SELECT interest_rate, overdraft_limit FROM account_depositories WHERE id = ? AND account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
             ps.setObject(1, depositoryId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
@@ -141,7 +141,7 @@ public class AccountDepositoriesService extends AbstractService {
                     long newOverdraftLimit = overdraftLimit + (long) interest;
 
                     try (PreparedStatement psUpdate = conn.prepareStatement(
-                            "UPDATE account_depositories SET overdraft_limit = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?")) {
+                            "UPDATE account_depositories SET overdraft_limit = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND account_id IN (SELECT account_id FROM accounts WHERE user_id = ?)")) {
                         psUpdate.setLong(1, newOverdraftLimit);
                         psUpdate.setObject(2, depositoryId, java.sql.Types.OTHER);
                         psUpdate.setObject(3, userId, java.sql.Types.OTHER);
