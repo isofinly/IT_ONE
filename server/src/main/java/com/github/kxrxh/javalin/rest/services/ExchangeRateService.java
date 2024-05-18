@@ -34,6 +34,8 @@ public class ExchangeRateService extends AbstractService {
             ps.setDouble(4, rate);
             ps.setDate(5, date);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -65,6 +67,8 @@ public class ExchangeRateService extends AbstractService {
                     throw new SQLException("Exchange rate not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -85,6 +89,8 @@ public class ExchangeRateService extends AbstractService {
             ps.setDate(4, date);
             ps.setObject(5, id, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -100,6 +106,8 @@ public class ExchangeRateService extends AbstractService {
                 "DELETE FROM exchange_rates WHERE id = ?")) {
             ps.setObject(1, id, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 }

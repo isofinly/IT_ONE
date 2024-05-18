@@ -35,6 +35,8 @@ public class AccountBalancesService extends AbstractService {
             ps.setLong(5, balance);
             ps.setString(6, currency);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -66,6 +68,8 @@ public class AccountBalancesService extends AbstractService {
                     throw new SQLException("Balance not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -89,6 +93,8 @@ public class AccountBalancesService extends AbstractService {
             ps.setObject(5, balanceId, java.sql.Types.OTHER);
             ps.setObject(6, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -105,6 +111,8 @@ public class AccountBalancesService extends AbstractService {
             ps.setObject(1, balanceId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -127,6 +135,8 @@ public class AccountBalancesService extends AbstractService {
                     throw new SQLException("Balances not found for the specified user and account");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 }

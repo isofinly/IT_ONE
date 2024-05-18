@@ -1,6 +1,5 @@
 package com.github.kxrxh.javalin.rest.services;
 
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,7 +35,10 @@ public class AccountDepositoriesService extends AbstractService {
             ps.setDouble(7, interestRate);
             ps.setLong(8, overdraftLimit);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
+
     }
 
     public static AccountDepository readDepository(UUID userId, UUID depositoryId) throws SQLException {
@@ -69,6 +71,8 @@ public class AccountDepositoriesService extends AbstractService {
                     throw new SQLException("Depository not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -94,6 +98,8 @@ public class AccountDepositoriesService extends AbstractService {
             ps.setObject(7, depositoryId, java.sql.Types.OTHER);
             ps.setObject(8, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -110,6 +116,8 @@ public class AccountDepositoriesService extends AbstractService {
             ps.setObject(1, depositoryId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -145,6 +153,9 @@ public class AccountDepositoriesService extends AbstractService {
                     throw new SQLException("Depository not found");
                 }
             }
+        } finally {
+            conn.close();
         }
+
     }
 }

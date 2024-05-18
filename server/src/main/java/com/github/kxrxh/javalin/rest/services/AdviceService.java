@@ -67,6 +67,8 @@ public class AdviceService extends AbstractService {
             advice.setAdvice("Consider saving more based on recent spending patterns.");
         } catch (SQLException e) {
             throw new SQLException("Error while fetching recent transactions", e);
+        } finally {
+            conn.close();
         }
 
         return advice;
@@ -128,6 +130,8 @@ public class AdviceService extends AbstractService {
             forecast.setForecastMessage("Based on your past transactions, your projected spending is " + totalAmount);
         } catch (SQLException e) {
             throw new SQLException("Error while fetching recent transactions", e);
+        } finally {
+            conn.close();
         }
         return forecast;
     }

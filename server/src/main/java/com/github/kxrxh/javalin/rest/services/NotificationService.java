@@ -31,6 +31,8 @@ public class NotificationService extends AbstractService {
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new SQLException("Could not insert new notification to db", e);
+        } finally {
+            conn.close();
         }
     }
 

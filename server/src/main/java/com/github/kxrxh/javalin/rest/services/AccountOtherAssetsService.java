@@ -1,6 +1,5 @@
 package com.github.kxrxh.javalin.rest.services;
 
-
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -38,6 +37,8 @@ public class AccountOtherAssetsService extends AbstractService {
             ps.setDate(7, Date.valueOf(purchaseDate));
             ps.setDouble(8, depreciationRate);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -71,6 +72,8 @@ public class AccountOtherAssetsService extends AbstractService {
                     throw new SQLException("Asset not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -96,6 +99,8 @@ public class AccountOtherAssetsService extends AbstractService {
             ps.setObject(7, assetId, java.sql.Types.OTHER);
             ps.setObject(8, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -112,6 +117,8 @@ public class AccountOtherAssetsService extends AbstractService {
             ps.setObject(1, assetId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -144,6 +151,8 @@ public class AccountOtherAssetsService extends AbstractService {
                     throw new SQLException("Asset not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 }

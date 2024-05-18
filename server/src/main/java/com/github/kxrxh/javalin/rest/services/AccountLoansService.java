@@ -21,9 +21,9 @@ public class AccountLoansService extends AbstractService {
     }
 
     public static void createLoan(UUID userId, UUID accountId, long loanAmount,
-                                  long outstandingBalance, double interestRate,
-                                  String loanTerm, LocalDate dueDate,
-                                  String paymentFrequency, String collateral)
+            long outstandingBalance, double interestRate,
+            String loanTerm, LocalDate dueDate,
+            String paymentFrequency, String collateral)
             throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -48,6 +48,8 @@ public class AccountLoansService extends AbstractService {
             ps.setString(9, paymentFrequency);
             ps.setString(10, collateral);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -83,14 +85,16 @@ public class AccountLoansService extends AbstractService {
                     throw new SQLException("Loan not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
     public static void updateLoan(UUID userId, UUID loanId, UUID accountId,
-                                  long loanAmount, long outstandingBalance,
-                                  double interestRate, String loanTerm,
-                                  LocalDate dueDate, String paymentFrequency,
-                                  String collateral) throws SQLException {
+            long loanAmount, long outstandingBalance,
+            double interestRate, String loanTerm,
+            LocalDate dueDate, String paymentFrequency,
+            String collateral) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -113,6 +117,8 @@ public class AccountLoansService extends AbstractService {
             ps.setObject(9, loanId, java.sql.Types.OTHER);
             ps.setObject(10, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -129,6 +135,8 @@ public class AccountLoansService extends AbstractService {
             ps.setObject(1, loanId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -169,6 +177,8 @@ public class AccountLoansService extends AbstractService {
                     throw new SQLException("Loan not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -195,6 +205,8 @@ public class AccountLoansService extends AbstractService {
                     }
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -213,4 +225,3 @@ public class AccountLoansService extends AbstractService {
         }
     }
 }
-

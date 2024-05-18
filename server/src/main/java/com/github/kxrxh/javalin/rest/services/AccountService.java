@@ -16,7 +16,7 @@ import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
 
 public class AccountService extends AbstractService {
 
-   public static void transferFunds(UUID userId, UUID fromAccountId, UUID toAccountId, long amount)
+    public static void transferFunds(UUID userId, UUID fromAccountId, UUID toAccountId, long amount)
             throws SQLException {
         if (!isUserAuthorized(userId, fromAccountId)) {
             throw new SQLException("User not authorized to transfer from this account");
@@ -51,6 +51,8 @@ public class AccountService extends AbstractService {
         } catch (SQLException e) {
             conn.rollback();
             throw e;
+        } finally {
+            conn.close();
         }
     }
 
@@ -129,7 +131,7 @@ public class AccountService extends AbstractService {
             }
             throw e;
         } finally {
-            conn.setAutoCommit(true);
+            conn.close();
         }
     }
 
@@ -148,6 +150,8 @@ public class AccountService extends AbstractService {
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
+        } finally {
+            conn.close();
         }
     }
 

@@ -21,7 +21,7 @@ public class AccountCreditsService extends AbstractService {
     }
 
     public static void createCredit(UUID userId, UUID accountId, long creditLimit, double interestRate,
-                                    LocalDate dueDate, long minimumPayment) throws SQLException {
+            LocalDate dueDate, long minimumPayment) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -40,6 +40,8 @@ public class AccountCreditsService extends AbstractService {
             ps.setDate(6, Date.valueOf(dueDate));
             ps.setLong(7, minimumPayment);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -72,11 +74,13 @@ public class AccountCreditsService extends AbstractService {
                     throw new SQLException("Credit not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
     public static void updateCredit(UUID userId, UUID creditId, UUID accountId, long creditLimit, double interestRate,
-                                    LocalDate dueDate, long minimumPayment) throws SQLException {
+            LocalDate dueDate, long minimumPayment) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -95,6 +99,8 @@ public class AccountCreditsService extends AbstractService {
             ps.setObject(6, creditId, java.sql.Types.OTHER);
             ps.setObject(7, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -111,6 +117,8 @@ public class AccountCreditsService extends AbstractService {
             ps.setObject(1, creditId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -125,7 +133,7 @@ public class AccountCreditsService extends AbstractService {
         try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT credit_limit, interest_rate FROM account_credits WHERE id = ? AND user_id = ?")) {
             ps.setObject(1, creditId, java.sql.Types.OTHER);
-                        ps.setObject(2, userId, java.sql.Types.OTHER);
+            ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     long creditLimit = rs.getLong("credit_limit");
@@ -141,13 +149,14 @@ public class AccountCreditsService extends AbstractService {
                         psUpdate.setObject(3, userId, java.sql.Types.OTHER);
                         psUpdate.executeUpdate();
                     }
-
                     checkCreditNotifications(userId, newCreditLimit);
 
                 } else {
                     throw new SQLException("Credit not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -174,7 +183,10 @@ public class AccountCreditsService extends AbstractService {
                     }
                 }
             }
+        } finally {
+            conn.close();
         }
+
     }
 
     private static void checkCreditNotifications(UUID userId, long creditLimit) {
@@ -192,4 +204,3 @@ public class AccountCreditsService extends AbstractService {
         }
     }
 }
-

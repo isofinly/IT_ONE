@@ -38,6 +38,8 @@ public class AccountInvestmentsService extends AbstractService {
             ps.setLong(8, dividends);
             ps.setDouble(9, interestRate);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -72,6 +74,8 @@ public class AccountInvestmentsService extends AbstractService {
                     throw new SQLException("Investment not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -99,6 +103,8 @@ public class AccountInvestmentsService extends AbstractService {
             ps.setObject(8, investmentId, java.sql.Types.OTHER);
             ps.setObject(9, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -115,6 +121,8 @@ public class AccountInvestmentsService extends AbstractService {
             ps.setObject(1, investmentId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -148,6 +156,8 @@ public class AccountInvestmentsService extends AbstractService {
                     throw new SQLException("Investment not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 }

@@ -90,8 +90,11 @@ public class UserService extends AbstractService {
             conn.rollback(); // Rollback transaction if any exception occurs
             throw e;
         } finally {
-            conn.setAutoCommit(true); // Reset auto-commit mode
+            conn.setAutoCommit(true);
+            conn.close(); // Reset auto-commit mode
         }
+
+        conn.close();
         return Optional.empty();
     }
 
@@ -121,10 +124,10 @@ public class UserService extends AbstractService {
                         .firstName(rs.getString(FIRST_NAME))
                         .lastName(rs.getString(LAST_NAME))
                         .build();
-                rs.close();
                 return Optional.of(user);
             }
-            rs.close();
+        } finally {
+            conn.close();
         }
         return Optional.empty();
     }
@@ -153,7 +156,8 @@ public class UserService extends AbstractService {
                 rs.close();
                 return Optional.of(user);
             }
-            rs.close();
+        } finally {
+            conn.close();
         }
 
         return Optional.empty();
@@ -185,7 +189,10 @@ public class UserService extends AbstractService {
                 return Optional.of(user);
             }
             rs.close();
+        } finally {
+            conn.close();
         }
+
         return Optional.empty();
     }
 
@@ -201,7 +208,10 @@ public class UserService extends AbstractService {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setObject(1, userId, java.sql.Types.OTHER);
             int rowDeleted = ps.executeUpdate();
+
             return rowDeleted > 0;
+        } finally {
+            conn.close();
         }
     }
 
@@ -216,7 +226,10 @@ public class UserService extends AbstractService {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             int rowDeleted = ps.executeUpdate();
+
             return rowDeleted > 0;
+        } finally {
+            conn.close();
         }
     }
 }

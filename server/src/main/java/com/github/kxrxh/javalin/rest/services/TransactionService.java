@@ -85,6 +85,8 @@ public class TransactionService extends AbstractService {
                         .build();
                 transactions.add(transaction);
             }
+        } finally {
+            conn.close();
         }
         return transactions;
     }
@@ -110,6 +112,8 @@ public class TransactionService extends AbstractService {
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new SQLException("Could not create transaction", e);
+        } finally {
+            conn.close();
         }
     }
 
@@ -137,6 +141,8 @@ public class TransactionService extends AbstractService {
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new SQLException("Could not update transaction", e);
+        } finally {
+            conn.close();
         }
     }
 
@@ -154,6 +160,8 @@ public class TransactionService extends AbstractService {
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new SQLException("Could not delete transaction", e);
+        } finally {
+            conn.close();
         }
     }
 
@@ -175,6 +183,8 @@ public class TransactionService extends AbstractService {
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new SQLException("Could not create recurring transaction", e);
+        } finally {
+            conn.close();
         }
     }
 }

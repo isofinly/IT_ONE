@@ -39,6 +39,8 @@ public class ValuationService extends AbstractService {
             ps.setLong(4, value);
             ps.setString(5, currency);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -73,6 +75,8 @@ public class ValuationService extends AbstractService {
                     throw new SQLException("Valuation not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -97,6 +101,8 @@ public class ValuationService extends AbstractService {
             ps.setString(4, currency);
             ps.setObject(5, valuationId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -125,6 +131,8 @@ public class ValuationService extends AbstractService {
                     throw new SQLException("Valuation not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -138,14 +146,15 @@ public class ValuationService extends AbstractService {
 
         try (PreparedStatement ps = conn
                 .prepareStatement("SELECT user_id, family_id, first_name, last_name, email, " +
-                                "password_digest, created_at, updated_at, last_login, active, last_synced_at " + 
-                                "FROM accounts WHERE account_id = ? AND user_id = ?")) 
-            {
+                        "password_digest, created_at, updated_at, last_login, active, last_synced_at " +
+                        "FROM accounts WHERE account_id = ? AND user_id = ?")) {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
+        } finally {
+            conn.close();
         }
     }
 

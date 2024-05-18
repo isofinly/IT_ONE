@@ -61,6 +61,8 @@ public class IntegrationService extends AbstractService {
             }
         } catch (SQLException e) {
             throw new SQLException("Error while auto categorizing transactions", e);
+        } finally {
+            conn.close();
         }
     }
 
@@ -76,6 +78,8 @@ public class IntegrationService extends AbstractService {
             }
         } catch (SQLException e) {
             throw new SQLException("Error while loading category mappings", e);
+        } finally {
+            conn.close();
         }
         return categoryMapping;
     }
@@ -98,6 +102,8 @@ public class IntegrationService extends AbstractService {
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new SQLException("Error while updating transaction category", e);
+        } finally {
+            conn.close();
         }
     }
 }

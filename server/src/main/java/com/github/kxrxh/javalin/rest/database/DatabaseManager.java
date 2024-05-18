@@ -1,12 +1,14 @@
 package com.github.kxrxh.javalin.rest.database;
 
+import java.sql.Connection;
+import java.util.Optional;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DatabaseManager {
     private static DatabaseManager instance = null;
     private final HikariDataSource dataSource;
@@ -24,6 +26,7 @@ public class DatabaseManager {
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         config.setAutoCommit(true);
+
 
         dataSource = new HikariDataSource(config);
     }
@@ -58,7 +61,8 @@ public class DatabaseManager {
         try {
             Connection connection = dataSource.getConnection();
             return Optional.of(connection);
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            log.error("Retrieving connection failed: {}", e.getMessage());
             return Optional.empty();
         }
     }

@@ -19,7 +19,6 @@ import com.github.kxrxh.javalin.rest.entities.CategoryAnalysisResult;
 
 public class CategoryService extends AbstractService {
 
-
     // TODO: Add family if any and more info.
     public static CategoryAnalysisResult analyzeCategory(UUID userId, UUID categoryId, String dateRange)
             throws SQLException {
@@ -104,6 +103,8 @@ public class CategoryService extends AbstractService {
             return result;
         } catch (SQLException e) {
             throw new SQLException("Could not execute query", e);
+        } finally {
+            conn.close();
         }
     }
 
@@ -118,6 +119,8 @@ public class CategoryService extends AbstractService {
                     return null;
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -134,6 +137,8 @@ public class CategoryService extends AbstractService {
                     return false;
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -147,6 +152,8 @@ public class CategoryService extends AbstractService {
                     categoryIds.add(UUID.fromString(rs.getString(CATEGORY_ID)));
                 }
             }
+        } finally {
+            conn.close();
         }
         return categoryIds;
     }
@@ -170,6 +177,8 @@ public class CategoryService extends AbstractService {
             ps.setString(2, name);
             ps.setObject(3, familyId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
 
         return readCategory(userId, userId);
@@ -205,6 +214,8 @@ public class CategoryService extends AbstractService {
                     throw new SQLException("Category not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -227,6 +238,8 @@ public class CategoryService extends AbstractService {
             ps.setObject(2, categoryId, java.sql.Types.OTHER);
             ps.setObject(3, familyId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
 
         return readCategory(userId, categoryId);
@@ -250,6 +263,8 @@ public class CategoryService extends AbstractService {
             ps.setObject(1, categoryId, java.sql.Types.OTHER);
             ps.setObject(2, familyId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 }

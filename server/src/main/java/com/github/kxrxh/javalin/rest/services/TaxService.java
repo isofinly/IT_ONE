@@ -30,6 +30,8 @@ public class TaxService extends AbstractService {
             ps.setLong(4, rate);
             ps.setString(5, currency);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -56,6 +58,8 @@ public class TaxService extends AbstractService {
                     throw new SQLException("Tax not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -76,6 +80,8 @@ public class TaxService extends AbstractService {
             ps.setString(4, currency);
             ps.setObject(5, taxId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -90,6 +96,8 @@ public class TaxService extends AbstractService {
         try (PreparedStatement ps = conn.prepareStatement("DELETE FROM taxes WHERE id = ?")) {
             ps.setObject(1, taxId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -115,6 +123,8 @@ public class TaxService extends AbstractService {
                     totalTaxes += balance * rate;
                 }
             }
+        } finally {
+            conn.close();
         }
 
         return totalTaxes;

@@ -83,6 +83,8 @@ public class ReportService extends AbstractService {
                     summary.put(TOTAL_EXPENSES, rs.getLong(3));
                 }
             }
+        } finally {
+            conn.close();
         }
         return summary;
     }
@@ -100,6 +102,8 @@ public class ReportService extends AbstractService {
                     expensesByCategory.put(rs.getString(1), Math.abs(rs.getLong(2)));
                 }
             }
+        } finally {
+            conn.close();
         }
         return expensesByCategory;
     }
@@ -139,6 +143,8 @@ public class ReportService extends AbstractService {
                     largestExpenses.add(expense);
                 }
             }
+        } finally {
+            conn.close();
         }
         return largestExpenses;
     }

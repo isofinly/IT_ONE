@@ -36,6 +36,8 @@ public class RecurringTransactionService extends AbstractService {
             ps.setString(5, description);
             ps.setLong(6, frequency);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -78,6 +80,8 @@ public class RecurringTransactionService extends AbstractService {
                     throw new SQLException("Recurring transaction not found");
                 }
             }
+        } finally {
+            conn.close();
         }
     }
 
@@ -101,6 +105,8 @@ public class RecurringTransactionService extends AbstractService {
             ps.setObject(5, recurringTransactionId, java.sql.Types.OTHER);
             ps.setObject(6, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 
@@ -117,6 +123,8 @@ public class RecurringTransactionService extends AbstractService {
             ps.setObject(1, recurringTransactionId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             ps.executeUpdate();
+        } finally {
+            conn.close();
         }
     }
 }
