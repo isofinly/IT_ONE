@@ -15,9 +15,6 @@ import java.util.UUID;
 
 public class AdviceService extends AbstractService {
 
-    private AdviceService() {
-    }
-
     public static FinancialAdvice getFinancialAdvice(UUID userId) throws SQLException {
         FinancialAdvice advice = new FinancialAdvice();
 
@@ -29,11 +26,13 @@ public class AdviceService extends AbstractService {
 
         Connection conn = opConn.get();
 
-        // Implement your logic to generate financial advice here
-        // For example, fetching recent transactions and analyzing them
-        String query = "SELECT * FROM transactions WHERE account_id = ? ORDER BY transaction_date DESC LIMIT 10";
+        // Fetch recent transactions based on user_id
+        String query = "SELECT t.* FROM transactions t " +
+                "JOIN accounts a ON t.account_id = a.account_id " +
+                "WHERE a.user_id = ? " +
+                "ORDER BY t.date DESC LIMIT 10";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setString(1, userId.toString());
+            ps.setObject(1, userId, java.sql.Types.OTHER);
 
             ResultSet rs = ps.executeQuery();
             List<Transaction> transactions = new ArrayList<>();
@@ -45,16 +44,13 @@ public class AdviceService extends AbstractService {
                         .amount(rs.getLong("amount"))
                         .currency(rs.getString("currency"))
                         .accountId(UUID.fromString(rs.getString("account_id")))
-                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id"))
-                                : null)
+                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id")) : null)
                         .excluded(rs.getBoolean("excluded"))
                         .notes(rs.getString("notes"))
                         .transactionType(TransactionType.valueOf(rs.getString("transaction_type").toUpperCase()))
                         .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                         .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
-                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null
-                                ? rs.getTimestamp("last_synced_at").toLocalDateTime()
-                                : null)
+                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null ? rs.getTimestamp("last_synced_at").toLocalDateTime() : null)
                         .build();
                 transactions.add(transaction);
             }

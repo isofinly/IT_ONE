@@ -149,14 +149,8 @@ public class AccountInvestmentsController extends AbstractController {
 
     public static void calculateDividends(Context ctx) {
         UUID userId = Utils.getUUIDFromContext(ctx);
-        JSONObject requestBody;
-        try {
-            requestBody = new JSONObject(ctx.body());
-        } catch (JSONException e) {
-            ctx.status(400).result(WRONG_BODY_FORMAT + e.getMessage());
-            return;
-        }
-        String investmentIdStr = requestBody.optString(INVESTMENT_ID);
+
+        String investmentIdStr = ctx.queryParam(INVESTMENT_ID);
 
         if (investmentIdStr.isEmpty()) {
             ctx.status(400).result(MISSING_REQUIERED_STRING);

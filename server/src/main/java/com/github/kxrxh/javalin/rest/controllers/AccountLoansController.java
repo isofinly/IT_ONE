@@ -148,14 +148,8 @@ public class AccountLoansController extends AbstractController {
 
     public static void calculateInterest(Context ctx) {
         UUID userId = Utils.getUUIDFromContext(ctx);
-        JSONObject requestBody;
-        try {
-            requestBody = new JSONObject(ctx.body());
-        } catch (JSONException e) {
-            ctx.status(400).result(WRONG_BODY_FORMAT + e.getMessage());
-            return;
-        }
-        String loanIdStr = requestBody.optString(LOAN_ID);
+
+        String loanIdStr = ctx.queryParam(LOAN_ID);
 
         if (loanIdStr == null) {
             ctx.status(400).result(MISSING_REQUIERED_STRING);

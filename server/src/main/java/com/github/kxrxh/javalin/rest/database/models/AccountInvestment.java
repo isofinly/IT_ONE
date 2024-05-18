@@ -17,7 +17,6 @@ import java.util.UUID;
 public class AccountInvestment {
     private UUID id;
     private UUID accountId;
-    private UUID userId;
     private String investmentType;
     private long marketValue;
     private long purchasePrice;
