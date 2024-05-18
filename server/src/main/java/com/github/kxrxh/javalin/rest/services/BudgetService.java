@@ -122,8 +122,6 @@ public class BudgetService extends AbstractService {
 
             checkBudgetNotifications(userId, result);
 
-        } finally {
-            conn.close();
         }
 
         List<BudgetComparisonResult> comparisons = compareWithPastPeriods(conn, result.getCategoryId(), dateRange);
@@ -131,6 +129,8 @@ public class BudgetService extends AbstractService {
 
         BudgetSuggestions suggestions = suggestNewBudgetLimits(result.getTotalSpent(), result.getLimitAmount());
         result.setSuggestions(suggestions);
+
+        conn.close();
 
         return result;
     }
@@ -146,8 +146,6 @@ public class BudgetService extends AbstractService {
                     return null;
                 }
             }
-        } finally {
-            conn.close();
         }
     }
 

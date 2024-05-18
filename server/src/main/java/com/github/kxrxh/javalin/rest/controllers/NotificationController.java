@@ -37,6 +37,6 @@ public class NotificationController extends AbstractController {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             ctx.status(500).result(INTERNAL_ERROR + e.getMessage());
-        }
+        } 
     }
 }

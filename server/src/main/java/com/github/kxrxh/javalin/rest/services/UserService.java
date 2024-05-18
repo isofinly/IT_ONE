@@ -94,7 +94,6 @@ public class UserService extends AbstractService {
             conn.close(); // Reset auto-commit mode
         }
 
-        conn.close();
         return Optional.empty();
     }
 

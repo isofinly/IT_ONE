@@ -103,8 +103,6 @@ public class CategoryService extends AbstractService {
             return result;
         } catch (SQLException e) {
             throw new SQLException("Could not execute query", e);
-        } finally {
-            conn.close();
         }
     }
 
@@ -119,8 +117,6 @@ public class CategoryService extends AbstractService {
                     return null;
                 }
             }
-        } finally {
-            conn.close();
         }
     }
 
@@ -137,8 +133,6 @@ public class CategoryService extends AbstractService {
                     return false;
                 }
             }
-        } finally {
-            conn.close();
         }
     }
 
