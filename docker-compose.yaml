@@ -39,3 +39,18 @@ services:
     volumes:
       - ./data/transactions.csv:/data/transactions.csv
     command: --addr-http 0.0.0.0:8080 --table transactions=/data/transactions.csv
+      
+  # It could instead, use volume-mounts.
+  prometheus:
+    build: './monitoring/prometheus'
+    container_name: 'prometheus'
+    ports:
+      - '9090:9090'
+
+  # This could instead be a volume-mounted container.
+  grafana:
+    build: './monitoring/grafana'
+    container_name: 'grafana'
+    ports:
+      - '3000:3000'
+  
