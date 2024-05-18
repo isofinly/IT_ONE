@@ -33,7 +33,7 @@ public class BudgetController extends AbstractController {
         }
 
         UUID budgetId = UUID.fromString(budgetIdStr);
-        Long alertThreshold = Long.parseLong(alertThresholdStr);
+        long alertThreshold = Long.parseLong(alertThresholdStr);
 
         try {
             BudgetService.setBudgetAlert(budgetId, alertThreshold);
@@ -59,7 +59,7 @@ public class BudgetController extends AbstractController {
             return;
         }
 
-        dateRange = dateRange.replaceAll("_", " ");
+        dateRange = dateRange.replace("_", " ");
         UUID budgetId = UUID.fromString(budgetIdStr);
 
         try {

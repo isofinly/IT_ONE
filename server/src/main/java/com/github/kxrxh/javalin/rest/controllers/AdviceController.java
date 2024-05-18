@@ -34,7 +34,7 @@ public class AdviceController extends AbstractController {
             return;
         }
 
-        dateRange = dateRange.replaceAll("_", " ");
+        dateRange = dateRange.replace("_", " ");
 
         try {
             FinancialForecast forecast = AdviceService.getFinancialForecast(userId, dateRange);

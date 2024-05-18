@@ -21,5 +21,4 @@ public class Valuation {
     private String currency;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
 }
