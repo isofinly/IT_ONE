@@ -3,10 +3,12 @@ package com.github.kxrxh.javalin.rest.entities;
 import com.github.kxrxh.javalin.rest.database.models.Transaction;
 import com.github.kxrxh.javalin.rest.services.TransactionService;
 import io.javalin.validation.ValidationException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 public class MockBankIntegration extends AbstractBankIntegration {
 
     @Override
@@ -28,7 +30,7 @@ public class MockBankIntegration extends AbstractBankIntegration {
                         transaction.getNotes(), transaction.getTransactionType());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
     }
 
