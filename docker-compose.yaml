@@ -9,7 +9,7 @@ services:
       - nats
     environment:
       - "NATS_URL=nats://nats:4222"
-      - "DATABASE_URL=jdbc:postgresql://postgres_container:5432/postgres?ssl=on&sslrootcert=cert/ca-cert.pem"
+      - "DATABASE_URL=jdbc:postgresql://database:5432/postgres?ssl=on&sslrootcert=cert/ca-cert.pem"
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=pgpwd
       - PORT=3030
