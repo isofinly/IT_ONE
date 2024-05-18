@@ -17,6 +17,7 @@ import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType
 import com.github.kxrxh.javalin.rest.entities.BudgetAnalysisResult;
 import com.github.kxrxh.javalin.rest.entities.BudgetComparisonResult;
 import com.github.kxrxh.javalin.rest.entities.BudgetSuggestions;
+import com.github.kxrxh.javalin.rest.util.NATSUtil;
 
 // TODO @KXRXH: Check logic
 // TODO: Логика сравнения бюджетов за прошлые периоды и возможные предложения по лимитам и интервалам
@@ -55,13 +56,11 @@ public class BudgetService extends AbstractService {
 
         Connection conn = opConn.get();
 
-        // Fetch the family ID for the given user
         UUID familyId = getFamilyIdForUser(conn, userId);
         if (familyId == null) {
             throw new SQLException("No family found for the given user.");
         }
 
-        // Retrieve the budget for the user
         String budgetQuery = "SELECT * FROM budgets WHERE budget_id = ? AND (user_id = ? OR user_id IS NULL)";
         try (PreparedStatement ps = conn.prepareStatement(budgetQuery)) {
             ps.setObject(1, budgetId, java.sql.Types.OTHER);
@@ -77,12 +76,10 @@ public class BudgetService extends AbstractService {
             result.setCategoryId(UUID.fromString(rs.getString("category_id")));
             result.setLimitAmount(rs.getLong("limit_amount"));
             result.setStartDate(rs.getTimestamp("start_date").toLocalDateTime());
-            result.setEndDate(
-                    rs.getTimestamp("end_date") != null ? rs.getTimestamp("end_date").toLocalDateTime() : null);
+            result.setEndDate(rs.getTimestamp("end_date") != null ? rs.getTimestamp("end_date").toLocalDateTime() : null);
             result.setAlertThreshold(rs.getLong("alert_threshold"));
         }
 
-        // Retrieve transactions for the budget within the date range
         String transactionQuery = "SELECT * FROM transactions WHERE category_id = ? AND date BETWEEN ? AND ?";
         List<Object> params = new ArrayList<>();
         params.add(result.getCategoryId());
@@ -104,16 +101,13 @@ public class BudgetService extends AbstractService {
                         .amount(rs.getLong("amount"))
                         .currency(rs.getString("currency"))
                         .accountId(UUID.fromString(rs.getString("account_id")))
-                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id"))
-                                : null)
+                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id")) : null)
                         .excluded(rs.getBoolean("excluded"))
                         .notes(rs.getString("notes"))
                         .transactionType(TransactionType.valueOf(rs.getString("transaction_type").toUpperCase()))
                         .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                         .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
-                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null
-                                ? rs.getTimestamp("last_synced_at").toLocalDateTime()
-                                : null)
+                        .lastSyncedAt(rs.getTimestamp("last_synced_at") != null ? rs.getTimestamp("last_synced_at").toLocalDateTime() : null)
                         .build();
                 transactions.add(transaction);
                 totalSpent += transaction.getAmount();
@@ -121,13 +115,14 @@ public class BudgetService extends AbstractService {
 
             result.setTransactions(transactions);
             result.setTotalSpent(totalSpent);
+
+            checkBudgetNotifications(userId, result);
+
         }
 
-        // Compare with past periods and provide suggestions
         List<BudgetComparisonResult> comparisons = compareWithPastPeriods(conn, result.getCategoryId(), dateRange);
         result.setComparisons(comparisons);
 
-        // Suggest new budget limits and intervals
         BudgetSuggestions suggestions = suggestNewBudgetLimits(result.getTotalSpent(), result.getLimitAmount());
         result.setSuggestions(suggestions);
 
@@ -148,8 +143,7 @@ public class BudgetService extends AbstractService {
         }
     }
 
-    private static List<BudgetComparisonResult> compareWithPastPeriods(Connection conn, UUID categoryId,
-            String dateRange) throws SQLException {
+    private static List<BudgetComparisonResult> compareWithPastPeriods(Connection conn, UUID categoryId, String dateRange) throws SQLException {
         List<BudgetComparisonResult> comparisons = new ArrayList<>();
 
         String pastPeriodsQuery = "SELECT * FROM transactions WHERE category_id = ? AND date < ?";
@@ -169,16 +163,13 @@ public class BudgetService extends AbstractService {
                 comparison.setAmount(rs.getLong("amount"));
                 comparison.setCurrency(rs.getString("currency"));
                 comparison.setAccountId(UUID.fromString(rs.getString("account_id")));
-                comparison.setCategoryId(
-                        rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id")) : null);
+                comparison.setCategoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id")) : null);
                 comparison.setExcluded(rs.getBoolean("excluded"));
                 comparison.setNotes(rs.getString("notes"));
                 comparison.setTransactionType(TransactionType.valueOf(rs.getString("transaction_type").toUpperCase()));
                 comparison.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
                 comparison.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
-                comparison.setLastSyncedAt(
-                        rs.getTimestamp("last_synced_at") != null ? rs.getTimestamp("last_synced_at").toLocalDateTime()
-                                : null);
+                comparison.setLastSyncedAt(rs.getTimestamp("last_synced_at") != null ? rs.getTimestamp("last_synced_at").toLocalDateTime() : null);
 
                 comparisons.add(comparison);
             }
@@ -191,13 +182,30 @@ public class BudgetService extends AbstractService {
         suggestions.setCurrentLimit(limitAmount);
 
         if (totalSpent > limitAmount) {
-            suggestions.setSuggestedLimit((long) (totalSpent * 1.1)); // Increase limit by 10% if overspent
+            suggestions.setSuggestedLimit((long) (totalSpent * 1.1));
         } else {
-            suggestions.setSuggestedLimit((long) (totalSpent * 0.9)); // Decrease limit by 10% if underspent
+            suggestions.setSuggestedLimit((long) (totalSpent * 0.9));
         }
 
-        suggestions.setSuggestedInterval("Monthly"); // Example suggestion, can be more sophisticated
+        suggestions.setSuggestedInterval("Monthly");
 
         return suggestions;
+    }
+
+    private static void checkBudgetNotifications(UUID userId, BudgetAnalysisResult result) {
+        long totalSpent = result.getTotalSpent();
+        long limitAmount = result.getLimitAmount();
+        long threshold10 = (long) (limitAmount * 0.1);
+        long threshold5 = (long) (limitAmount * 0.05);
+
+        if (totalSpent >= limitAmount - threshold10) {
+            NATSUtil.publish(userId.toString(), "You are within 10% of your budget limit.");
+        }
+        if (totalSpent >= limitAmount - threshold5) {
+            NATSUtil.publish(userId.toString(), "You are within 5% of your budget limit.");
+        }
+        if (totalSpent >= limitAmount) {
+            NATSUtil.publish(userId.toString(), "You have reached your budget limit.");
+        }
     }
 }

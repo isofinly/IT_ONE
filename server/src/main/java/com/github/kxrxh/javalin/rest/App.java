@@ -4,7 +4,8 @@ import java.io.IOException;
 
 import com.github.kxrxh.javalin.rest.api.RestServer;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.util.NATS;
+import com.github.kxrxh.javalin.rest.util.NATSSubscriber;
+import com.github.kxrxh.javalin.rest.util.NATSUtil;
 import com.github.kxrxh.javalin.rest.util.Prometheus;
 
 import io.javalin.util.JavalinBindException;
@@ -20,7 +21,8 @@ public class App {
         }
 
         try {
-            NATS.connect(natsUrl, "client_updates");
+            NATSUtil.connect(natsUrl);
+            NATSSubscriber.subscribe("client_updates");
         } catch (IOException | InterruptedException e) {
             log.error("Unable to connect to NATS: " + e.getMessage());
             Thread.currentThread().interrupt();
@@ -94,7 +96,7 @@ public class App {
         Prometheus.shutdownPrometheus();
         
         try {
-            NATS.disconnect();
+            NATSUtil.disconnect();
         } catch (InterruptedException e) {
             log.error("Unable to disconnect from NATS");
             Thread.currentThread().interrupt();

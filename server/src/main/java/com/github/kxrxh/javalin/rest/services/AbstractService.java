@@ -16,6 +16,8 @@ public abstract class AbstractService{
     protected static final String TAX_ID = "tax_id";
     protected static final String ACCOUNT_ID = "account_id";
     protected static final String BALANCE_ID = "balance_id";
+    protected static final String TOTAL_EXPENSES = "totalExpenses";
+
 
 
     protected AbstractService() {

@@ -47,7 +47,7 @@ public class AccountBalancesService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT * FROM account_balances WHERE id = ? AND user_id = ?")) {
+                "SELECT id, account_id, user_id, date, balance, currency, created_at, updated_at FROM account_balances WHERE id = ? AND user_id = ?")) {
             ps.setObject(1, balanceId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {

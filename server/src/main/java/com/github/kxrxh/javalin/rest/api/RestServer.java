@@ -3,10 +3,16 @@ package com.github.kxrxh.javalin.rest.api;
 import static com.github.kxrxh.javalin.rest.util.Prometheus.initializePrometheus;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
+import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.controllers.AccountBalancesController;
 import com.github.kxrxh.javalin.rest.controllers.AccountController;
 import com.github.kxrxh.javalin.rest.controllers.AccountCreditsController;
@@ -26,6 +32,8 @@ import com.github.kxrxh.javalin.rest.controllers.TaxController;
 import com.github.kxrxh.javalin.rest.controllers.TransactionController;
 import com.github.kxrxh.javalin.rest.controllers.ValuationController;
 import com.github.kxrxh.javalin.rest.controllers.VisualizationController;
+import com.github.kxrxh.javalin.rest.services.AccountCreditsService;
+import com.github.kxrxh.javalin.rest.services.AccountLoansService;
 import com.github.kxrxh.javalin.rest.util.PrometheusInitializationException;
 
 import io.javalin.Javalin;
@@ -37,10 +45,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RestServer {
     private final Javalin app;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public RestServer(boolean dev) {
         StatisticsHandler statisticsHandler = new StatisticsHandler();
         QueuedThreadPool queuedThreadPool = new QueuedThreadPool(200, 8, 60_000);
+
         this.app = Javalin.create(config -> {
             if (dev) {
                 config.bundledPlugins.enableDevLogging();
@@ -56,6 +66,9 @@ public class RestServer {
             throw new PrometheusInitializationException(e);
         }
         app.after(ctx -> log.info(ctx.req().getMethod() + " " + ctx.req().getPathInfo() + " " + ctx.statusCode()));
+
+        scheduler.scheduleAtFixedRate(this::checkDueDateNotifications, 0, 1, TimeUnit.DAYS);
+
     }
 
     public RestServer() {
@@ -199,4 +212,16 @@ public class RestServer {
     public void listen(int port) {
         app.start(port);
     }
+
+    private void checkDueDateNotifications() {
+        for (UUID userId : Utils.getAllUserIds()) {
+            try {
+                AccountLoansService.checkDueDateNotifications(userId);
+                AccountCreditsService.checkDueDateNotifications(userId);
+            } catch (SQLException e) {
+                log.error("Error checking due date notifications for user {}: {}", userId, e.getMessage());
+            }
+        }
+    }
+
 }

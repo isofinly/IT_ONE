@@ -137,7 +137,10 @@ public class ValuationService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn
-                .prepareStatement("SELECT * FROM accounts WHERE account_id = ? AND user_id = ?")) {
+                .prepareStatement("SELECT user_id, family_id, first_name, last_name, email, " +
+                                "password_digest, created_at, updated_at, last_login, active, last_synced_at " + 
+                                "FROM accounts WHERE account_id = ? AND user_id = ?")) 
+            {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {

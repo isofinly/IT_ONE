@@ -32,7 +32,7 @@ public class ReportService extends AbstractService {
         // 1. Fetch total transactions, expenses, and income
         Map<String, Long> transactionSummary = fetchTransactionSummary(conn, userId, year, month);
         long totalTransactions = transactionSummary.get("totalTransactions");
-        long totalExpenses = transactionSummary.get("totalExpenses");
+        long totalExpenses = transactionSummary.get(TOTAL_EXPENSES);
         long totalIncome = transactionSummary.get("totalIncome");
         long netBalance = totalIncome - totalExpenses;
 
@@ -80,7 +80,7 @@ public class ReportService extends AbstractService {
                 if (rs.next()) {
                     summary.put("totalTransactions", rs.getLong(1));
                     summary.put("totalIncome", rs.getLong(2));
-                    summary.put("totalExpenses", rs.getLong(3));
+                    summary.put(TOTAL_EXPENSES, rs.getLong(3));
                 }
             }
         }
@@ -106,8 +106,8 @@ public class ReportService extends AbstractService {
 
     private static double calculateTrend(Connection conn, UUID userId, int year, int month) throws SQLException {
         // Compare expenses of the current month with the previous month
-        double currentMonthExpenses = fetchTransactionSummary(conn, userId, year, month).get("totalExpenses");
-        double previousMonthExpenses = fetchTransactionSummary(conn, userId, year, month - 1).get("totalExpenses");
+        double currentMonthExpenses = fetchTransactionSummary(conn, userId, year, month).get(TOTAL_EXPENSES);
+        double previousMonthExpenses = fetchTransactionSummary(conn, userId, year, month - 1).get(TOTAL_EXPENSES);
         if (previousMonthExpenses == 0) {
             return 0; // To avoid division by zero
         }
@@ -149,9 +149,8 @@ public class ReportService extends AbstractService {
         return monthNames[(month - 1 + 12) % 12]; // Ensure month wraps around correctly
     }
 
-    // TODO: change USD to local currency
     private static String formatAmount(long amount) {
-        return String.format("%s USD", amount < 0 ? "-" + Math.abs(amount) : amount);
+        return String.format("%s RUB", amount < 0 ? "-" + Math.abs(amount) : amount);
     }
 
     private static Map<String, String> formatExpensesByCategory(Map<String, Long> expensesByCategory) {

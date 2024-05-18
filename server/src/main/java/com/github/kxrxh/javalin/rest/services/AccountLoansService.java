@@ -1,18 +1,19 @@
 package com.github.kxrxh.javalin.rest.services;
 
-
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Optional;
 import java.util.UUID;
 
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.AccountLoan;
+import com.github.kxrxh.javalin.rest.util.NATSUtil;
 
 public class AccountLoansService extends AbstractService {
 
@@ -20,9 +21,9 @@ public class AccountLoansService extends AbstractService {
     }
 
     public static void createLoan(UUID userId, UUID accountId, long loanAmount,
-            long outstandingBalance, double interestRate,
-            String loanTerm, LocalDate dueDate,
-            String paymentFrequency, String collateral)
+                                  long outstandingBalance, double interestRate,
+                                  String loanTerm, LocalDate dueDate,
+                                  String paymentFrequency, String collateral)
             throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
@@ -60,7 +61,7 @@ public class AccountLoansService extends AbstractService {
         Connection conn = optConn.get();
 
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT * FROM account_loans WHERE id = ? AND user_id = ?")) {
+                "SELECT id, account_id, user_id, loan_amount, outstanding_balance, interest_rate, loan_term, due_date, payment_frequency, created_at, updated_at FROM account_loans WHERE id = ? AND user_id = ?")) {
             ps.setObject(1, loanId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
@@ -86,10 +87,10 @@ public class AccountLoansService extends AbstractService {
     }
 
     public static void updateLoan(UUID userId, UUID loanId, UUID accountId,
-            long loanAmount, long outstandingBalance,
-            double interestRate, String loanTerm,
-            LocalDate dueDate, String paymentFrequency,
-            String collateral) throws SQLException {
+                                  long loanAmount, long outstandingBalance,
+                                  double interestRate, String loanTerm,
+                                  LocalDate dueDate, String paymentFrequency,
+                                  String collateral) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();
@@ -151,7 +152,6 @@ public class AccountLoansService extends AbstractService {
                     double interestRate = rs.getDouble("interest_rate");
                     double interest = outstandingBalance * (interestRate / 100);
 
-                    // Update the outstanding balance with the calculated interest
                     long newOutstandingBalance = outstandingBalance + (long) interest;
 
                     try (
@@ -162,6 +162,9 @@ public class AccountLoansService extends AbstractService {
                         psUpdate.setObject(3, userId, java.sql.Types.OTHER);
                         psUpdate.executeUpdate();
                     }
+
+                    checkLoanNotifications(userId, newOutstandingBalance);
+
                 } else {
                     throw new SQLException("Loan not found");
                 }
@@ -169,8 +172,45 @@ public class AccountLoansService extends AbstractService {
         }
     }
 
-    public static void checkDueDateNotifications(UUID userId) {
-        // Placeholder logic for due date notifications
-        // This should be replaced with actual notification logic (e.g., email, SMS)
+    public static void checkDueDateNotifications(UUID userId) throws SQLException {
+        Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
+        if (optConn.isEmpty()) {
+            throw new ConnectionRetrievingException();
+        }
+
+        Connection conn = optConn.get();
+
+        String query = "SELECT id, due_date FROM account_loans WHERE user_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setObject(1, userId, java.sql.Types.OTHER);
+            try (ResultSet rs = ps.executeQuery()) {
+                LocalDate today = LocalDate.now();
+                while (rs.next()) {
+                    LocalDate dueDate = rs.getDate("due_date").toLocalDate();
+                    Period period = Period.between(today, dueDate);
+                    int daysUntilDue = period.getDays();
+
+                    if (daysUntilDue <= 7) {
+                        NATSUtil.publish(userId.toString(), "Your loan payment is due in " + daysUntilDue + " days.");
+                    }
+                }
+            }
+        }
+    }
+
+    private static void checkLoanNotifications(UUID userId, long outstandingBalance) {
+        long threshold10 = (long) (outstandingBalance * 0.1);
+        long threshold5 = (long) (outstandingBalance * 0.05);
+
+        if (outstandingBalance <= threshold10) {
+            NATSUtil.publish(userId.toString(), "You are within 10% of your loan limit.");
+        }
+        if (outstandingBalance <= threshold5) {
+            NATSUtil.publish(userId.toString(), "You are within 5% of your loan limit.");
+        }
+        if (outstandingBalance == 0) {
+            NATSUtil.publish(userId.toString(), "You have reached your loan limit.");
+        }
     }
 }
+

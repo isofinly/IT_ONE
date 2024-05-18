@@ -33,4 +33,5 @@ public class NotificationService extends AbstractService {
             throw new SQLException("Could not insert new notification to db", e);
         }
     }
+
 }
