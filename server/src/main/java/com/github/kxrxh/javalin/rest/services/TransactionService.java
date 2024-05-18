@@ -16,10 +16,7 @@ import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.Transaction;
 import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
 
-public class TransactionService {
-
-    private TransactionService() {
-    }
+public class TransactionService extends AbstractService {
 
     public static List<Transaction> searchTransactions(UUID userId, String amountRange, String dateRange,
             UUID categoryId, String description) throws SQLException {

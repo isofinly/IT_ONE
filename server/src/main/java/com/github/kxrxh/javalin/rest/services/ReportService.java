@@ -14,7 +14,7 @@ import java.util.UUID;
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 
-public class ReportService {
+public class ReportService extends AbstractService {
 
     private ReportService() {
     }

@@ -169,6 +169,9 @@ public class RestServer {
         app.put("/api/v1/valuation/update", ValuationController::updateValuation);
         app.delete("/api/v1/valuation/delete", ValuationController::deleteValuation);
 
+        // new
+        app.post("/api/v1/bank/integration", IntegrationController::integrateWithBank);
+
         // TODO: Visualization routes
         app.get("/api/v1/visualizations", VisualizationController::getVisualization);
     }

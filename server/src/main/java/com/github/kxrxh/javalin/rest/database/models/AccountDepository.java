@@ -1,6 +1,5 @@
 package com.github.kxrxh.javalin.rest.database.models;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -20,7 +19,7 @@ public class AccountDepository {
     private String bankName;
     private String accountNumber;
     private String routingNumber;
-    private BigDecimal interestRate;
+    private double interestRate;
     private long overdraftLimit;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

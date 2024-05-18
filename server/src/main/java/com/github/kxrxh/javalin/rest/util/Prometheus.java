@@ -1,12 +1,13 @@
 package com.github.kxrxh.javalin.rest.util;
 
-import io.prometheus.client.exporter.HTTPServer;
-import io.prometheus.client.hotspot.DefaultExports;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
-import java.io.IOException;
+import io.prometheus.client.exporter.HTTPServer;
+import io.prometheus.client.hotspot.DefaultExports;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Prometheus {
@@ -14,13 +15,19 @@ public class Prometheus {
     private Prometheus() {
     }
 
+    private static HTTPServer server;
+
     public static void initializePrometheus(StatisticsHandler statisticsHandler, QueuedThreadPool queuedThreadPool)
             throws IOException {
         StatisticsHandlerCollector.initialize(statisticsHandler);
         DefaultExports.initialize();
         QueuedThreadPoolCollector.initialize(queuedThreadPool);
         // TODO: Move to a separate route so it can be accessed from the Web DNS
-        HTTPServer prometheusServer = new HTTPServer(7080);
+        server = new HTTPServer(7080);
         log.info("Prometheus is listening on: http://localhost:7080");
+    }
+
+    public static void shutdownPrometheus() {
+        server.close();
     }
 }

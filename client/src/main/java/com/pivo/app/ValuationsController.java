@@ -50,7 +50,8 @@ public class ValuationsController {
             pstmt.setInt(1, userId);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                assetsTable.getItems().add(new Account(rs.getString("account_name"), rs.getString("account_type"), rs.getDouble("balance")));
+                assetsTable.getItems().add(new Account(rs.getString("account_name"), rs.getString("account_type"),
+                        rs.getDouble("balance")));
             }
         } catch (SQLException e) {
             e.printStackTrace();

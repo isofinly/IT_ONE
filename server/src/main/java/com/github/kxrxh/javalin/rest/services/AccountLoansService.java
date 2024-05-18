@@ -1,6 +1,6 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.math.BigDecimal;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -14,7 +14,7 @@ import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.AccountLoan;
 
-public class AccountLoansService {
+public class AccountLoansService extends AbstractService {
 
     private AccountLoansService() {
     }
@@ -71,7 +71,7 @@ public class AccountLoansService {
                             .userId(UUID.fromString(rs.getString("user_id")))
                             .loanAmount(rs.getLong("loan_amount"))
                             .outstandingBalance(rs.getLong("outstanding_balance"))
-                            .interestRate(BigDecimal.valueOf(rs.getDouble("interest_rate")))
+                            .interestRate(rs.getDouble("interest_rate"))
                             .loanTerm(rs.getString("loan_term"))
                             .dueDate(rs.getDate("due_date").toLocalDate())
                             .paymentFrequency(rs.getString("payment_frequency"))

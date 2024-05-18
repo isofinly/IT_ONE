@@ -20,7 +20,7 @@ import com.github.kxrxh.javalin.rest.entities.BudgetSuggestions;
 
 // TODO @KXRXH: Check logic
 // TODO: Логика сравнения бюджетов за прошлые периоды и возможные предложения по лимитам и интервалам
-public class BudgetService {
+public class BudgetService extends AbstractService {
 
     private BudgetService() {
     }

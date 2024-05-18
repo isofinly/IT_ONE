@@ -13,10 +13,7 @@ import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.AccountBalance;
 
-public class AccountBalancesService {
-
-    private AccountBalancesService() {
-    }
+public class AccountBalancesService extends AbstractService {
 
     public static void createBalance(UUID userId, UUID accountId, LocalDate date, long balance, String currency)
             throws SQLException {

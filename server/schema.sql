@@ -301,6 +301,7 @@ CREATE TABLE taxes
     currency    TEXT             DEFAULT 'RUB' NOT NULL,
     created_at  TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP        DEFAULT CURRENT_TIMESTAMP
+    
 );
 
 -- Foreign key constraints

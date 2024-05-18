@@ -1,6 +1,6 @@
 package com.github.kxrxh.javalin.rest.database.models;
 
-import java.math.BigDecimal;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -22,7 +22,7 @@ public class AccountOtherAsset {
     private long purchasePrice;
     private long currentValue;
     private LocalDate purchaseDate;
-    private BigDecimal depreciationRate;
+    private double depreciationRate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastSyncedAt;

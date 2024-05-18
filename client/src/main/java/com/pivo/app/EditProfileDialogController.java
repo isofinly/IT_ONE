@@ -20,10 +20,7 @@ public class EditProfileDialogController {
     @FXML
     private PasswordField newPassword;
 
-    private ProfileInformationController parentController;
-
     public void setParentController(ProfileInformationController controller) {
-        this.parentController = controller;
     }
 
     @FXML

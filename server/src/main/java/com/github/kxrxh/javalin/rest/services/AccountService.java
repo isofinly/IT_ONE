@@ -14,12 +14,9 @@ import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
 
-public class AccountService {
+public class AccountService extends AbstractService {
 
-    private AccountService() {
-    }
-
-    public static void transferFunds(UUID userId, UUID fromAccountId, UUID toAccountId, long amount)
+   public static void transferFunds(UUID userId, UUID fromAccountId, UUID toAccountId, long amount)
             throws SQLException {
         if (!isUserAuthorized(userId, fromAccountId)) {
             throw new SQLException("User not authorized to transfer from this account");

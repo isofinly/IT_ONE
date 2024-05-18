@@ -13,7 +13,7 @@ import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.Valuation;
 import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
 
-public class ValuationService {
+public class ValuationService extends AbstractService {
 
     private ValuationService() {
     }

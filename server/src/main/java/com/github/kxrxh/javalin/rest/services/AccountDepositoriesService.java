@@ -1,6 +1,6 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.math.BigDecimal;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,10 +12,7 @@ import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.AccountDepository;
 
-public class AccountDepositoriesService {
-
-    private AccountDepositoriesService() {
-    }
+public class AccountDepositoriesService extends AbstractService {
 
     public static void createDepository(UUID userId, UUID accountId, String bankName, String accountNumber,
             String routingNumber, double interestRate, long overdraftLimit) throws SQLException {
@@ -63,7 +60,7 @@ public class AccountDepositoriesService {
                             .bankName(rs.getString("bank_name"))
                             .accountNumber(rs.getString("account_number"))
                             .routingNumber(rs.getString("routing_number"))
-                            .interestRate(BigDecimal.valueOf(rs.getDouble("interest_rate")))
+                            .interestRate(rs.getDouble("interest_rate"))
                             .overdraftLimit(rs.getLong("overdraft_limit"))
                             .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                             .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())

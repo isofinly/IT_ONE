@@ -1,47 +1,25 @@
 package com.github.kxrxh.javalin.rest.util;
 
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import io.nats.client.Dispatcher;
-import io.nats.client.Nats;
-import lombok.extern.slf4j.Slf4j;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Optional;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 public class NATSSubscriber {
-
-    private static io.nats.client.Connection natsConnection;
-
     private NATSSubscriber() {
+        
     }
-
-    public static void connect(String natsServerURL, String subject) throws IOException, InterruptedException {
-        if (natsConnection == null) {
-            natsConnection = Nats.connect(natsServerURL);
-            Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
-                String message = new String(msg.getData(), StandardCharsets.UTF_8);
-                executePreparedStatement(message);
-            });
-            dispatcher.subscribe(subject);
-        }
-    }
-
-    public static void disconnect() throws InterruptedException {
-        if (natsConnection != null) {
-            natsConnection.close();
-        }
-    }
-
-    private static void executePreparedStatement(String message) {
+    public static void executePreparedStatement(String message) {
         JSONObject json = new JSONObject(message);
         String sql = json.getString("sql");
         JSONArray paramsJson = json.getJSONArray("params");

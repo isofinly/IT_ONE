@@ -11,16 +11,13 @@ import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.User;
 
-public class UserService {
+public class UserService extends AbstractService {
     private static final String USER_ID = "user_id";
     private static final String EMAIL = "email";
     private static final String PASSWORD_DIGEST = "password_digest";
     private static final String FIRST_NAME = "first_name";
     private static final String LAST_NAME = "last_name";
     private static final String FAMILY_ID = "family_id";
-
-    private UserService() {
-    }
 
     public static Optional<User> createUser(UUID userId, String email, String password) throws SQLException {
         String userSql;

@@ -12,7 +12,7 @@ import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.ExchangeRate;
 
-public class ExchangeRateService {
+public class ExchangeRateService extends AbstractService {
 
     private ExchangeRateService() {
     }

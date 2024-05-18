@@ -1,13 +1,13 @@
 package com.pivo.app;
 
+import java.io.IOException;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-
-import java.io.IOException;
 
 public class ApplicationController {
 

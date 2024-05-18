@@ -1,8 +1,5 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,15 +9,30 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public class IntegrationService {
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.entities.MockBankIntegration;
+import com.github.kxrxh.javalin.rest.interfaces.BankIntegration;
+
+public class IntegrationService extends AbstractService {
 
     private IntegrationService() {
     }
 
-    public static void integrateWithBank(UUID userId, String bankCredentials) throws SQLException {
-        // TODO
-        // Logic for integrating with a bank
-        // This example is kept simple and may not represent a real integration
+    private static final Map<String, BankIntegration> integrations = new HashMap<>();
+
+    static {
+        integrations.put("mockbank", new MockBankIntegration());
+        // Add other bank integrations here
+    }
+
+    public static void integrateWithBank(UUID userId, String bankName, String bankCredentials) throws Exception {
+        BankIntegration integration = integrations.get(bankName.toLowerCase());
+        if (integration != null) {
+            integration.integrateWithBank(userId, bankCredentials);
+        } else {
+            throw new Exception("No integration found for bank: " + bankName);
+        }
     }
 
     public static void autoCategorizeTransactions(UUID userId) throws SQLException {

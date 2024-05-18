@@ -1,6 +1,6 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.math.BigDecimal;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -14,10 +14,7 @@ import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.AccountOtherAsset;
 
-public class AccountOtherAssetsService {
-
-    private AccountOtherAssetsService() {
-    }
+public class AccountOtherAssetsService extends AbstractService {
 
     public static void createAsset(UUID userId, UUID accountId, String assetType, long purchasePrice, long currentValue,
             LocalDate purchaseDate, double depreciationRate) throws SQLException {
@@ -66,7 +63,7 @@ public class AccountOtherAssetsService {
                             .purchasePrice(rs.getLong("purchase_price"))
                             .currentValue(rs.getLong("current_value"))
                             .purchaseDate(rs.getDate("purchase_date").toLocalDate())
-                            .depreciationRate(BigDecimal.valueOf(rs.getDouble("depreciation_rate")))
+                            .depreciationRate(rs.getDouble("depreciation_rate"))
                             .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                             .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
                             .build();

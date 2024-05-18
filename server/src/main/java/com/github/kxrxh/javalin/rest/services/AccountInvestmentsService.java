@@ -13,10 +13,7 @@ import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.AccountInvestment;
 
-public class AccountInvestmentsService {
-
-    private AccountInvestmentsService() {
-    }
+public class AccountInvestmentsService extends AbstractService {
 
     public static void createInvestment(UUID userId, UUID accountId, String investmentType, long marketValue,
             long purchasePrice, LocalDate purchaseDate, long dividends, double interestRate) throws SQLException {
@@ -67,7 +64,7 @@ public class AccountInvestmentsService {
                             .purchasePrice(rs.getLong("purchase_price"))
                             .purchaseDate(rs.getDate("purchase_date").toLocalDate())
                             .dividends(rs.getLong("dividends"))
-                            .interestRate(rs.getBigDecimal("interest_rate"))
+                            .interestRate(rs.getLong("interest_rate"))
                             .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                             .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
                             .build();

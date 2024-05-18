@@ -11,10 +11,7 @@ import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.Tax;
 
-public class TaxService {
-
-    private TaxService() {
-    }
+public class TaxService extends AbstractService {
 
     public static void createTax(UUID userId, String name, String description, long rate, String currency)
             throws SQLException {

@@ -17,10 +17,8 @@ import com.github.kxrxh.javalin.rest.database.models.Transaction;
 import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType;
 import com.github.kxrxh.javalin.rest.entities.CategoryAnalysisResult;
 
-public class CategoryService {
+public class CategoryService extends AbstractService {
 
-    private CategoryService() {
-    }
 
     // TODO: Add family if any and more info.
     public static CategoryAnalysisResult analyzeCategory(UUID userId, UUID categoryId, String dateRange)
@@ -83,7 +81,7 @@ public class CategoryService {
                         .amount(rs.getLong("amount"))
                         .currency(rs.getString("currency"))
                         .accountId(UUID.fromString(rs.getString("account_id")))
-                        .categoryId(rs.getString("category_id") != null ? UUID.fromString(rs.getString("category_id"))
+                        .categoryId(rs.getString(CATEGORY_ID) != null ? UUID.fromString(rs.getString(CATEGORY_ID))
                                 : null)
                         .excluded(rs.getBoolean("excluded"))
                         .notes(rs.getString("notes"))
@@ -146,7 +144,7 @@ public class CategoryService {
             ps.setObject(1, familyId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    categoryIds.add(UUID.fromString(rs.getString("category_id")));
+                    categoryIds.add(UUID.fromString(rs.getString(CATEGORY_ID)));
                 }
             }
         }
@@ -197,7 +195,7 @@ public class CategoryService {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return Category.builder()
-                            .categoryId(UUID.fromString(rs.getString("category_id")))
+                            .categoryId(UUID.fromString(rs.getString(CATEGORY_ID)))
                             .name(rs.getString("name"))
                             .familyId(UUID.fromString(rs.getString("family_id")))
                             .createdAt(rs.getTimestamp("created_at").toLocalDateTime())

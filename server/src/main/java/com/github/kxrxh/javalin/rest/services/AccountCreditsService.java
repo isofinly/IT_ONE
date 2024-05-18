@@ -13,11 +13,7 @@ import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.AccountCredit;
 
-public class AccountCreditsService {
-
-    private AccountCreditsService() {
-    }
-
+public class AccountCreditsService extends AbstractService {
     public static void createCredit(UUID userId, UUID accountId, long creditLimit, double interestRate,
             LocalDate dueDate, long minimumPayment) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
@@ -61,7 +57,7 @@ public class AccountCreditsService {
                             .accountId(UUID.fromString(rs.getString("account_id")))
                             .userId(UUID.fromString(rs.getString("user_id")))
                             .creditLimit(rs.getLong("credit_limit"))
-                            .interestRate(rs.getBigDecimal("interest_rate"))
+                            .interestRate(rs.getDouble("interest_rate"))
                             .dueDate(rs.getDate("due_date").toLocalDate())
                             .minimumPayment(rs.getLong("minimum_payment"))
                             .createdAt(rs.getTimestamp("created_at").toLocalDateTime())

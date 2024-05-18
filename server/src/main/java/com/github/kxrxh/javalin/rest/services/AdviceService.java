@@ -17,7 +17,7 @@ import com.github.kxrxh.javalin.rest.database.models.Transaction.TransactionType
 import com.github.kxrxh.javalin.rest.entities.FinancialAdvice;
 import com.github.kxrxh.javalin.rest.entities.FinancialForecast;
 
-public class AdviceService {
+public class AdviceService extends AbstractService {
 
     private AdviceService() {
     }

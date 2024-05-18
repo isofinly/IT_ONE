@@ -11,7 +11,7 @@ import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.RecurringTransaction;
 
-public class RecurringTransactionService {
+public class RecurringTransactionService extends AbstractService {
 
     private RecurringTransactionService() {
     }

@@ -1,12 +1,13 @@
 package com.github.kxrxh.javalin.rest.entities;
 
-import com.github.kxrxh.javalin.rest.database.models.Transaction;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
+import com.github.kxrxh.javalin.rest.database.models.Transaction;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

@@ -4,7 +4,8 @@ import java.io.IOException;
 
 import com.github.kxrxh.javalin.rest.api.RestServer;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.util.NATSSubscriber;
+import com.github.kxrxh.javalin.rest.util.NATS;
+import com.github.kxrxh.javalin.rest.util.Prometheus;
 
 import io.javalin.util.JavalinBindException;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ public class App {
         }
 
         try {
-            NATSSubscriber.connect(natsUrl, "client_updates");
+            NATS.connect(natsUrl, "client_updates");
         } catch (IOException | InterruptedException e) {
             log.error("Unable to connect to NATS: " + e.getMessage());
             Thread.currentThread().interrupt();
@@ -89,8 +90,11 @@ public class App {
             log.error("Unable to bind to port " + port + ": " + e.getMessage());
             System.exit(1);
         }
+
+        Prometheus.shutdownPrometheus();
+        
         try {
-            NATSSubscriber.disconnect();
+            NATS.disconnect();
         } catch (InterruptedException e) {
             log.error("Unable to disconnect from NATS");
             Thread.currentThread().interrupt();

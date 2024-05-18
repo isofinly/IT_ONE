@@ -1,6 +1,11 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
+import java.lang.reflect.Field;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
@@ -14,6 +19,8 @@ import com.github.kxrxh.javalin.rest.api.jwt.NotInitialized;
 import com.github.kxrxh.javalin.rest.api.jwt.UserPayload;
 import com.github.kxrxh.javalin.rest.database.models.User;
 import com.github.kxrxh.javalin.rest.services.UserService;
+
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import javalinjwt.JWTGenerator;
@@ -21,14 +28,8 @@ import javalinjwt.JWTProvider;
 import javalinjwt.JavalinJWT;
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.reflect.Field;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
 @Slf4j
-public class AuthController {
+public class AuthController extends AbstractController {
     private static AuthController instance;
     private final JWTProvider<UserPayload> provider;
     private final Handler decodeHandler;
