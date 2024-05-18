@@ -1,15 +1,5 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.Transaction;
@@ -18,6 +8,12 @@ import com.github.kxrxh.javalin.rest.entities.BudgetAnalysisResult;
 import com.github.kxrxh.javalin.rest.entities.BudgetComparisonResult;
 import com.github.kxrxh.javalin.rest.entities.BudgetSuggestions;
 import com.github.kxrxh.javalin.rest.util.NATSUtil;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 // TODO @KXRXH: Check logic
 // TODO: Логика сравнения бюджетов за прошлые периоды и возможные предложения по лимитам и интервалам
@@ -150,7 +146,7 @@ public class BudgetService extends AbstractService {
     }
 
     private static List<BudgetComparisonResult> compareWithPastPeriods(Connection conn, UUID categoryId,
-            String dateRange) throws SQLException {
+                                                                       String dateRange) throws SQLException {
         List<BudgetComparisonResult> comparisons = new ArrayList<>();
 
         String pastPeriodsQuery = "SELECT * FROM transactions WHERE category_id = ? AND date < ?";
@@ -186,7 +182,7 @@ public class BudgetService extends AbstractService {
         } finally {
             conn.close();
         }
-        
+
         return comparisons;
     }
 

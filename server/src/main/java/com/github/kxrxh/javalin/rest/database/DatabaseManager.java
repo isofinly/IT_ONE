@@ -1,12 +1,11 @@
 package com.github.kxrxh.javalin.rest.database;
 
-import java.sql.Connection;
-import java.util.Optional;
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import lombok.extern.slf4j.Slf4j;
+
+import java.sql.Connection;
+import java.util.Optional;
 
 @Slf4j
 public class DatabaseManager {

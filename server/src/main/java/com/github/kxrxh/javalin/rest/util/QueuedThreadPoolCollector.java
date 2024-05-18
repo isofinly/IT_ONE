@@ -1,18 +1,17 @@
 package com.github.kxrxh.javalin.rest.util;
 
+import io.prometheus.client.Collector;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-
-import io.prometheus.client.Collector;
-
 public class QueuedThreadPoolCollector extends Collector {
 
     private static final List<String> EMPTY_LIST = new ArrayList<>();
-    private QueuedThreadPool queuedThreadPool;
+    private final QueuedThreadPool queuedThreadPool;
 
     private QueuedThreadPoolCollector(QueuedThreadPool queuedThreadPool) {
         this.queuedThreadPool = queuedThreadPool;

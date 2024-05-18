@@ -1,13 +1,12 @@
 package com.github.kxrxh.javalin.rest.util;
 
+import io.prometheus.client.Collector;
+import org.eclipse.jetty.server.handler.StatisticsHandler;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import org.eclipse.jetty.server.handler.StatisticsHandler;
-
-import io.prometheus.client.Collector;
 
 public class StatisticsHandlerCollector extends Collector {
 

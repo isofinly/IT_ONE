@@ -1,18 +1,16 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.UUID;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.database.models.AccountLoan;
 import com.github.kxrxh.javalin.rest.services.AccountLoansService;
-
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Slf4j
 public class AccountLoansController extends AbstractController {

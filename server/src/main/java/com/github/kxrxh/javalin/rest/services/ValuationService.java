@@ -1,5 +1,10 @@
 package com.github.kxrxh.javalin.rest.services;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.Valuation;
+import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,11 +12,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.Valuation;
-import com.github.kxrxh.javalin.rest.util.CurrencyConversion;
 
 public class ValuationService extends AbstractService {
 
@@ -81,7 +81,7 @@ public class ValuationService extends AbstractService {
     }
 
     public static void updateValuation(UUID userId, UUID valuationId, UUID accountId, LocalDate date, long value,
-            String currency) throws SQLException {
+                                       String currency) throws SQLException {
         if (!isUserAuthorized(userId, accountId)) {
             throw new SQLException("User not authorized to update valuation for this account");
         }

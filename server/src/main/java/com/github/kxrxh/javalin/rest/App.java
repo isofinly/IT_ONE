@@ -1,15 +1,14 @@
 package com.github.kxrxh.javalin.rest;
 
-import java.io.IOException;
-
 import com.github.kxrxh.javalin.rest.api.RestServer;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.util.NATSSubscriber;
 import com.github.kxrxh.javalin.rest.util.NATSUtil;
 import com.github.kxrxh.javalin.rest.util.Prometheus;
-
 import io.javalin.util.JavalinBindException;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
 
 @Slf4j(topic = "App")
 public class App {
@@ -94,7 +93,7 @@ public class App {
         }
 
         Prometheus.shutdownPrometheus();
-        
+
         try {
             NATSUtil.disconnect();
         } catch (InterruptedException e) {

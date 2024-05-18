@@ -1,19 +1,15 @@
 package com.github.kxrxh.javalin.rest.services;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
 import com.github.kxrxh.javalin.rest.database.DatabaseManager;
 import com.github.kxrxh.javalin.rest.database.models.AccountLoan;
 import com.github.kxrxh.javalin.rest.util.NATSUtil;
+
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.Optional;
+import java.util.UUID;
 
 public class AccountLoansService extends AbstractService {
 

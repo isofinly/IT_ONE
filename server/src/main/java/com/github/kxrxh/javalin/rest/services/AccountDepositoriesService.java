@@ -1,15 +1,15 @@
 package com.github.kxrxh.javalin.rest.services;
 
+import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
+import com.github.kxrxh.javalin.rest.database.DatabaseManager;
+import com.github.kxrxh.javalin.rest.database.models.AccountDepository;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.github.kxrxh.javalin.rest.database.ConnectionRetrievingException;
-import com.github.kxrxh.javalin.rest.database.DatabaseManager;
-import com.github.kxrxh.javalin.rest.database.models.AccountDepository;
 
 public class AccountDepositoriesService extends AbstractService {
 
@@ -75,7 +75,7 @@ public class AccountDepositoriesService extends AbstractService {
     }
 
     public static void updateDepository(UUID userId, UUID depositoryId, UUID accountId, String bankName,
-            String accountNumber, String routingNumber, double interestRate, long overdraftLimit) throws SQLException {
+                                        String accountNumber, String routingNumber, double interestRate, long overdraftLimit) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
         if (optConn.isEmpty()) {
             throw new ConnectionRetrievingException();

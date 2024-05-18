@@ -1,10 +1,10 @@
 package com.github.kxrxh.javalin.rest.entities;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.github.kxrxh.javalin.rest.database.models.Transaction;
 import com.github.kxrxh.javalin.rest.services.TransactionService;
+
+import java.util.List;
+import java.util.UUID;
 
 public class MockBankIntegration extends AbstractBankIntegration {
 

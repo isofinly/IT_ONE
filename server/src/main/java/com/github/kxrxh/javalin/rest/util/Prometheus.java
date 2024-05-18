@@ -1,21 +1,20 @@
 package com.github.kxrxh.javalin.rest.util;
 
-import java.io.IOException;
-
-import org.eclipse.jetty.server.handler.StatisticsHandler;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-
 import io.prometheus.client.exporter.HTTPServer;
 import io.prometheus.client.hotspot.DefaultExports;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jetty.server.handler.StatisticsHandler;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+
+import java.io.IOException;
 
 @Slf4j
 public class Prometheus {
 
+    private static HTTPServer server;
+
     private Prometheus() {
     }
-
-    private static HTTPServer server;
 
     public static void initializePrometheus(StatisticsHandler statisticsHandler, QueuedThreadPool queuedThreadPool)
             throws IOException {

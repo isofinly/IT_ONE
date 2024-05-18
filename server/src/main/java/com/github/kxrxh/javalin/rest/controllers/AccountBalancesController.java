@@ -1,22 +1,20 @@
 package com.github.kxrxh.javalin.rest.controllers;
 
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.UUID;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.github.kxrxh.javalin.rest.api.jwt.Utils;
 import com.github.kxrxh.javalin.rest.database.models.AccountBalance;
 import com.github.kxrxh.javalin.rest.services.AccountBalancesService;
-
 import io.javalin.http.Context;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Slf4j
 public class AccountBalancesController extends AbstractController {
@@ -149,6 +147,7 @@ public class AccountBalancesController extends AbstractController {
             ctx.status(500).result(INTERNAL_ERROR + e.getMessage());
         }
     }
+
     @Getter
     @Setter
     @NoArgsConstructor
