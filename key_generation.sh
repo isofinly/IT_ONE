@@ -19,4 +19,4 @@ keytool -importcert -trustcacerts -file ca-cert.pem -storepass password -nopromp
 
 mkdir ../server/certs
 mv *.jks ../server/certs
-mv ca-cert.pem../server/certs
+cp ca-cert.pem ../server/certs/ca-cert.pem
