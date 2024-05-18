@@ -57,12 +57,12 @@ public class AccountBalancesService {
                     return AccountBalance.builder()
                     .id(UUID.fromString(rs.getString("id")))
                     .accountId(UUID.fromString(rs.getString("account_id")))
-                    .userId(UUID.fromString(rs.getString("user_id")))
+                    .accountId(UUID.fromString(rs.getString("user_id")))
                     .date(rs.getDate("date").toLocalDate())
                     .balance(rs.getLong("balance"))
                     .currency(rs.getString("currency"))
-                    .createdAt(rs.getTimestamp("created_at").toInstant())
-                    .updatedAt(rs.getTimestamp("updated_at").toInstant())
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
                     .build();
                 } else {
                     throw new SQLException("Balance not found");
