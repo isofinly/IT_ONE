@@ -43,8 +43,8 @@ public class App {
         // Load JWT secret from environment variable
         String jwtSecret = System.getenv("JWT_SECRET");
         if (jwtSecret == null) {
-            log.warn("JWT_SECRET environment variable not set, using default secret");
-            jwtSecret = "secret";
+            log.warn("JWT_SECRET environment variable not set");
+            System.exit(1);
         }
 
         // Initialize protected routes
@@ -53,22 +53,22 @@ public class App {
         // Load database url from environment variable
         String databaseUrl = System.getenv("DATABASE_URL");
         if (databaseUrl == null) {
-            log.warn("DATABASE_URL environment variable not set, using default url");
-            databaseUrl = "jdbc:postgresql://aws-0-eu-central-1.pooler.supabase.com:5432/postgres";
+            log.warn("DATABASE_URL environment variable not set");
+            System.exit(1);
         }
 
         // Load database user from environment variable
         String databaseUser = System.getenv("DATABASE_USER");
         if (databaseUser == null) {
-            log.warn("DATABASE_USER environment variable not set, using default user");
-            databaseUser = "postgres.hrbitlxmswwrmhuqqjxt";
+            log.warn("DATABASE_USER environment variable not set");
+            System.exit(1);
         }
 
         // Load database password from environment variable
         String databasePassword = System.getenv("DATABASE_PASSWORD");
         if (databasePassword == null) {
-            log.warn("DATABASE_PASSWORD environment variable not set, using default password");
-            databasePassword = "j7XGFhZQotjsk2vv";
+            log.warn("DATABASE_PASSWORD environment variable not set");
+            System.exit(1);
         }
 
         // Initialize database manager with provided parameters

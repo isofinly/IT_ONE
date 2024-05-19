@@ -16,7 +16,7 @@ FROM ghcr.io/graalvm/graalvm-community:17
 
 # Copy the built JAR file from the build stage to the final stage
 COPY --from=build /app/target/restapi*.jar /app/app.jar
-COPY /certs /app/certs
+# COPY /certs /app/certs
 
 
 # Set the default command to run the application
