@@ -1,22 +1,25 @@
-k6 run --vus 1 --duration 30s load-tests.js
+```
+k6 run advanced-load.js
 
-          /\      |‾‾| /‾‾/   /‾‾/
-     /\  /  \     |  |/  /   /  /
-    /  \/    \    |     (   /   ‾‾\
-   /          \   |  |\  \ |  (‾)  |
+          /\      |‾‾| /‾‾/   /‾‾/   
+     /\  /  \     |  |/  /   /  /    
+    /  \/    \    |     (   /   ‾‾\  
+   /          \   |  |\  \ |  (‾)  | 
   / __________ \  |__| \__\ \_____/ .io
 
      execution: local
-        script: load-tests.js
+        script: advanced-load.js
         output: -
 
-     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m0s max duration (incl. graceful stop):
-              * default: 1 looping VUs for 30s (gracefulStop: 30s)
+     scenarios: (100.00%) 1 scenario, 50 max VUs, 2m30s max duration (incl. graceful stop):
+              * default: Up to 50 looping VUs for 2m0s over 3 stages (gracefulRampDown: 30s, gracefulStop: 30s)
 
-WARN[0060] No script iterations fully finished, consider making the test duration longer
 
      ✓ login successful
      ✓ GET / successful
+     ✓ GET /api/v1/financial_forecast successful
+     ✓ GET /api/v1/budget/analyze_budget successful
+     ✓ GET /api/v1/category/analysis successful
      ✓ GET /api/v1/accounts/read_balance successful
      ✓ GET /api/v1/accounts/calculate_total_balance successful
      ✓ GET /api/v1/accounts/read_credit successful
@@ -24,40 +27,32 @@ WARN[0060] No script iterations fully finished, consider making the test duratio
      ✓ GET /api/v1/accounts/read_investment successful
      ✓ GET /api/v1/accounts/read_loan successful
      ✓ GET /api/v1/accounts/read_asset successful
-     ✗ GET /api/v1/advice successful
-      ↳  0% — ✓ 0 / ✗ 2
-     ✗ GET /api/v1/financial_forecast successful
-      ↳  0% — ✓ 0 / ✗ 2
-     ✗ GET /api/v1/budget/analyze_budget successful
-      ↳  0% — ✓ 0 / ✗ 2
-     ✗ GET /api/v1/category/analysis successful
-      ↳  0% — ✓ 0 / ✗ 2
+     ✓ GET /api/v1/advice successful
      ✓ GET /api/v1/category/read successful
      ✓ GET /api/v1/monthly_report successful
      ✓ GET /api/v1/tax/read successful
      ✓ GET /api/v1/tax/calculate successful
-     ✗ GET /api/v1/transaction/search successful
-      ↳  0% — ✓ 0 / ✗ 2
-     ✗ GET /api/v1/valuation/read successful
-      ↳  50% — ✓ 1 / ✗ 1
+     ✓ GET /api/v1/transaction/search successful
+     ✓ GET /api/v1/valuation/read successful
 
-     checks.........................: 73.80% ✓ 31       ✗ 11
-     data_received..................: 12 kB  204 B/s
-     data_sent......................: 15 kB  247 B/s
-   ✓ errors.........................: 0.00%  ✓ 0        ✗ 0
-     http_req_blocked...............: avg=63.35µs min=1.53µs   med=8.01µs  max=483.79µs p(90)=350.64µs p(95)=394.27µs
-     http_req_connecting............: avg=35.25µs min=0s       med=0s      max=323.96µs p(90)=213.83µs p(95)=247.32µs
-   ✓ http_req_duration..............: avg=77.08ms min=371.79µs med=68.07ms max=249ms    p(90)=195.39ms p(95)=241.91ms
-       { expected_response:true }...: avg=94.88ms min=409.8µs  med=69.78ms max=249ms    p(90)=208.38ms p(95)=245.81ms
-     http_req_failed................: 26.19% ✓ 11       ✗ 31
-     http_req_receiving.............: avg=88.46µs min=16.55µs  med=88.3µs  max=187.32µs p(90)=138.3µs  p(95)=150.55µs
-     http_req_sending...............: avg=42.21µs min=7.48µs   med=35.69µs max=132.09µs p(90)=94.12µs  p(95)=117.2µs
-     http_req_tls_handshaking.......: avg=0s      min=0s       med=0s      max=0s       p(90)=0s       p(95)=0s  
-     http_req_waiting...............: avg=76.95ms min=287.38µs med=67.92ms max=248.93ms p(90)=195.27ms p(95)=241.83ms
-     http_reqs......................: 42     0.699993/s
-     vus............................: 1      min=1      max=1
-     vus_max........................: 1      min=1      max=1
+     checks.........................: 100.00% ✓ 3683      ✗ 0   
+     data_received..................: 1.9 MB  13 kB/s
+     data_sent......................: 1.3 MB  8.6 kB/s
+   ✓ errors.........................: 0.00%   ✓ 0         ✗ 0   
+     http_req_blocked...............: avg=3.19µs  min=928ns    med=1.92µs  max=193.38µs p(90)=2.43µs   p(95)=3.15µs  
+     http_req_connecting............: avg=792ns   min=0s       med=0s      max=73.95µs  p(90)=0s       p(95)=0s      
+   ✓ http_req_duration..............: avg=87.42ms min=135.51µs med=42.27ms max=496.57ms p(90)=241.77ms p(95)=246.12ms
+       { expected_response:true }...: avg=87.42ms min=135.51µs med=42.27ms max=496.57ms p(90)=241.77ms p(95)=246.12ms
+     http_req_failed................: 0.00%   ✓ 0         ✗ 3683
+     http_req_receiving.............: avg=25.94µs min=9.38µs   med=26µs    max=192.93µs p(90)=32.91µs  p(95)=35.3µs  
+     http_req_sending...............: avg=10.09µs min=4.61µs   med=9.62µs  max=196.93µs p(90)=12.81µs  p(95)=14.69µs 
+     http_req_tls_handshaking.......: avg=0s      min=0s       med=0s      max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=87.39ms min=112.91µs med=42.22ms max=496.54ms p(90)=241.74ms p(95)=246.09ms
+     http_reqs......................: 3683    24.553235/s
+     vus............................: 0       min=0      max=50
+     vus_max........................: 50      min=50      max=50
 
 
-running (1m00.0s), 0/1 VUs, 0 complete and 1 interrupted iterations
-default ✓ [======================================] 1 VUs  30s
+running (2m30.0s), 00/50 VUs, 0 complete and 50 interrupted iterations
+default ✓ [======================================] 00/50 VUs  2m0s
+```

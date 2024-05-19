@@ -14,8 +14,8 @@ export let users = new SharedArray('users', function () {
 // Options for the load test
 export let options = {
   stages: [
-    { duration: '30s', target: 15 }, // Ramp-up to 50 virtual users
-    { duration: '1m', target: 20 }, // Stay at 50 virtual users for 1 minute
+    { duration: '30s', target: 0 }, // Ramp-up to 50 virtual users
+    { duration: '1m', target: 50 }, // Stay at 50 virtual users for 1 minute
     { duration: '30s', target: 0 }, // Ramp-down to 0 virtual users
   ],
   thresholds: {
