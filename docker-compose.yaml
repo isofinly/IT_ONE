@@ -1,0 +1,85 @@
+services:
+  backend-api:
+    build: ./server
+    ports:
+      - "3030:3030"
+      - "7080:7080"
+    depends_on:
+      - database
+      - nats
+    environment:
+      - "NATS_URL=nats://nats:4222"
+      - "DATABASE_URL=jdbc:postgresql://database:5432/postgres?ssl=on&sslrootcert=cert/ca-cert.pem"
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=pgpwd
+      - PORT=3030
+      - JWT_SECRET=secret
+
+  nats:
+    image: nats:latest
+    container_name: nats_server
+    ports:
+      - "4222:4222"  # NATS client connections
+      - "8222:8222"  # NATS monitoring
+      - "6222:6222"  # NATS route connections
+    environment:
+      - NATS_SERVER_NAME=hackathon_mq
+      - NATS_LOG_TIME=true
+    volumes:
+      - ./certs:/etc/nats/certs
+    command: >
+      -tls
+      -tlscert /etc/nats/certs/server-cert.pem
+      -tlskey /etc/nats/certs/server-key.pem
+      -tlscacert /etc/nats/certs/ca-cert.pem
+    hostname: nats-server
+
+  database:
+    container_name: postgres_container
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "pgpwd"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ./persistence/:/docker-entrypoint-initdb.d
+      - ./persistence/postgres/:/var/lib/postgresql/data
+      - ./certs/server-cert.pem:/var/lib/postgresql/data/server-cert.pem
+      - ./certs/server-key.pem:/var/lib/postgresql/data/server-key.pem
+      - ./certs/ca-cert.pem:/var/lib/postgresql/data/ca-cert.pem
+      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: on-failure:3
+
+  roapi:
+    image: ghcr.io/roapi/roapi:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/transactions.csv:/data/transactions.csv
+    command: --addr-http 0.0.0.0:8080 --table transactions=/data/transactions.csv
+      
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: 'prometheus'
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./monitoring/prometheus/config.yml:/monitoring/prometheus/config.yml
+    command: --config.file=/monitoring/prometheus/config.yml
+
+  # This could instead be a volume-mounted container.
+  grafana:
+    build: './monitoring/grafana'
+    container_name: 'grafana'
+    ports:
+      - '3000:3000'
+  

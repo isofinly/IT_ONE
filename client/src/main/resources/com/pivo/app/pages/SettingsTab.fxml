@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.SettingsController" spacing="20"
+      style="-fx-padding: 20;">
+    <HBox spacing="10">
+        <VBox spacing="10">
+            <Label text="Family Access" style="-fx-font-size: 20px;"/>
+            <!-- Add your family access settings components here -->
+
+            <Label text="Persistence" style="-fx-font-size: 20px;"/>
+            <!-- Add your persistence settings components here -->
+
+            <Label text="Synchronization" style="-fx-font-size: 20px;"/>
+            <!-- Add your synchronization settings components here -->
+
+            <!-- Add other settings components as needed -->
+        </VBox>
+    </HBox>
+</VBox>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.ValuationsController" spacing="20"
+      style="-fx-padding: 20;">
+    <HBox spacing="10">
+        <VBox spacing="10">
+
+        </VBox>
+    </HBox>
+</VBox>

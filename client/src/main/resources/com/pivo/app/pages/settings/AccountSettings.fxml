@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.GridPane?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.controllers.AccountSettingsController" spacing="10"
+      style="-fx-padding: 20;">
+
+    <Label text="Account Settings" style="-fx-font-size: 20px;"/>
+
+    <ComboBox fx:id="viewpointSelector" promptText="Select Viewpoint" onAction="#onViewpointChange">
+        <!-- Viewpoints are set in the controller -->
+    </ComboBox>
+
+    <Label text="Login" style="-fx-font-size: 16px;"/>
+
+    <GridPane vgap="10" hgap="10">
+        <Label text="Username or Email:"/>
+        <TextField fx:id="loginUsernameOrEmail" GridPane.columnIndex="1"/>
+        <Label text="Password:" GridPane.rowIndex="1"/>
+        <PasswordField fx:id="loginPassword" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Button text="Login" onAction="#loginUser" GridPane.rowIndex="2" GridPane.columnIndex="1"
+                style="-fx-background-color: #2d89ef; -fx-text-fill: white;"/>
+    </GridPane>
+
+    <Separator/>
+
+    <!-- Create New User Form -->
+    <Label text="Create New User" style="-fx-font-size: 16px;"/>
+    <GridPane vgap="10" hgap="10">
+        <Label text="Username:"/>
+        <TextField fx:id="newUsername" GridPane.columnIndex="1"/>
+        <Label text="Email:" GridPane.rowIndex="1"/>
+        <TextField fx:id="newEmail" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label text="Password:" GridPane.rowIndex="2"/>
+        <PasswordField fx:id="newPassword" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <Button text="Create User" onAction="#createUser" GridPane.rowIndex="3" GridPane.columnIndex="1"
+                style="-fx-background-color: #2d89ef; -fx-text-fill: white;"/>
+    </GridPane>
+</VBox>

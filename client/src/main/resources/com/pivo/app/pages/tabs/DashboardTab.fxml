@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.pivo.app.controllers.DashboardController" spacing="20"
+      style="-fx-padding: 20;">
+
+    <VBox spacing="20" style="-fx-padding: 20;">
+        <HBox spacing="30">
+            <VBox spacing="10" HBox.hgrow="ALWAYS">
+                <Label fx:id="netWorthValue" text="Net Worth" style="-fx-font-size: 18px;"/>
+                <LineChart fx:id="netWorthChart" createSymbols="false">
+                    <xAxis>
+                        <NumberAxis label="Net Worth"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis/>
+                    </yAxis>
+                </LineChart>
+            </VBox>
+
+            <VBox spacing="10">
+                <Label text="Assets / Debts" style="-fx-font-size: 18px;"/>
+                <PieChart fx:id="assetsDebtsChart"/>
+            </VBox>
+        </HBox>
+
+        <HBox spacing="10">
+            <VBox>
+                <!--            <Label text="Income" styleClass="section-header"/>-->
+                <Label fx:id="incomeValue" text="Income" style="-fx-font-size: 18px;"/>
+                <LineChart fx:id="incomeChart">
+                    <xAxis>
+                        <CategoryAxis label="Income"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis/>
+                    </yAxis>
+                </LineChart>
+            </VBox>
+            <VBox>
+                <!--            <Label text="Spending" styleClass="section-header"/>-->
+                <Label fx:id="spendingValue" text="Spending" style="-fx-font-size: 18px;"/>
+                <LineChart fx:id="spendingChart">
+                    <xAxis>
+                        <CategoryAxis label="Spending"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis/>
+                    </yAxis>
+                </LineChart>
+            </VBox>
+        </HBox>
+        <HBox spacing="10">
+            <VBox>
+                <!--            <Label text="Savings Rate" styleClass="section-header"/>-->
+                <Label fx:id="savingsRateValue" text="Savings Rate" style="-fx-font-size: 18px;"/>
+                <LineChart fx:id="savingsRateChart">
+                    <xAxis>
+                        <CategoryAxis label="Savings Rate"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis/>
+                    </yAxis>
+                </LineChart>
+            </VBox>
+            <VBox>
+                <!--            <Label text="Investing" styleClass="section-header"/>-->
+                <Label fx:id="investingValue" text="Investing" style="-fx-font-size: 18px;"/>
+                <LineChart fx:id="investingChart">
+                    <xAxis>
+                        <CategoryAxis label="Investing"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis/>
+                    </yAxis>
+                </LineChart>
+            </VBox>
+        </HBox>
+
+        <HBox spacing="20">
+            <VBox spacing="10" HBox.hgrow="ALWAYS">
+                <Label text="Transactions" style="-fx-font-size: 20px;"/>
+                <ListView fx:id="transactionsList"/>
+            </VBox>
+            <VBox spacing="10">
+                <Label text="Categories" style="-fx-font-size: 20px;"/>
+                <ListView fx:id="dashboardCategoriesList"/>
+            </VBox>
+        </HBox>
+    </VBox>
+
+</VBox>
+
+

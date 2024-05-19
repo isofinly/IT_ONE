@@ -1,0 +1,15 @@
+{
+  "name": "k6",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "K6 test for Javalin RESTful api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "kxrxh",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/k6": "^0.51.0"
+  }
+}

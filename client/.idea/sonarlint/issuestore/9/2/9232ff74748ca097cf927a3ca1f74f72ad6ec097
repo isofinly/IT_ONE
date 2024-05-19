@@ -1,0 +1,7 @@
+
+²
+java:S11929"qDefine a constant instead of duplicating this literal "JOIN accounts a ON al.account_id = a.account_id " 3 times.(¤ìËÂúÿÿÿÿJ$4fb5964f-ea22-4b7d-ae42-b26092f23f06
+|	java:S107"<Method has 9 parameters, which is greater than 7 authorized.(¥ÔÚ×ÿÿÿÿÿJ$260a59d6-a16a-463a-87c1-af45871cfb1d
+x	java:S107U"=Method has 10 parameters, which is greater than 7 authorized.(×Ù‡ËJ$8e49cfe5-d4e5-4558-900e-00447529b6fc
+n
+java:S1172"-Remove this unused method parameter "userId".(¥ÔÚ×ÿÿÿÿÿJ$9467aa51-a385-4422-a8bb-732feaf149a8
