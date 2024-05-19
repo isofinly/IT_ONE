@@ -1,3 +1,4 @@
+```
 k6 run --vus 100 --duration 30s basic-load.js
 
           /\      |‾‾| /‾‾/   /‾‾/
@@ -39,3 +40,4 @@ k6 run --vus 100 --duration 30s basic-load.js
 
 running (0m31.2s), 000/100 VUs, 2460 complete and 0 interrupted iterations
 default ✓ [======================================] 100 VUs  30s
+```
