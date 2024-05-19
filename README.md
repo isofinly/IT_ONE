@@ -10,6 +10,8 @@
 | Тестирование    | Smoke, Load, jUnit                                                                                    |
 | Безопасность    | SSL сертификаты на все соединения, которые его поддерживают.  SSL для интеграции с внешними сервисами |
 
+<img src="https://raw.githubusercontent.com/isofinly/IT_ONE/main/image.png?token=GHSAT0AAAAAACQ5NKFQ3UCDY2EHBHG5PQ3IZSJRUEQ" width="100%"/>
+
 ## Требования и описание продукта
 
 2.2 Общее описание
