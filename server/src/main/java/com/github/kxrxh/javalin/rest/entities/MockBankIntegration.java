@@ -15,7 +15,7 @@ public class MockBankIntegration extends AbstractBankIntegration {
     protected String getBankApiUrl() {
         String bankUrl = System.getenv("MOCK_BANK_URL") != null ? System.getenv("MOCK_BANK_URL")
                 : "http://localhost:8080";
-        return String.format("http://%s/api/tables/transactions", bankUrl);
+        return String.format("https://%s/api/tables/transactions", bankUrl);
     }
 
     @Override

@@ -16,7 +16,6 @@ public class TaxService extends AbstractService {
     /**
      * Creates a new tax record.
      *
-     * @param userId      The ID of the user creating the tax.
      * @param name        The name of the tax.
      * @param description The description of the tax.
      * @param rate        The rate of the tax.
@@ -48,7 +47,6 @@ public class TaxService extends AbstractService {
     /**
      * Retrieves a tax record by its ID.
      *
-     * @param userId The ID of the user retrieving the tax.
      * @param taxId  The ID of the tax to retrieve.
      * @return The Tax object if found.
      * @throws SQLException If the tax is not found or if an SQL error occurs.
@@ -84,7 +82,6 @@ public class TaxService extends AbstractService {
     /**
      * Updates an existing tax record.
      *
-     * @param userId      The ID of the user updating the tax.
      * @param taxId       The ID of the tax to update.
      * @param name        The updated name of the tax.
      * @param description The updated description of the tax.
@@ -117,7 +114,6 @@ public class TaxService extends AbstractService {
     /**
      * Deletes a tax record.
      *
-     * @param userId The ID of the user deleting the tax.
      * @param taxId  The ID of the tax to delete.
      * @throws SQLException If an SQL error occurs.
      */

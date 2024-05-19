@@ -8,6 +8,7 @@ import javax.net.ssl.SSLContext;
 import io.nats.client.Connection;
 import io.nats.client.Nats;
 import io.nats.client.Options;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -16,18 +17,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NATSUtil {
 
+    /**
+     * -- GETTER --
+     *  Gets the NATS connection.
+     *
+     */
+    @Getter
     private static Connection natsConnection;
 
     private NATSUtil() {
-    }
-
-    /**
-     * Gets the NATS connection.
-     *
-     * @return The NATS connection.
-     */
-    public static Connection getNatsConnection() {
-        return natsConnection;
     }
 
     /**
@@ -44,9 +42,8 @@ public class NATSUtil {
      *
      * @param natsServerURL The URL of the NATS server.
      * @throws IOException          If an I/O error occurs.
-     * @throws InterruptedException If the connection process is interrupted.
      */
-    public static void connect(String natsServerURL) throws IOException, InterruptedException {
+    public static void connect(String natsServerURL) throws IOException {
         if (natsConnection == null) {
             try {
                 SSLContext sslContext = SSLUtils.createSSLContext();

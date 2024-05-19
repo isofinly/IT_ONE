@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -77,10 +76,8 @@ public class NATSSubscriber {
      * statements.
      *
      * @param subject The subject to subscribe to.
-     * @throws IOException          If an I/O error occurs.
-     * @throws InterruptedException If the subscription process is interrupted.
      */
-    public static void subscribe(String subject) throws IOException, InterruptedException {
+    public static void subscribe(String subject) {
         if (NATSUtil.getNatsConnection() != null) {
             Dispatcher dispatcher = NATSUtil.getNatsConnection().createDispatcher(msg -> {
                 String message = new String(msg.getData(), StandardCharsets.UTF_8);

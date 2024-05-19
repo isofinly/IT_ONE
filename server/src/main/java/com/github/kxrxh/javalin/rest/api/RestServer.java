@@ -45,7 +45,7 @@ public class RestServer {
             log.error("Unable to initialize Prometheus: {}", e.getMessage());
             throw new PrometheusInitializationException(e);
         }
-        app.after(ctx -> log.info(ctx.req().getMethod() + " " + ctx.req().getPathInfo() + " " + ctx.statusCode()));
+        app.after(ctx -> log.info("{} {} {}", ctx.req().getMethod(), ctx.req().getPathInfo(), ctx.statusCode()));
 
         scheduler.scheduleAtFixedRate(this::checkDueDateNotifications, 0, 1, TimeUnit.DAYS);
 

@@ -27,7 +27,7 @@ public class NotificationController extends AbstractController {
         String notificationType = requestBody.optString("notification_type");
         String thresholdStr = requestBody.optString("threshold");
 
-        Long threshold = Long.parseLong(thresholdStr);
+        long threshold = Long.parseLong(thresholdStr);
 
         try {
             NotificationService.setNotification(userId, notificationType, threshold);

@@ -30,7 +30,7 @@ public class ValuationService extends AbstractService {
      */
     public static void createValuation(UUID userId, UUID accountId, LocalDate date, long value, String currency)
             throws SQLException {
-        if (!isUserAuthorized(userId, accountId)) {
+        if (isUserAuthorized(userId, accountId)) {
             throw new SQLException("User not authorized to create valuation for this account");
         }
 
@@ -76,7 +76,7 @@ public class ValuationService extends AbstractService {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     UUID accountId = UUID.fromString(rs.getString(ACCOUNT_ID));
-                    if (!isUserAuthorized(userId, accountId)) {
+                    if (isUserAuthorized(userId, accountId)) {
                         throw new SQLException("User not authorized to read valuation for this account");
                     }
 
@@ -112,7 +112,7 @@ public class ValuationService extends AbstractService {
      */
     public static void updateValuation(UUID userId, UUID valuationId, UUID accountId, LocalDate date, long value,
                                        String currency) throws SQLException {
-        if (!isUserAuthorized(userId, accountId)) {
+        if (isUserAuthorized(userId, accountId)) {
             throw new SQLException("User not authorized to update valuation for this account");
         }
 
@@ -156,7 +156,7 @@ public class ValuationService extends AbstractService {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     UUID accountId = UUID.fromString(rs.getString("account_id"));
-                    if (!isUserAuthorized(userId, accountId)) {
+                    if (isUserAuthorized(userId, accountId)) {
                         throw new SQLException("User not authorized to delete valuation for this account");
                     }
 
@@ -176,11 +176,11 @@ public class ValuationService extends AbstractService {
     /**
      * Checks if the user is authorized to read valuations for this account.
      *
-     * @param userId
-     * @param accountId
+     * @param userId user id
+     * @param accountId account id
      * @return True if the user is authorized to read valuations for this account.
      * False otherwise.
-     * Throws an SQLException if an SQL error occurs.
+     * @Throws SQLException if an SQL error occurs.
      */
     private static boolean isUserAuthorized(UUID userId, UUID accountId) throws SQLException {
         Optional<Connection> optConn = DatabaseManager.getInstance().getConnection();
@@ -197,7 +197,7 @@ public class ValuationService extends AbstractService {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
+                return !rs.next();
             }
         } finally {
             conn.close();

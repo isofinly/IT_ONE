@@ -178,7 +178,6 @@ public class BudgetService extends AbstractService {
      * Compares transactions of a specific category with transactions from past
      * periods.
      *
-     * @param conn       The database connection.
      * @param categoryId The ID of the category.
      * @param dateRange  The date range for the analysis.
      * @return A list of comparison results between current and past transactions.

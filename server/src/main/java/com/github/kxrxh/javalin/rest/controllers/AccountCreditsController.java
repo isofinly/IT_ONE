@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -134,7 +135,7 @@ public class AccountCreditsController extends AbstractController {
 
         String creditIdStr = ctx.queryParam(CREDIT_ID);
 
-        if (creditIdStr.isEmpty()) {
+        if (Objects.requireNonNull(creditIdStr).isEmpty()) {
             ctx.status(400).result(MISSING_REQUIERED_STRING);
             return;
         }

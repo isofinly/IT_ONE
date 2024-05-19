@@ -34,7 +34,7 @@ public class IntegrationService extends AbstractService {
      * @param userId          The ID of the user.
      * @param bankName        The name of the bank.
      * @param bankCredentials The credentials for accessing the bank.
-     * @throws Exception If no integration is found for the specified bank.
+     * @throws ValidationException,ConnectException If no integration is found for the specified bank.
      */
     public static void integrateWithBank(UUID userId, String bankName, String bankCredentials) throws ValidationException, ConnectException {
         BankIntegration integration = integrations.get(bankName.toLowerCase());

@@ -19,6 +19,7 @@ import io.javalin.http.Handler;
 import javalinjwt.JWTGenerator;
 import javalinjwt.JWTProvider;
 import javalinjwt.JavalinJWT;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
@@ -31,6 +32,7 @@ import java.util.Optional;
 public class AuthController extends AbstractController {
     private static AuthController instance;
     private final JWTProvider<UserPayload> provider;
+    @Getter
     private final Handler decodeHandler;
 
     private AuthController(Algorithm algorithm, JWTVerifier verifier) {
@@ -191,7 +193,4 @@ public class AuthController extends AbstractController {
         }
     }
 
-    public Handler getDecodeHandler() {
-        return decodeHandler;
-    }
 }

@@ -25,7 +25,7 @@ public class AccountService extends AbstractService {
      */
     public static void transferFunds(UUID userId, UUID fromAccountId, UUID toAccountId, long amount)
             throws SQLException {
-        if (!isUserAuthorized(userId, fromAccountId)) {
+        if (isUserAuthorized(userId, fromAccountId)) {
             throw new SQLException("User not authorized to transfer from this account");
         }
 
@@ -82,7 +82,7 @@ public class AccountService extends AbstractService {
 
         for (String accountIdStr : accountIds) {
             UUID accountId = UUID.fromString(accountIdStr);
-            if (!isUserAuthorized(userId, accountId)) {
+            if (isUserAuthorized(userId, accountId)) {
                 throw new SQLException("User not authorized to merge this account");
             }
         }
@@ -112,7 +112,7 @@ public class AccountService extends AbstractService {
                             // all
                             // balances
                             // to RUB
-                            totalBalance += convertedBalance;
+                            totalBalance += (long) convertedBalance;
                         } else {
                             throw new SQLException("Account with ID " + accountId + " not found");
                         }
@@ -174,7 +174,7 @@ public class AccountService extends AbstractService {
             ps.setObject(1, accountId, java.sql.Types.OTHER);
             ps.setObject(2, userId, java.sql.Types.OTHER);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
+                return !rs.next();
             }
         } finally {
             conn.close();

@@ -21,8 +21,8 @@ public class App {
         try {
             NATSUtil.connect(natsUrl);
             NATSSubscriber.subscribe("client_updates");
-        } catch (IOException | InterruptedException e) {
-            log.error("Unable to connect to NATS: " + e.getMessage());
+        } catch (IOException e) {
+            log.error("Unable to connect to NATS: {}", e.getMessage());
             Thread.currentThread().interrupt();
             System.exit(1);
         }
@@ -87,7 +87,7 @@ public class App {
         try {
             server.listen(port);
         } catch (JavalinBindException e) {
-            log.error("Unable to bind to port " + port + ": " + e.getMessage());
+            log.error("Unable to bind to port {}: {}", port, e.getMessage());
             System.exit(1);
         }
     }
