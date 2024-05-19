@@ -174,4 +174,35 @@ class AccountTest {
         assertEquals(syncErrors, account.getSyncErrors());
         assertEquals(lastSyncedAt, account.getLastSyncedAt());
     }
+    @Test
+    void testEqualsAndHashCode() {
+        UUID accountId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        UUID familyId = UUID.randomUUID();
+        String accountType = "Savings";
+        String subtype = "Online";
+        String accountName = "Online Savings Account";
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        String accountableType = "User";
+        UUID accountableId = UUID.randomUUID();
+        long balance = 10000L;
+        String currency = "USD";
+        boolean isActive = true;
+        AccountStatus status = AccountStatus.ACTIVE;
+        String syncWarnings = "No warnings";
+        String syncErrors = "No errors";
+        LocalDateTime lastSyncedAt = LocalDateTime.now();
+
+        Account account1 = new Account(accountId, userId, familyId, accountType, subtype, accountName, createdAt, updatedAt, accountableType, accountableId, balance, currency, isActive, status, syncWarnings, syncErrors, lastSyncedAt);
+        Account account2 = new Account(accountId, userId, familyId, accountType, subtype, accountName, createdAt, updatedAt, accountableType, accountableId, balance, currency, isActive, status, syncWarnings, syncErrors, lastSyncedAt);
+
+        assertEquals(account1, account2);
+        assertEquals(account1.hashCode(), account2.hashCode());
+
+        account2.setBalance(20000L);
+        assertNotEquals(account1, account2);
+        assertNotEquals(account1.hashCode(), account2.hashCode());
+    }
+
 }

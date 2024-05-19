@@ -1,6 +1,7 @@
 package com.github.kxrxh.javalin.rest.util;
 
 import com.github.kxrxh.javalin.rest.database.models.RecurringTransaction;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -133,5 +134,21 @@ class RecurringTransactionTest {
         assertEquals(createdAt, recurringTransaction.getCreatedAt());
         assertEquals(updatedAt, recurringTransaction.getUpdatedAt());
         assertEquals(lastSyncedAt, recurringTransaction.getLastSyncedAt());
+    }
+
+    @Test
+    void testToString() {
+        UUID recurringTransactionId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        RecurringTransaction transaction = new RecurringTransaction(recurringTransactionId, UUID.randomUUID(), 1500L, categoryId, "Utilities", "Monthly utility bills", 30L, UUID.randomUUID(), "Doe Family", createdAt, updatedAt, LocalDateTime.now());
+
+        String expectedString = "RecurringTransaction(recurringTransactionId=" + recurringTransactionId +
+                ", userId=" + transaction.getUserId() + ", amount=1500, categoryId=" + categoryId +
+                ", categoryName=Utilities, description=Monthly utility bills, frequency=30" +
+                ", familyId=" + transaction.getFamilyId() + ", familyName=Doe Family, createdAt=" +
+                createdAt + ", updatedAt=" + updatedAt + ", lastSyncedAt=" + transaction.getLastSyncedAt() + ")";
+        assertEquals(expectedString, transaction.toString());
     }
 }

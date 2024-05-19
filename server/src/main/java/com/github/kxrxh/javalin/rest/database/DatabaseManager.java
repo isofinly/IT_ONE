@@ -1,12 +1,11 @@
 package com.github.kxrxh.javalin.rest.database;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.dbcp.BasicDataSource;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Optional;
-
-import org.apache.commons.dbcp.BasicDataSource;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DatabaseManager {

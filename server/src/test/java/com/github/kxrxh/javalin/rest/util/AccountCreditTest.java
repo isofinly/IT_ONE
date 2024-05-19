@@ -7,8 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AccountCreditTest {
 
@@ -118,5 +117,51 @@ class AccountCreditTest {
         assertEquals(updatedAt, credit.getUpdatedAt());
         assertEquals(lastSyncedAt, credit.getLastSyncedAt());
         assertEquals(userId, credit.getUserId());
+    }
+
+    @Test
+    void testEqualsAndHashCode() {
+        UUID id = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        long creditLimit = 5000L;
+        double interestRate = 0.1;
+        LocalDate dueDate = LocalDate.now().plusMonths(1);
+        long minimumPayment = 200L;
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        LocalDateTime lastSyncedAt = LocalDateTime.now();
+        UUID userId = UUID.randomUUID();
+
+        AccountCredit credit1 = new AccountCredit(id, accountId, creditLimit, interestRate, dueDate, minimumPayment, createdAt, updatedAt, lastSyncedAt, userId);
+        AccountCredit credit2 = new AccountCredit(id, accountId, creditLimit, interestRate, dueDate, minimumPayment, createdAt, updatedAt, lastSyncedAt, userId);
+
+        assertEquals(credit1, credit2);
+        assertEquals(credit1.hashCode(), credit2.hashCode());
+
+        credit2.setCreditLimit(10000L);
+        assertNotEquals(credit1, credit2);
+        assertNotEquals(credit1.hashCode(), credit2.hashCode());
+    }
+
+    @Test
+    void testToString() {
+        UUID id = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        long creditLimit = 5000L;
+        double interestRate = 0.1;
+        LocalDate dueDate = LocalDate.now().plusMonths(1);
+        long minimumPayment = 200L;
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        LocalDateTime lastSyncedAt = LocalDateTime.now();
+        UUID userId = UUID.randomUUID();
+
+        AccountCredit credit = new AccountCredit(id, accountId, creditLimit, interestRate, dueDate, minimumPayment, createdAt, updatedAt, lastSyncedAt, userId);
+        String expectedString = "AccountCredit(id=" + id.toString() + ", accountId=" + accountId.toString() +
+                ", creditLimit=" + creditLimit + ", interestRate=" + interestRate + ", dueDate=" + dueDate +
+                ", minimumPayment=" + minimumPayment + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt +
+                ", lastSyncedAt=" + lastSyncedAt + ", userId=" + userId + ")";
+
+        assertEquals(expectedString, credit.toString());
     }
 }

@@ -7,8 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AccountOtherAssetTest {
 
@@ -126,5 +125,55 @@ class AccountOtherAssetTest {
         assertEquals(createdAt, asset.getCreatedAt());
         assertEquals(updatedAt, asset.getUpdatedAt());
         assertEquals(lastSyncedAt, asset.getLastSyncedAt());
+    }
+
+    @Test
+    void testEqualsAndHashCode() {
+        UUID id = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        String assetType = "Stocks";
+        long purchasePrice = 10000L;
+        long currentValue = 12000L;
+        LocalDate purchaseDate = LocalDate.now();
+        double depreciationRate = 0.1;
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        LocalDateTime lastSyncedAt = LocalDateTime.now();
+
+        AccountOtherAsset asset1 = new AccountOtherAsset(id, accountId, userId, assetType, purchasePrice, currentValue, purchaseDate, depreciationRate, createdAt, updatedAt, lastSyncedAt);
+        AccountOtherAsset asset2 = new AccountOtherAsset(id, accountId, userId, assetType, purchasePrice, currentValue, purchaseDate, depreciationRate, createdAt, updatedAt, lastSyncedAt);
+
+        assertEquals(asset1, asset2);
+        assertEquals(asset1.hashCode(), asset2.hashCode());
+
+        asset2.setPurchasePrice(20000L);
+        assertNotEquals(asset1, asset2);
+        assertNotEquals(asset1.hashCode(), asset2.hashCode());
+    }
+
+    @Test
+    void testToString() {
+        UUID id = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        String assetType = "Stocks";
+        long purchasePrice = 10000L;
+        long currentValue = 12000L;
+        LocalDate purchaseDate = LocalDate.now();
+        double depreciationRate = 0.1;
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        LocalDateTime lastSyncedAt = LocalDateTime.now();
+
+        AccountOtherAsset asset = new AccountOtherAsset(id, accountId, userId, assetType, purchasePrice, currentValue, purchaseDate, depreciationRate, createdAt, updatedAt, lastSyncedAt);
+        String expectedString = "AccountOtherAsset(id=" + id.toString() + ", accountId=" + accountId.toString() +
+                ", userId=" + userId.toString() + ", assetType=" + assetType +
+                ", purchasePrice=" + purchasePrice + ", currentValue=" + currentValue +
+                ", purchaseDate=" + purchaseDate + ", depreciationRate=" + depreciationRate +
+                ", createdAt=" + createdAt + ", updatedAt=" + updatedAt +
+                ", lastSyncedAt=" + lastSyncedAt + ")";
+
+        assertEquals(expectedString, asset.toString());
     }
 }

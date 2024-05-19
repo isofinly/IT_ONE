@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FamilyTest {
 
@@ -77,5 +76,32 @@ class FamilyTest {
         assertEquals(createdAt, family.getCreatedAt());
         assertEquals(updatedAt, family.getUpdatedAt());
         assertEquals(currency, family.getCurrency());
+    }
+    @Test
+    void testEqualsAndHashCode() {
+        UUID familyId = UUID.randomUUID();
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        Family family1 = new Family(familyId, "Smith Family", createdAt, updatedAt, "USD");
+        Family family2 = new Family(familyId, "Smith Family", createdAt, updatedAt, "USD");
+
+        assertEquals(family1, family2);
+        assertEquals(family1.hashCode(), family2.hashCode());
+
+        family2.setCurrency("EUR");
+        assertNotEquals(family1, family2);
+        assertNotEquals(family1.hashCode(), family2.hashCode());
+    }
+
+    @Test
+    void testToString() {
+        UUID familyId = UUID.randomUUID();
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        Family family = new Family(familyId, "Johnson Family", createdAt, updatedAt, "GBP");
+
+        String expectedString = "Family(familyId=" + familyId + ", name=Johnson Family, createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt + ", currency=GBP)";
+        assertEquals(expectedString, family.toString());
     }
 }

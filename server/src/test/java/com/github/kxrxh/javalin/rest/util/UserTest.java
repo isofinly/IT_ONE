@@ -125,4 +125,26 @@ class UserTest {
         assertTrue(user.isActive());
         assertEquals(lastSyncedAt, user.getLastSyncedAt());
     }
+
+    @Test
+    void testToString() {
+        UUID userId = UUID.randomUUID();
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        LocalDateTime lastLogin = LocalDateTime.now();
+
+        User user = new User(userId, UUID.randomUUID(), "Alice", "Smith", "alice.smith@example.com", "passwordDigest", createdAt, updatedAt, lastLogin, true, LocalDateTime.now());
+
+        String expectedString = "User(userId=" + userId +
+                ", familyId=" + user.getFamilyId() +
+                ", firstName=Alice, lastName=Smith" +
+                ", email=alice.smith@example.com" +
+                ", passwordDigest=passwordDigest" +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", lastLogin=" + lastLogin +
+                ", active=true" +
+                ", lastSyncedAt=" + user.getLastSyncedAt() + ")";
+        assertEquals(expectedString, user.toString());
+    }
 }

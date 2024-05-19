@@ -7,8 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ExchangeRateTest {
 
@@ -94,5 +93,19 @@ class ExchangeRateTest {
         assertEquals(date, exchangeRate.getDate());
         assertEquals(createdAt, exchangeRate.getCreatedAt());
         assertEquals(updatedAt, exchangeRate.getUpdatedAt());
+    }
+
+
+    @Test
+    void testToString() {
+        UUID id = UUID.randomUUID();
+        LocalDate date = LocalDate.now();
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        ExchangeRate exchangeRate = new ExchangeRate(id, "USD", "EUR", 0L, date, createdAt, updatedAt);
+
+        String expectedString = "ExchangeRate(id=" + id + ", baseCurrency=USD, convertedCurrency=EUR, rate=0, date=" + date +
+                ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ")";
+        assertEquals(expectedString, exchangeRate.toString());
     }
 }

@@ -7,8 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AccountInvestmentTest {
 
@@ -126,5 +125,53 @@ class AccountInvestmentTest {
         assertEquals(createdAt, investment.getCreatedAt());
         assertEquals(updatedAt, investment.getUpdatedAt());
         assertEquals(lastSyncedAt, investment.getLastSyncedAt());
+    }
+
+    @Test
+    void testEqualsAndHashCode() {
+        UUID id = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        String investmentType = "Stocks";
+        long marketValue = 5000L;
+        long purchasePrice = 4000L;
+        LocalDate purchaseDate = LocalDate.now();
+        long dividends = 200L;
+        long interestRate = 5L;
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        LocalDateTime lastSyncedAt = LocalDateTime.now();
+
+        AccountInvestment investment1 = new AccountInvestment(id, accountId, investmentType, marketValue, purchasePrice, purchaseDate, dividends, interestRate, createdAt, updatedAt, lastSyncedAt);
+        AccountInvestment investment2 = new AccountInvestment(id, accountId, investmentType, marketValue, purchasePrice, purchaseDate, dividends, interestRate, createdAt, updatedAt, lastSyncedAt);
+
+        assertEquals(investment1, investment2);
+        assertEquals(investment1.hashCode(), investment2.hashCode());
+
+        investment2.setMarketValue(6000L);
+        assertNotEquals(investment1, investment2);
+        assertNotEquals(investment1.hashCode(), investment2.hashCode());
+    }
+
+    @Test
+    void testToString() {
+        UUID id = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        String investmentType = "Stocks";
+        long marketValue = 5000L;
+        long purchasePrice = 4000L;
+        LocalDate purchaseDate = LocalDate.now();
+        long dividends = 200L;
+        long interestRate = 5L;
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        LocalDateTime lastSyncedAt = LocalDateTime.now();
+
+        AccountInvestment investment = new AccountInvestment(id, accountId, investmentType, marketValue, purchasePrice, purchaseDate, dividends, interestRate, createdAt, updatedAt, lastSyncedAt);
+        String expectedString = "AccountInvestment(id=" + id.toString() + ", accountId=" + accountId.toString() +
+                ", investmentType=" + investmentType + ", marketValue=" + marketValue + ", purchasePrice=" + purchasePrice +
+                ", purchaseDate=" + purchaseDate + ", dividends=" + dividends + ", interestRate=" + interestRate +
+                ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", lastSyncedAt=" + lastSyncedAt + ")";
+
+        assertEquals(expectedString, investment.toString());
     }
 }

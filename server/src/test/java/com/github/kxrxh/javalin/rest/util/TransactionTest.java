@@ -141,4 +141,21 @@ class TransactionTest {
         assertEquals(updatedAt, transaction.getUpdatedAt());
         assertEquals(lastSyncedAt, transaction.getLastSyncedAt());
     }
+
+    @Test
+    void testToString() {
+        UUID transactionId = UUID.randomUUID();
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+
+        Transaction transaction = new Transaction(transactionId, "Test", LocalDateTime.now(), 1000L, "USD", UUID.randomUUID(), UUID.randomUUID(), false, "Notes", Transaction.TransactionType.INFLOW, createdAt, updatedAt, LocalDateTime.now());
+
+        String expectedString = "Transaction(transactionId=" + transactionId +
+                ", name=Test, date=" + transaction.getDate() +
+                ", amount=1000, currency=USD, accountId=" + transaction.getAccountId() +
+                ", categoryId=" + transaction.getCategoryId() + ", excluded=false, notes=Notes, " +
+                "transactionType=INFLOW, createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt + ", lastSyncedAt=" + transaction.getLastSyncedAt() + ")";
+        assertEquals(expectedString, transaction.toString());
+    }
 }

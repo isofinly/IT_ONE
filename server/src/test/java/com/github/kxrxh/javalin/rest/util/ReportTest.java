@@ -9,8 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ReportTest {
 
@@ -96,5 +95,37 @@ class ReportTest {
         assertEquals(createdAt, report.getCreatedAt());
         assertEquals(updatedAt, report.getUpdatedAt());
         assertEquals(transactions, report.getTransactions());
+    }
+    @Test
+    void testEqualsAndHashCode() {
+        UUID reportId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        List<Transaction> transactions = new ArrayList<>();
+        Report report1 = new Report(reportId, userId, "Monthly", "January 2024", createdAt, updatedAt, transactions);
+        Report report2 = new Report(reportId, userId, "Monthly", "January 2024", createdAt, updatedAt, transactions);
+
+        assertEquals(report1, report2);
+        assertEquals(report1.hashCode(), report2.hashCode());
+
+        report2.setDateRange("February 2024");
+        assertNotEquals(report1, report2);
+        assertNotEquals(report1.hashCode(), report2.hashCode());
+    }
+
+    @Test
+    void testToString() {
+        UUID reportId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        List<Transaction> transactions = new ArrayList<>();
+        Report report = new Report(reportId, userId, "Yearly", "2023", createdAt, updatedAt, transactions);
+
+        String expectedString = "Report(reportId=" + reportId +
+                ", userId=" + userId + ", reportType=Yearly, dateRange=2023, createdAt=" +
+                createdAt + ", updatedAt=" + updatedAt + ", transactions=" + transactions + ")";
+        assertEquals(expectedString, report.toString());
     }
 }

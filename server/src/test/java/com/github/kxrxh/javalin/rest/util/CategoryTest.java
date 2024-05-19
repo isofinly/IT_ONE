@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CategoryTest {
 
@@ -85,5 +84,40 @@ class CategoryTest {
         assertEquals(createdAt, category.getCreatedAt());
         assertEquals(updatedAt, category.getUpdatedAt());
         assertEquals(lastSyncedAt, category.getLastSyncedAt());
+    }
+
+    @Test
+    void testEqualsAndHashCode() {
+        UUID categoryId = UUID.randomUUID();
+        UUID familyId = UUID.randomUUID();
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        LocalDateTime lastSyncedAt = LocalDateTime.now();
+
+        Category category1 = new Category(categoryId, "Groceries", familyId, createdAt, updatedAt, lastSyncedAt);
+        Category category2 = new Category(categoryId, "Groceries", familyId, createdAt, updatedAt, lastSyncedAt);
+
+        assertEquals(category1, category2);
+        assertEquals(category1.hashCode(), category2.hashCode());
+
+        category2.setName("Utilities");
+        assertNotEquals(category1, category2);
+        assertNotEquals(category1.hashCode(), category2.hashCode());
+    }
+
+    @Test
+    void testToString() {
+        UUID categoryId = UUID.randomUUID();
+        UUID familyId = UUID.randomUUID();
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        LocalDateTime lastSyncedAt = LocalDateTime.now();
+
+        Category category = new Category(categoryId, "Groceries", familyId, createdAt, updatedAt, lastSyncedAt);
+        String expectedString = "Category(categoryId=" + categoryId.toString() + ", name=Groceries, familyId=" + familyId.toString() +
+                ", createdAt=" + createdAt + ", updatedAt=" + updatedAt +
+                ", lastSyncedAt=" + lastSyncedAt + ")";
+
+        assertEquals(expectedString, category.toString());
     }
 }

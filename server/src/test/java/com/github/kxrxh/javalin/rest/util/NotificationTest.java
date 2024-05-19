@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NotificationTest {
 
@@ -93,5 +92,31 @@ class NotificationTest {
         assertEquals(createdAt, notification.getCreatedAt());
         assertEquals(updatedAt, notification.getUpdatedAt());
         assertEquals(lastSyncedAt, notification.getLastSyncedAt());
+    }
+    @Test
+    void testEqualsAndHashCode() {
+        UUID notificationId = UUID.randomUUID();
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        Notification notification1 = new Notification(notificationId, UUID.randomUUID(), "Email", 1000L, createdAt, updatedAt, LocalDateTime.now());
+        Notification notification2 = new Notification(notificationId, UUID.randomUUID(), "Email", 1000L, createdAt, updatedAt, LocalDateTime.now());
+
+
+        notification2.setNotificationType("SMS");
+        assertNotEquals(notification1, notification2);
+        assertNotEquals(notification1.hashCode(), notification2.hashCode());
+    }
+
+    @Test
+    void testToString() {
+        UUID notificationId = UUID.randomUUID();
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        Notification notification = new Notification(notificationId, UUID.randomUUID(), "Push", 2000L, createdAt, updatedAt, LocalDateTime.now());
+
+        String expectedString = "Notification(notificationId=" + notificationId + ", userId=" + notification.getUserId() +
+                ", notificationType=Push, threshold=2000, createdAt=" + createdAt + ", updatedAt=" + updatedAt +
+                ", lastSyncedAt=" + notification.getLastSyncedAt() + ")";
+        assertEquals(expectedString, notification.toString());
     }
 }

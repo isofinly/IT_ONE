@@ -95,4 +95,46 @@ class ValuationTest {
         Assertions.assertEquals(createdAt, valuation.getCreatedAt());
         Assertions.assertEquals(updatedAt, valuation.getUpdatedAt());
     }
+    @Test
+    void testEqualsAndHashCode() {
+        UUID id = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        LocalDate date = LocalDate.now();
+        long value = 1000L;
+        String currency = "USD";
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+
+        Valuation valuation1 = new Valuation(id, accountId, date, value, currency, createdAt, updatedAt);
+        Valuation valuation2 = new Valuation(id, accountId, date, value, currency, createdAt, updatedAt);
+
+        Assertions.assertEquals(valuation1, valuation2);
+        Assertions.assertEquals(valuation1.hashCode(), valuation2.hashCode());
+
+        valuation2.setValue(2000L);
+        Assertions.assertNotEquals(valuation1, valuation2);
+        Assertions.assertNotEquals(valuation1.hashCode(), valuation2.hashCode());
+    }
+
+    @Test
+    void testToString() {
+        UUID id = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        LocalDate date = LocalDate.now();
+        long value = 1000L;
+        String currency = "USD";
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+
+        Valuation valuation = new Valuation(id, accountId, date, value, currency, createdAt, updatedAt);
+
+        String expectedString = "Valuation(id=" + id +
+                ", accountId=" + accountId +
+                ", date=" + date +
+                ", value=" + value +
+                ", currency=" + currency +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt + ")";
+        Assertions.assertEquals(expectedString, valuation.toString());
+    }
 }

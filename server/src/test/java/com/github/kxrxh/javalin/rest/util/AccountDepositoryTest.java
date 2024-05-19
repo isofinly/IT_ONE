@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AccountDepositoryTest {
 
@@ -125,5 +124,54 @@ class AccountDepositoryTest {
         assertEquals(createdAt, depository.getCreatedAt());
         assertEquals(updatedAt, depository.getUpdatedAt());
         assertEquals(lastSyncedAt, depository.getLastSyncedAt());
+    }
+
+    @Test
+    void testEqualsAndHashCode() {
+        UUID id = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        String bankName = "Bank of America";
+        String accountNumber = "123456789";
+        String routingNumber = "987654321";
+        double interestRate = 0.02;
+        long overdraftLimit = 1000L;
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        LocalDateTime lastSyncedAt = LocalDateTime.now();
+
+        AccountDepository depository1 = new AccountDepository(id, accountId, userId, bankName, accountNumber, routingNumber, interestRate, overdraftLimit, createdAt, updatedAt, lastSyncedAt);
+        AccountDepository depository2 = new AccountDepository(id, accountId, userId, bankName, accountNumber, routingNumber, interestRate, overdraftLimit, createdAt, updatedAt, lastSyncedAt);
+
+        assertEquals(depository1, depository2);
+        assertEquals(depository1.hashCode(), depository2.hashCode());
+
+        depository2.setInterestRate(0.03);
+        assertNotEquals(depository1, depository2);
+        assertNotEquals(depository1.hashCode(), depository2.hashCode());
+    }
+
+    @Test
+    void testToString() {
+        UUID id = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        String bankName = "Bank of America";
+        String accountNumber = "123456789";
+        String routingNumber = "987654321";
+        double interestRate = 0.02;
+        long overdraftLimit = 1000L;
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        LocalDateTime lastSyncedAt = LocalDateTime.now();
+
+        AccountDepository depository = new AccountDepository(id, accountId, userId, bankName, accountNumber, routingNumber, interestRate, overdraftLimit, createdAt, updatedAt, lastSyncedAt);
+        String expectedString = "AccountDepository(id=" + id.toString() + ", accountId=" + accountId.toString() +
+                ", userId=" + userId.toString() + ", bankName=" + bankName + ", accountNumber=" + accountNumber +
+                ", routingNumber=" + routingNumber + ", interestRate=" + interestRate +
+                ", overdraftLimit=" + overdraftLimit + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt +
+                ", lastSyncedAt=" + lastSyncedAt + ")";
+
+        assertEquals(expectedString, depository.toString());
     }
 }

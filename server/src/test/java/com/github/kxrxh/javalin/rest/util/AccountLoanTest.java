@@ -7,8 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AccountLoanTest {
 
@@ -142,5 +141,59 @@ class AccountLoanTest {
         assertEquals(createdAt, loan.getCreatedAt());
         assertEquals(updatedAt, loan.getUpdatedAt());
         assertEquals(lastSyncedAt, loan.getLastSyncedAt());
+    }
+
+    @Test
+    void testEqualsAndHashCode() {
+        UUID id = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        long loanAmount = 10000L;
+        long outstandingBalance = 8000L;
+        double interestRate = 0.05;
+        String loanTerm = "5 years";
+        LocalDate dueDate = LocalDate.now().plusYears(5);
+        String paymentFrequency = "monthly";
+        String collateral = "House";
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        LocalDateTime lastSyncedAt = LocalDateTime.now();
+
+        AccountLoan loan1 = new AccountLoan(id, accountId, userId, loanAmount, outstandingBalance, interestRate, loanTerm, dueDate, paymentFrequency, collateral, createdAt, updatedAt, lastSyncedAt);
+        AccountLoan loan2 = new AccountLoan(id, accountId, userId, loanAmount, outstandingBalance, interestRate, loanTerm, dueDate, paymentFrequency, collateral, createdAt, updatedAt, lastSyncedAt);
+
+        assertEquals(loan1, loan2);
+        assertEquals(loan1.hashCode(), loan2.hashCode());
+
+        loan2.setLoanAmount(20000L);
+        assertNotEquals(loan1, loan2);
+        assertNotEquals(loan1.hashCode(), loan2.hashCode());
+    }
+
+    @Test
+    void testToString() {
+        UUID id = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        long loanAmount = 10000L;
+        long outstandingBalance = 8000L;
+        double interestRate = 0.05;
+        String loanTerm = "5 years";
+        LocalDate dueDate = LocalDate.now().plusYears(5);
+        String paymentFrequency = "monthly";
+        String collateral = "House";
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
+        LocalDateTime lastSyncedAt = LocalDateTime.now();
+
+        AccountLoan loan = new AccountLoan(id, accountId, userId, loanAmount, outstandingBalance, interestRate, loanTerm, dueDate, paymentFrequency, collateral, createdAt, updatedAt, lastSyncedAt);
+        String expectedString = "AccountLoan(id=" + id.toString() + ", accountId=" + accountId.toString() +
+                ", userId=" + userId.toString() + ", loanAmount=" + loanAmount + ", outstandingBalance=" +
+                outstandingBalance + ", interestRate=" + interestRate + ", loanTerm=" + loanTerm +
+                ", dueDate=" + dueDate + ", paymentFrequency=" + paymentFrequency + ", collateral=" +
+                collateral + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt +
+                ", lastSyncedAt=" + lastSyncedAt + ")";
+
+        assertEquals(expectedString, loan.toString());
     }
 }
