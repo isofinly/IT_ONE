@@ -1,13 +1,14 @@
 package com.github.kxrxh.javalin.rest.util;
 
-import com.github.kxrxh.javalin.rest.api.jwt.UserPayload;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
-public class UserPayloadTest {
+import com.github.kxrxh.javalin.rest.api.jwt.UserPayload;
+
+class UserPayloadTest {
 
     @Test
     void testUserPayload() {
@@ -16,7 +17,7 @@ public class UserPayloadTest {
 
         UserPayload userPayload = new UserPayload(userId, email);
 
-        assertEquals(userId, userPayload.userId());
-        assertEquals(email, userPayload.email());
+        assertEquals(userId, userPayload.getUserId());
+        assertEquals(email, userPayload.getEmail());
     }
 }

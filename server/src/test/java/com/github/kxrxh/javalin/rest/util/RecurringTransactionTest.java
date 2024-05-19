@@ -1,14 +1,14 @@
 package com.github.kxrxh.javalin.rest.util;
 
-import com.github.kxrxh.javalin.rest.database.models.RecurringTransaction;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Test;
+
+import com.github.kxrxh.javalin.rest.database.models.RecurringTransaction;
 
 class RecurringTransactionTest {
 
